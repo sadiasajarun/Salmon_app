@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Offline</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .langtoggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+  .langtoggle button{border:none;background:transparent;font-size:12px;padding:6px 10px;color:var(--ink-subtle);cursor:pointer}
+  .langtoggle button.on{background:var(--primary);color:#fff}
+  .obanner-top{background:#8a2b30;color:#fff;font-size:12px;text-align:center;padding:8px 12px;display:flex;align-items:center;justify-content:center;gap:8px}
+  .obanner-top .rt{background:#ffffff33;border:1px solid #ffffff55;color:#fff;border-radius:999px;padding:3px 9px;font-size:11px;cursor:pointer}
+  .rule{margin:0 var(--gutter) 10px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:13px 14px;display:flex;gap:10px;align-items:flex-start;font-size:13px}
+  .rule .ic{font-size:16px;flex:0 0 auto}
+  .ok2{color:var(--success)} .blk{color:#B4232B}
+  .stale{font-size:11px;color:#B7791F;background:#f7efe0;border:1px solid #eaddc2;border-radius:8px;padding:2px 8px;display:inline-block}
+</style>
+</head><body>
+<div class="page-label">Offline / weak network (66) <small>Persistent banner · content readable · payment BLOCKED absolutely</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<script>
+var lang='en';
+function lt(){ return '<span class="langtoggle"><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button></span>'; }
+function render(){
+  document.getElementById('screen').innerHTML=
+    '<div class="obanner-top">📶 '+(lang==='bn'?'আপনি অফলাইনে আছেন।':'You’re offline.')+' <span class="rt" onclick="location.reload()">'+(lang==='bn'?'পুনরায় চেষ্টা':'Retry')+'</span></div>'+
+    '<div class="appbar"><h2>'+(lang==='bn'?'অফলাইন':'Offline')+'</h2>'+lt()+'</div>'+
+    '<p class="terms">'+(lang==='bn'?'সংযোগ ফিরে না আসা পর্যন্ত কী উপলব্ধ আর কী নয়:':'What’s available and what isn’t until you reconnect:')+'</p>'+
+    '<div class="rule"><span class="ic ok2">✓</span><div><b>'+(lang==='bn'?'যা দেখেছেন তা পড়া যাবে':'Content you’ve viewed stays readable')+'</b></div></div>'+
+    '<div class="rule"><span class="ic ok2">✓</span><div><b>'+(lang==='bn'?'ডিসকভারি — ক্যাশ করা ফলাফল':'Discovery — cached results')+'</b> <span class="stale">'+(lang==='bn'?'পুরনো · সর্বশেষ 13 Jul 6:10pm':'stale · last 13 Jul 6:10pm')+'</span></div></div>'+
+    '<div class="rule"><span class="ic blk">⛔</span><div><b>'+(lang==='bn'?'পেমেন্ট, বুকিং, সেটেলমেন্ট — ব্লকড':'Payment, booking, settlement — blocked')+'</b><br><span class="sub">'+(lang==='bn'?'কিউ করা হয় না, পুনরায় চেষ্টা করা হয় না। "পে" ট্যাপ করে আশা করা নয়।':'not queued, not retried. No tapping Pay and hoping.')+'</span></div></div>'+
+    '<div class="lock" style="background:#f7e6e7;color:#8a2b30;border-color:#eecccd">⛔ '+(lang==='bn'?'পেমেন্টের জন্য সংযোগ প্রয়োজন। কিছু চার্জ করা হয়নি।':'You need a connection to pay. Nothing has been charged.')+'</div>'+
+    '<p class="empty-note" style="text-align:left;margin:0 var(--gutter) 16px">'+(lang==='bn'?'একটি বাসি ছবি ছোট বাগ; ক্যাশ থেকে "সফল" পেমেন্ট দেখানো প্রতারণা। তাই টাকা কখনো ক্যাশ/অপ্টিমিস্টিক নয়।':'A stale image is a minor bug; a payment rendered “success” from cache is fraud. So money is never cached or optimistic.')+'</p>';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

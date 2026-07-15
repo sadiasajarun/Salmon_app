@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Disclaimer</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-invest.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}
+  .wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}.wklang button.on{background:#ffffff33}
+  /* Formal, serious, no marketing. This screen is load-bearing legal safety. */
+  .lead{margin:12px 16px;font-size:12.5px;color:var(--ink-subtle);line-height:1.6}
+  .card{margin:0 16px 12px;background:var(--surface);border:1px solid #ddd8d3;border-radius:10px;padding:14px 15px}
+  .card h3{font-size:13px;color:var(--ink);font-weight:800;margin:0 0 8px}
+  .card p{font-size:12.5px;color:#333;line-height:1.6;margin:0 0 8px}
+  .card p:last-child{margin-bottom:0}
+  /* The [LEGAL COPY REQUIRED] block — impossible to mistake for real terms */
+  .legalreq{margin:0 16px 12px;background:repeating-linear-gradient(45deg,#fbf7f7,#fbf7f7 10px,#f5eeee 10px,#f5eeee 20px);border:2px dashed var(--primary);border-radius:10px;padding:16px 15px;text-align:center}
+  .legalreq .badge{display:inline-block;background:var(--primary);color:#fff;font-size:10px;font-weight:800;letter-spacing:.6px;padding:3px 9px;border-radius:5px;text-transform:uppercase}
+  .legalreq .marker{font-family:var(--mono,monospace);font-size:12.5px;font-weight:800;color:var(--primary);margin:10px 0 6px;word-break:break-word}
+  .legalreq .note{font-size:11.5px;color:#6a4a4a;line-height:1.55}
+  .blocker{margin:0 16px 14px;background:#2222220d;border:1px solid var(--ink);border-radius:10px;padding:13px 14px}
+  .blocker h4{font-size:12.5px;color:var(--ink);font-weight:800;margin:0 0 6px}
+  .blocker p{font-size:11.5px;color:#333;line-height:1.6;margin:0}
+  .ack{margin:0 16px 16px;display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:#333;line-height:1.5}
+  .ack input{margin-top:2px;width:18px;height:18px;flex:0 0 auto}
+</style>
+</head><body>
+<div class="page-label">P56 · Disclaimer ⭐ <small>Mandatory · prominent · [LEGAL COPY REQUIRED] block · governs P53–P55 · copy from Salmon's counsel only</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<script>
+var V=window.PartnerInvest, lang='en';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function s(k){ return V.strings[lang][k]||k; }
+function render(){
+  var lt='<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span>';
+  document.getElementById('screen').innerHTML=
+    '<div class="wkbar"><a class="bk" href="return-schedule.page.html">‹</a><h2>'+s('disclaimerTitle')+'</h2>'+lt+'</div>'+
+    '<div class="lead"><strong>'+s('disclaimerMustRead')+'</strong></div>'+
+    '<div class="card"><h3>'+s('disclaimerWhat')+'</h3>'+
+      '<p>• '+s('notGuarantor')+'</p>'+
+      '<p>• '+s('governedBy')+'</p>'+
+      '<p>• '+t('অ্যাপ কোনো রিটার্ন হিসাব, অনুমান বা পরিশোধ করে না — এটি শুধু স্টাফের রেকর্ড দেখায়।','The app does not calculate, project, or disburse anything — it only displays staff records.')+'</p></div>'+
+    '<div class="legalreq"><span class="badge">'+s('legalBlockLabel')+'</span>'+
+      '<div class="marker">'+V.DISCLAIMER_PLACEHOLDER+'</div>'+
+      '<div class="note">'+s('legalBlockNote')+'</div></div>'+
+    '<div class="blocker"><h4>⚠ '+s('blockerTitle')+'</h4><p>'+s('blockerBody')+'</p></div>'+
+    '<label class="ack"><input type="checkbox" id="ack" onchange="document.getElementById(\'done\').classList.toggle(\'disabled\',!this.checked)"><span>'+s('acknowledge')+'</span></label>'+
+    '<a class="btn block disabled" id="done" href="#" onclick="return ackDone(event)" style="margin:0 16px 16px;border-radius:10px">'+t('বুঝেছি','Understood')+'</a>';
+}
+function ackDone(e){ e.preventDefault(); if(!document.getElementById('ack').checked) return false; history.length>1?history.back():(window.location.href='return-schedule.page.html'); return false; }
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

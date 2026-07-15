@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Unit</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<script src="../assets/js/currency.js"></script>
+<script src="../assets/js/payment-state.js"></script>
+</head><body>
+<div class="page-label">Client · Unit detail (36) <small>Live status · both currencies · if taken while reading, told immediately + alternatives</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:24px"></div>
+</div>
+<div class="devbar"><h4>Dev · live-status change</h4><div class="dchips">
+  <button onclick="setStatus('available')">Available</button>
+  <button onclick="setStatus('booked')">Taken while reading</button>
+</div></div>
+<script>
+var D=window.SALMON, C=window.Currency, PS=window.PayState, lang='en';
+function qs(k){ return new URLSearchParams(location.search).get(k); }
+var p=D.projects.find(function(x){return x.slug===qs('slug');})||D.projects.find(function(x){return x.slug==='the-rossa';});
+var code=qs('unit')||(p.units.find(function(u){return u.status==='available';})||{label:'A-7'}).label;
+var unit=p.units.find(function(u){return u.label===code;})||{label:code,status:'available'};
+function s(k){ return D.strings[lang][k]||k; }
+function setStatus(st){ unit.status=st; render(); }
+function priceBoth(){ var m=C.priceModel(p.price,'AED'); return '<span class="price-dual">'+C.fmtDisplay(m.dispFrom,'AED')+'<span class="bdt">'+C.fmtBdt(m.bdtFrom)+'</span><span class="ref">'+s('txnNote')+'</span></span>'; }
+function render(){
+  var t=PS.tickExpiry();
+  var lt='<span class="langtoggle" style="display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden"><button onclick="setLang(\'en\')" style="border:none;background:'+(lang==='en'?'var(--primary)':'transparent')+';color:'+(lang==='en'?'#fff':'var(--ink-subtle)')+';font-size:12px;padding:6px 10px">EN</button><button onclick="setLang(\'bn\')" style="border:none;background:'+(lang==='bn'?'var(--primary)':'transparent')+';color:'+(lang==='bn'?'#fff':'var(--ink-subtle)')+';font-size:12px;padding:6px 10px">বাং</button></span>';
+  var avail=unit.status==='available';
+  var stcls={available:'st-ongoing',reserved:'st-completed',booked:'st-upcoming',sold:'st-completed'}[unit.status];
+  var h='<div class="appbar"><a class="back" href="unit-list.page.html?slug='+p.slug+'" style="font-size:20px;text-decoration:none;color:var(--ink)">‹</a><h2>'+(lang==='bn'?'ইউনিট ':'Unit ')+unit.label+'</h2>'+lt+'</div>';
+  h+='<div class="pad"><span class="st '+stcls+'"><span class="gl">'+({available:'●',reserved:'■',booked:'▲',sold:'✕'}[unit.status])+'</span>'+s(unit.status)+'</span></div>';
+  h+='<div class="glance"><div class="cell"><div class="k">'+(lang==='bn'?'কোড':'Code')+'</div><div class="v">'+unit.label+'</div></div>'+
+    '<div class="cell"><div class="k">'+s('floors')+'</div><div class="v">'+((unit.label.match(/^\d+/)||['—'])[0])+'</div></div>'+
+    '<div class="cell"><div class="k">'+(lang==='bn'?'কনফিগ':'Configuration')+'</div><div class="v">'+p.glance.bed+' bed · '+p.glance.bath+' bath</div></div>'+
+    '<div class="cell"><div class="k">'+s('sqft')+'</div><div class="v">'+p.glance.sqft[0]+'</div></div>'+
+    '<div class="cell"><div class="k">'+s('facing')+'</div><div class="v">'+p.glance.facing+'</div></div>'+
+    '<div class="cell"><div class="k">'+(lang==='bn'?'অবস্থা':'Live status')+'</div><div class="v">'+s(unit.status)+'</div></div></div>';
+  h+='<div style="padding:0 var(--gutter) 8px">'+priceBoth()+'</div>';
+  h+='<p class="empty-note" style="text-align:left;margin:0 var(--gutter) 12px">'+(lang==='bn'?'ফ্লোর প্ল্যানে এই ইউনিটের অবস্থান দেখুন':'See this unit’s position in the floor plan')+' · <a href="floor-plan.page.html?slug='+p.slug+'" style="color:var(--primary)">'+s('floorPlans')+' ›</a></p>';
+  if(avail){
+    h+='<a class="btn block" href="booking-review.page.html?slug='+p.slug+'&unit='+unit.label+'" style="margin-bottom:16px">'+(lang==='bn'?'এই ইউনিট বুক করুন':'Book this unit')+'</a>';
+  } else {
+    var alts=p.units.filter(function(u){return u.status==='available';}).slice(0,3);
+    h+='<div class="lock" style="background:#f7e6e7;color:#8a2b30;border-color:#eecccd">⚠ '+(lang==='bn'?'এইমাত্র এই ইউনিটটি আর Available নেই। আমরা আপনাকে এটি বুক করতে দেব না।':'This unit just stopped being available. We won’t let you book it.')+'</div>';
+    if(alts.length){ h+='<div class="sectitle">'+(lang==='bn'?'একই প্রকল্পে বিকল্প':'Alternatives in this project')+'</div><div class="rowlist" style="margin-bottom:16px">'+alts.map(function(u){return '<a class="row" style="text-decoration:none;color:inherit" href="unit-detail.page.html?slug='+p.slug+'&unit='+u.label+'"><span class="u">'+u.label+'</span><span class="st st-ongoing"><span class="gl">●</span>'+s('available')+'</span></a>';}).join('')+'</div>'; }
+    else h+='<p class="empty-note" style="margin-bottom:16px">'+(lang==='bn'?'এই তলায় আর কিছু খালি নেই।':'Nothing else free on this floor.')+'</p>';
+  }
+  document.getElementById('screen').innerHTML=h;
+}
+function setLang(l){ lang=l; render(); }
+render();
+</script>
+</body></html>

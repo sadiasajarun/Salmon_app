@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Receipt</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<script src="../assets/js/currency.js"></script>
+<script src="../assets/js/ledger.js"></script>
+<style>
+  .langtoggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+  .langtoggle button{border:none;background:transparent;font-size:12px;padding:6px 10px;color:var(--ink-subtle);cursor:pointer}
+  .langtoggle button.on{background:var(--primary);color:#fff}
+  .toast{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);background:#241c19;color:#fff;font-size:12.5px;padding:9px 14px;border-radius:999px;opacity:0;transition:opacity .25s}
+  .toast.show{opacity:1}
+  .ph-flag{font-size:10.5px;color:#B7791F;background:#f7efe0;border:1px solid #eaddc2;border-radius:6px;padding:1px 6px;margin-left:6px}
+</style>
+</head><body>
+<div class="page-label">Client · Receipt / invoice viewer (56) <small>In-app preview · numbering / tax / legal wording = placeholders</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:24px"></div>
+  <div class="toast" id="toast"></div>
+</div>
+<script>
+var D=window.SALMON, C=window.Currency, L=window.LEDGER, lang='en';
+function qs(k){ return new URLSearchParams(location.search).get(k); }
+var doc=L.invoices.find(function(x){return x.id===qs('id');})||L.invoices[0];
+var p=D.projects.find(function(x){return x.slug===L.booking.slug;});
+function s(k){ return L.strings[lang][k]||k; }
+function fmt(iso){ try{ return new Intl.DateTimeFormat(lang==='bn'?'bn-BD':'en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:L.tz}).format(new Date(iso)); }catch(e){ return iso.slice(0,10); } }
+function toast(m){ var t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(function(){t.classList.remove('show');},1500); }
+function shareDoc(){ if(navigator.share){ navigator.share({title:doc.id,text:'Salmon '+doc.title}).catch(function(){}); } else { toast(lang==='bn'?'লিঙ্ক কপি হয়েছে':'Link copied'); } }
+function render(){
+  var isR=doc.kind==='receipt';
+  var lt='<span class="langtoggle"><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button></span>';
+  var h='<div class="appbar"><a class="back" href="invoices.page.html" style="font-size:20px;text-decoration:none;color:var(--ink)">‹</a><h2>'+(isR?s('receipt'):s('invoice'))+'</h2>'+lt+'</div>';
+  h+='<div class="receipt"><div class="rh"><div><div style="font-family:var(--serif);font-size:18px">Salmon Developers</div><div class="sub">'+(isR?(lang==='bn'?'সরকারি রসিদ':'Official receipt'):(lang==='bn'?'ইনভয়েস':'Invoice'))+'</div></div>'+
+    '<div style="text-align:right"><div class="sub">'+(lang==='bn'?'নম্বর':'No.')+'<span class="ph-flag">PH</span></div><div class="u">'+doc.id+'</div></div></div>'+
+    '<div style="padding-top:10px">'+
+    '<div class="rl"><span>'+(lang==='bn'?'প্রকল্প':'Project')+'</span><b>'+p.name+'</b></div>'+
+    '<div class="rl"><span>'+(lang==='bn'?'ইউনিট':'Unit')+'</span><b>'+L.booking.unit+'</b></div>'+
+    (doc.forSeq?'<div class="rl"><span>'+(lang==='bn'?'কিস্তি':'Installment')+'</span><b>#'+doc.forSeq+' / 12</b></div>':'')+
+    '<div class="rl"><span>'+(lang==='bn'?'তারিখ':'Date')+'</span><b>'+fmt(doc.dateUtc)+' · '+L.tz.split('/')[1]+'</b></div>'+
+    '<div class="rl"><span>'+(lang==='bn'?'লেনদেন মুদ্রা':'Transaction currency')+'</span><b>BDT</b></div>'+
+    '<div class="rl"><span>'+(lang==='bn'?'কর':'Tax')+' <span class="ph-flag">PH</span></span><b>—</b></div></div>'+
+    '<div class="total"><span>'+(isR?(lang==='bn'?'পরিশোধিত':'Amount paid'):(lang==='bn'?'প্রদেয়':'Amount due'))+'</span><span>'+C.fmtBdt(doc.amountBdt)+'</span></div></div>';
+  h+='<p class="empty-note" style="text-align:left;margin:0 var(--gutter) 12px">'+(lang==='bn'?'নম্বরিং, কর ক্ষেত্র ও আইনি ভাষা স্যামন এখনো চূড়ান্ত করেনি (PH = প্লেসহোল্ডার)।':'Numbering, tax fields and legal wording are not yet finalised by Salmon (PH = placeholder).')+'</p>';
+  h+='<a class="btn block" onclick="dl(event)" href="#">'+s('download')+' (PDF)</a>'+
+    '<button class="btn ghost block" onclick="shareDoc()" style="margin-top:10px;margin-bottom:16px">'+(lang==='bn'?'অ্যাকাউন্ট্যান্টকে ফরওয়ার্ড করুন':'Forward to accountant')+'</button>';
+  document.getElementById('screen').innerHTML=h;
+}
+function dl(e){ e.preventDefault(); toast(lang==='bn'?'PDF ডাউনলোড (ডেমো)':'Downloading PDF (demo)'); }
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

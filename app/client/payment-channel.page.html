@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Payment channel</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<script src="../assets/js/currency.js"></script>
+<script src="../assets/js/payment-state.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+</head><body>
+<div class="page-label">Client · Payment channel (40) <small>5 channels behind a PaymentGateway seam · wire flagged slow up front</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:90px"></div>
+  <div style="position:absolute;left:0;right:0;bottom:0;background:#fffdfb;border-top:1px solid var(--line);padding:12px var(--gutter)">
+    <a class="btn" id="cont" style="opacity:.5;pointer-events:none" onclick="cont(event)">Continue</a>
+  </div>
+</div>
+<script>
+var D=window.SALMON, C=window.Currency, PS=window.PayState, lang='en', chosen=null;
+var t=PS.load(); if(t.status===PS.S.NONE){ PS.reset(); t=PS.dispatch({type:'BOOK',slug:'the-rossa',unit:'A-7'}); }
+function s(k){ return D.strings[lang][k]||k; }
+function render(){
+  var disp=C.fmtDisplay(C.toDisplay(t.amountBdt,'AED'),'AED');
+  var backHref=(t.kind==='installment')?'installments.page.html':'booking-created.page.html';
+  var h='<div class="appbar"><a class="back" href="'+backHref+'" style="font-size:20px;text-decoration:none;color:var(--ink)">‹</a><h2>'+(lang==='bn'?'পেমেন্ট চ্যানেল':'Payment channel')+'</h2><span class="langtoggle" style="display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden"><button onclick="setLang(\'en\')" style="border:none;background:'+(lang==='en'?'var(--primary)':'transparent')+';color:'+(lang==='en'?'#fff':'var(--ink-subtle)')+';font-size:12px;padding:6px 10px">EN</button><button onclick="setLang(\'bn\')" style="border:none;background:'+(lang==='bn'?'var(--primary)':'transparent')+';color:'+(lang==='bn'?'#fff':'var(--ink-subtle)')+';font-size:12px;padding:6px 10px">বাং</button></span></div>';
+  h+='<div class="amount-hero"><div class="amt" style="font-size:22px">'+disp+'<div class="bdt">'+C.fmtBdt(t.amountBdt)+'</div></div></div>';
+  h+='<div class="txncur">'+(lang==='bn'?'প্রকৃত লেনদেন মুদ্রা <b>বিডিটি</b>। কোনো কার্ড তথ্য অ্যাপে সংগ্রহ করা হয় না।':'Authoritative transaction currency: <b>BDT</b>. No card details are collected in the app.')+'</div>';
+  h+='<div class="sectitle">'+(lang==='bn'?'একটি চ্যানেল বেছে নিন':'Choose a payment channel')+'</div>';
+  PS.CHANNELS.forEach(function(c){
+    var speed=c.slow?'<span class="speed speed-slow">'+(lang==='bn'?c.confirmBn:c.confirmEn)+'</span>':'<span class="speed speed-fast">'+(lang==='bn'?c.confirmBn:c.confirmEn)+'</span>';
+    h+='<div class="chan'+(chosen===c.key?' on':'')+'" onclick="pick(\''+c.key+'\')"><span class="ring"></span><div class="m"><div class="t">'+(lang==='bn'?c.bn:c.en)+'</div><div class="d">'+c.costEn+'</div></div>'+speed+'</div>';
+  });
+  h+='<p class="empty-note" style="margin:8px var(--gutter) 0">'+(lang==='bn'?'কোন গেটওয়ে চালু হবে তা এখনো চূড়ান্ত নয় (OPEN_QUESTIONS)। ওয়্যার ধীর — বেছে নেওয়ার আগে জানুন।':'Which gateways go live is undecided (OPEN_QUESTIONS). Wire is slow — know that before you pick it.')+'</p>';
+  document.getElementById('screen').innerHTML=h;
+  var cb=document.getElementById('cont'); cb.textContent=(lang==='bn'?'চালিয়ে যান':'Continue'); cb.style.opacity=chosen?'1':'.5'; cb.style.pointerEvents=chosen?'auto':'none';
+}
+function pick(k){ chosen=k; render(); }
+function cont(e){ e.preventDefault(); if(!chosen)return;
+  if(window.NetSim&&NetSim.isOffline()){ NetSim.blockPay(lang==='bn'?'পেমেন্টের জন্য সংযোগ প্রয়োজন। কিছু চার্জ করা হয়নি।':'You need a connection to pay. Nothing has been charged.'); return; }
+  PS.dispatch({type:'SELECT_CHANNEL', channel:chosen});
+  window.location.href = chosen==='wire' ? 'wire.page.html' : 'hosted-handoff.page.html?ch='+chosen; }
+function setLang(l){ lang=l; render(); }
+render();
+</script>
+</body></html>

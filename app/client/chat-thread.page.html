@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Chat</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/support-channel.js"></script>
+<script src="../assets/js/timezone.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .langtoggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+  .langtoggle button{border:none;background:transparent;font-size:12px;padding:6px 10px;color:var(--ink-subtle);cursor:pointer}
+  .langtoggle button.on{background:var(--primary);color:#fff}
+  .tbar{display:flex;align-items:center;gap:10px;padding:8px var(--gutter);border-bottom:1px solid var(--line)}
+  .tbar .av{width:34px;height:34px;border-radius:999px;background:linear-gradient(135deg,#800020,#5c0018);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:700}
+  .tbar .nm{font-weight:600;font-size:14px}.tbar .st{font-size:11px;color:var(--ink-subtle)}
+  .ticketbar{display:flex;justify-content:space-between;align-items:center;margin:10px var(--gutter);background:#f4e6ea;border:1px solid #e6cdd5;border-radius:12px;padding:9px 12px;font-size:12px}
+  .chat{padding:8px var(--gutter) 4px}
+  .bubble{max-width:78%;padding:10px 13px;border-radius:16px;font-size:13px;margin-bottom:4px;line-height:1.45}
+  .them{background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:5px}
+  .me{background:var(--primary);color:#fff;margin-left:auto;border-bottom-right-radius:5px}
+  .ts{font-size:10.5px;color:var(--ink-subtle);margin:0 4px 12px}.ts.me{text-align:right}
+  .failed{color:#B4232B;font-size:11px;margin:0 4px 12px;text-align:right}
+  .failed a{color:#B4232B;font-weight:700}
+  .typing{font-size:11px;color:var(--ink-subtle);margin:0 var(--gutter) 12px}
+  .composer{display:flex;gap:8px;align-items:center;margin:6px var(--gutter) 14px}
+  .composer .att{width:40px;height:40px;border-radius:999px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;font-size:16px;flex:0 0 auto}
+  .composer .box{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:11px 14px;font-size:13px;color:var(--ink-subtle)}
+  .composer .send{width:44px;height:44px;border-radius:999px;background:var(--primary);color:#fff;display:grid;place-items:center;flex:0 0 auto;border:none;cursor:pointer}
+  .handoff{margin:14px var(--gutter);background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;text-align:center}
+  .handoff .wa{width:56px;height:56px;border-radius:999px;background:#25d366;color:#fff;display:grid;place-items:center;font-size:26px;margin:0 auto 12px}
+  .stub{margin:0 var(--gutter) 14px;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+  .stub .r{display:flex;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--line);font-size:13px}
+  .stub .r:last-child{border-bottom:none}
+</style>
+</head><body>
+<div class="page-label">Client · Chat thread (58) <small>In-app: full thread · WhatsApp: honest ticket STUB (never a fake transcript)</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<div class="devbar"><h4>Dev · support channel</h4><div class="dchips">
+  <button id="c-inapp" onclick="setChan('inapp')">In-app chat</button>
+  <button id="c-wa" onclick="setChan('whatsapp')">WhatsApp</button>
+</div></div>
+<script>
+var SC=window.SupportChannel, TZ=window.TZ, lang='en';
+function ct(utc){ return new Intl.DateTimeFormat('en-GB',{timeZone:TZ.getTz(),hour:'numeric',minute:'2-digit',hour12:true}).format(new Date(utc))+' ('+TZ.getTz().split('/')[1]+')'; }
+function status(){ var m={open:['Open','খোলা','st-ongoing','●'],inProgress:['In progress','চলমান','st-upcoming','▲'],resolved:['Resolved','সমাধান','st-completed','■'],reopened:['Reopened','পুনরায়','st-upcoming','▲']}[SC.ticket.status]; return '<span class="st '+m[2]+'"><span class="gl">'+m[3]+'</span>'+(lang==='bn'?m[1]:m[0])+'</span>'; }
+function lt(){ return '<span class="langtoggle"><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button></span>'; }
+function render(){
+  document.getElementById('c-inapp').classList.toggle('on',SC.get()==='inapp');
+  document.getElementById('c-wa').classList.toggle('on',SC.get()==='whatsapp');
+  var head='<div class="appbar" style="padding-bottom:6px"><a class="back" href="contact-hub.page.html" style="font-size:20px;text-decoration:none;color:var(--ink)">‹</a><h2>'+(lang==='bn'?'সহায়তা':'Support')+'</h2>'+lt()+'</div>';
+  var h;
+  if(SC.get()==='inapp'){
+    h=head+'<div class="tbar"><div class="av">'+SC.rm.initials+'</div><div style="flex:1"><div class="nm">'+SC.rm.name+'</div><div class="st">'+(lang==='bn'?'সম্পর্ক ব্যবস্থাপক':SC.rm.role)+'</div></div>'+status()+'</div>'+
+      '<div class="ticketbar"><span>'+(lang==='bn'?'টিকিট রেফ':'Ticket ref')+' <b>#'+SC.ticket.ref+'</b></span><span>'+SC.ticket.subject+'</span></div>'+
+      '<div class="chat">'+
+      '<div class="bubble me">'+(lang==='bn'?'রসিদ RCPT-2026-0417-এর কর লাইনটি ব্যাখ্যা করবেন?':'Could you clarify the tax line on receipt RCPT-2026-0417?')+'</div><div class="ts me">'+ct(Date.UTC(2026,6,13,11,55))+' · '+(lang==='bn'?'পঠিত':'Read')+'</div>'+
+      '<div class="bubble them">'+(lang==='bn'?'ধন্যবাদ — অ্যাকাউন্টস দেখছে, শীঘ্রই উত্তর দেব।':'Thanks — Accounts is reviewing and will reply shortly.')+'</div><div class="ts">Farhana · '+ct(Date.UTC(2026,6,13,12,2))+'</div>'+
+      '<div class="bubble me">'+(lang==='bn'?'ধন্যবাদ। সংযুক্তি পাঠালাম।':'Thank you. I’ve attached the statement.')+' 📎</div><div class="failed">'+(lang==='bn'?'পাঠানো যায়নি':'Failed to send')+' · <a onclick="retry(event)" href="#">'+(lang==='bn'?'আবার চেষ্টা':'Retry')+'</a></div>'+
+      '<div class="typing">'+SC.rm.name+' '+(lang==='bn'?'টাইপ করছেন…':'is typing…')+'</div>'+
+      '</div>'+
+      '<div class="composer"><span class="att">📎</span><span class="box">'+(lang==='bn'?'বার্তা লিখুন…':'Type a message…')+'</span><button class="send">➤</button></div>';
+  } else {
+    h=head+'<div class="handoff"><div class="wa">🟢</div><h3 style="font-family:var(--serif);font-size:18px">'+(lang==='bn'?'এটি WhatsApp খুলবে':'This opens WhatsApp')+'</h3>'+
+      '<p class="sub" style="margin-top:8px;line-height:1.6">'+(lang==='bn'?'আপনার কথোপকথন WhatsApp-এ পরিচালিত হবে (Meta-র সার্ভারে)। স্যামন অ্যাপের ভেতরে সম্পূর্ণ থ্রেড রাখে না — শুধু একটি টিকিট রেফারেন্স ও অবস্থা।':'Your conversation will be handled in WhatsApp (on Meta’s servers). Salmon does not keep the full thread inside the app — only a ticket reference and status.')+'</p>'+
+      '<a class="btn block" href="https://wa.me/'+SC.rm.whatsapp.replace(/\D/g,'')+'" target="_blank" style="margin-top:14px">'+(lang==='bn'?'WhatsApp-এ খুলুন':'Open WhatsApp')+'</a></div>'+
+      '<div class="sectitle">'+(lang==='bn'?'অ্যাপে টিকিট রেকর্ড':'In-app ticket record')+'</div>'+
+      '<div class="stub"><div class="r"><span>'+(lang==='bn'?'রেফারেন্স':'Reference')+'</span><b>#'+SC.ticket.ref+'</b></div>'+
+      '<div class="r"><span>'+(lang==='bn'?'বিষয়':'Subject')+'</span><b>'+SC.ticket.subject+'</b></div>'+
+      '<div class="r"><span>'+(lang==='bn'?'অবস্থা':'Status')+'</span>'+status()+'</div>'+
+      '<div class="r"><span>'+(lang==='bn'?'সর্বশেষ হালনাগাদ':'Last updated')+'</span><b>'+ct(Date.parse(SC.ticket.lastUpdatedUtc))+'</b></div></div>'+
+      '<p class="empty-note" style="text-align:left;margin:0 var(--gutter) 16px">'+(lang==='bn'?'আমরা এমন কোনো কথোপকথন দেখাই না যা আমাদের কাছে নেই — এটি একটি টিকিট স্টাব, নকল ট্রান্সক্রিপ্ট নয়।':'We don’t render a conversation we don’t hold — this is a ticket stub, not a fabricated transcript.')+'</p>';
+  }
+  document.getElementById('screen').innerHTML=h;
+}
+function retry(e){ e.preventDefault(); if(window.NetSim&&NetSim.isOffline()){ NetSim.blockPay(lang==='bn'?'বার্তা পাঠাতে সংযোগ প্রয়োজন।':'You need a connection to send.'); return; } alert(lang==='bn'?'পুনরায় পাঠানো হচ্ছে (ডেমো)':'Resending (demo)'); }
+function setChan(c){ SC.set(c); render(); }
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Something went wrong</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .langtoggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+  .langtoggle button{border:none;background:transparent;font-size:12px;padding:6px 10px;color:var(--ink-subtle);cursor:pointer}
+  .langtoggle button.on{background:var(--primary);color:#fff}
+  .err{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 34px}
+  .err .ic{font-size:48px}
+  .err h2{font-family:var(--serif);font-size:22px;margin-top:14px}
+  .err p{font-size:13.5px;color:var(--ink-subtle);margin-top:10px;line-height:1.6}
+  .err .code{font-size:11px;color:var(--ink-subtle);margin-top:14px;font-variant-numeric:tabular-nums}
+</style>
+</head><body>
+<div class="page-label">Global error (65) <small>What happened · what to do · a reference for support · retry</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" style="position:relative;padding:0" id="screen"></div>
+</div>
+<script>
+var lang='en';
+function render(){
+  document.getElementById('screen').innerHTML=
+    '<div style="position:absolute;top:8px;right:12px;z-index:2"><span class="langtoggle"><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button></span></div>'+
+    '<div class="err"><div class="ic">⚠️</div>'+
+    '<h2>'+(lang==='bn'?'কিছু একটা ভুল হয়েছে':'Something went wrong')+'</h2>'+
+    '<p>'+(lang==='bn'?'এটি আমাদের দিকের সমস্যা, আপনার নয়। কিছুক্ষণ পরে আবার চেষ্টা করুন। যদি সমস্যা থেকে যায়, নিচের রেফারেন্সটি সহায়তায় জানান।':'This is on our side, not yours. Try again in a moment. If it keeps happening, quote the reference below to support.')+'</p>'+
+    '<div class="code">Ref · ERR-2026-0714-3391</div>'+
+    '<a class="btn block" href="../client/explore-list.page.html" style="max-width:220px;margin-top:20px">'+(lang==='bn'?'আবার চেষ্টা করুন':'Try again')+'</a>'+
+    '<a class="btn ghost block" href="../client/contact-hub.page.html" style="max-width:220px;margin-top:10px">'+(lang==='bn'?'সহায়তায় যোগাযোগ':'Contact support')+'</a></div>';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

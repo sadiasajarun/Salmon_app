@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Targets</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-tasks.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}
+  .wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}.wklang button.on{background:#ffffff33}
+  .tl{margin:0 16px 10px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:13px 14px}
+  .tl .k{font-size:12.5px;font-weight:700} .tl .v{font-size:13px;color:var(--ink-subtle);margin-top:3px}
+  .tl .v b{color:var(--ink);font-size:16px}
+  .bar{height:8px;border-radius:999px;background:#eee;overflow:hidden;margin-top:9px} .bar i{display:block;height:100%;background:var(--primary)}
+</style>
+</head><body>
+<div class="page-label">P66 · Targets <small>Target vs achievement · DISPLAY what backend returns · no "you'll hit it if…" projection</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<script>
+var K=window.PartnerTasks, lang='en';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function s(k){ return K.strings[lang][k]||k; }
+function fmt(n,unit){ if(unit==='bdt'){ var x=String(Math.round(n)); var l=x.slice(-3),r=x.slice(0,-3); if(r)r=r.replace(/\B(?=(\d{2})+(?!\d))/g,','); return '৳ '+(r?r+','+l:l); } return String(n); }
+function render(){
+  var d=K.targets;
+  var lt='<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span>';
+  var rows=d.lines.map(function(l){
+    var pct=Math.min(100,Math.round(l.achieved/l.target*100));
+    return '<div class="tl"><div class="k">'+t(l.keyBn,l.keyEn)+'</div>'+
+      '<div class="v"><b>'+fmt(l.achieved,l.unit)+'</b> / '+fmt(l.target,l.unit)+' · '+pct+'%</div>'+
+      '<div class="bar"><i style="width:'+pct+'%"></i></div></div>';
+  }).join('');
+  document.getElementById('screen').innerHTML=
+    '<div class="wkbar"><a class="bk" href="dashboard.page.html">‹</a><h2>'+s('targets')+' · '+t(d.periodBn,d.periodEn)+'</h2>'+lt+'</div>'+
+    '<div style="height:12px"></div>'+rows+
+    '<p class="phelp" style="margin:6px 16px 16px">'+s('dispNote')+'</p>';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

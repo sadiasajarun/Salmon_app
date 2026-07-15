@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Update required</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<style>
+  .langtoggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+  .langtoggle button{border:none;background:transparent;font-size:12px;padding:6px 10px;color:var(--ink-subtle);cursor:pointer}
+  .langtoggle button.on{background:var(--primary);color:#fff}
+  .fu{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 34px}
+  .fu img{height:110px;width:auto;max-width:70%;object-fit:contain;margin-bottom:8px}
+  .fu h2{font-family:var(--serif);font-size:22px;margin-top:6px}
+  .fu p{font-size:13.5px;color:var(--ink-subtle);margin-top:10px;line-height:1.6}
+  .fu .ver{font-size:11.5px;color:var(--ink-subtle);margin-top:12px;font-variant-numeric:tabular-nums}
+</style>
+</head><body>
+<div class="page-label">Force update (67) <small>Min supported version from /config · cannot be dismissed</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" style="position:relative;padding:0" id="screen"></div>
+</div>
+<script>
+var lang='en';
+function render(){
+  document.getElementById('screen').innerHTML=
+    '<div style="position:absolute;top:8px;right:12px;z-index:2"><span class="langtoggle"><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button></span></div>'+
+    '<div class="fu"><img src="../assets/salmon-logo.png" alt="Salmon Developers"/>'+
+    '<h2>'+(lang==='bn'?'আপডেট প্রয়োজন':'Update required')+'</h2>'+
+    '<p>'+(lang==='bn'?'নিরাপদ পেমেন্ট ও বুকিংয়ের জন্য অ্যাপের একটি নতুন সংস্করণ প্রয়োজন। চালিয়ে যেতে আপডেট করুন।':'A newer version of the app is required for secure payments and bookings. Please update to continue.')+'</p>'+
+    '<div class="ver">'+(lang==='bn'?'আপনার সংস্করণ':'Your version')+' 1.2.0 · '+(lang==='bn'?'ন্যূনতম প্রয়োজন':'minimum required')+' 1.4.0</div>'+
+    '<a class="btn block" href="#" style="max-width:240px;margin-top:20px">'+(lang==='bn'?'অ্যাপ স্টোরে আপডেট করুন':'Update in the App Store')+'</a>'+
+    '<p class="empty-note" style="margin-top:14px">'+(lang==='bn'?'এই স্ক্রিন বন্ধ করা যায় না — এটি একটি বাধ্যতামূলক আপডেট গেট।':'This screen cannot be dismissed — it is a mandatory update gate.')+'</p></div>';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

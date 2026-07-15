@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Lead</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-sales.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}
+  .wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}
+  .tl2{margin:12px 16px;position:relative;padding-left:26px}
+  .tl2::before{content:"";position:absolute;left:9px;top:8px;bottom:8px;width:2px;background:var(--line)}
+  .tl2 .tstep{display:block;position:relative;padding:0 0 16px}
+  .tl2 .dot{position:absolute;left:-26px;top:1px;width:20px;height:20px;border-radius:999px;background:#e6dacd;color:#fff;display:grid;place-items:center;font-size:11px}
+  .tl2 .tstep.done .dot{background:var(--primary)} .tl2 .tstep.conv .dot{background:var(--success)} .tl2 .tstep.closed .dot{background:#6B7280}
+  .tl2 .tstep.future{opacity:.5}
+  .tl2 .lab{font-size:14px;font-weight:600} .tl2 .tstep.current .lab{color:var(--primary)}
+  .tl2 .when{font-size:11px;color:var(--ink-subtle);margin-top:1px}
+  .wall{margin:6px 16px 14px;background:#faf3ec;border:1px dashed #e3d3c1;border-radius:12px;padding:12px 13px;font-size:12px;color:var(--ink-subtle);line-height:1.55}
+  .convbox{margin:12px 16px;background:#e7f2ec;border:1px solid #cfe6da;border-radius:14px;padding:16px}
+  .convbox h3{color:#1E7A46;font-family:var(--serif);font-size:17px}
+  .convbox p{font-size:12.5px;color:#2f6b48;margin-top:8px;line-height:1.6}
+</style>
+</head><body>
+<div class="page-label">P30 · Lead detail (the wall) / P31 converted <small>Only the simplified status — no internal notes, manager or CRM details leak</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<script>
+var S=window.PartnerSales, lang='en';
+function qs(k){ return new URLSearchParams(location.search).get(k); }
+var l=S.find(qs('id'))||S.leads[0];
+function t(bn,en){ return lang==='bn'?bn:en; }
+function d(iso){ try{ return new Intl.DateTimeFormat(lang==='bn'?'bn-BD':'en-GB',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit',hour12:true,timeZone:'Asia/Dhaka'}).format(new Date(iso)); }catch(e){return iso.slice(0,10);} }
+function pill(st){ var o=S.STATUS[st]; return '<span class="st '+o.cls+'"><span class="gl">'+o.gl+'</span>'+t(o.bn,o.en)+'</span>'; }
+function timeline(){
+  var prog=['submitted','contacted','meetingScheduled','visitCompleted'];
+  var order=S.STATUS_ORDER, cur=order.indexOf(l.status);
+  var h='<div class="tl2">';
+  prog.forEach(function(k){ var i=order.indexOf(k); var cls=cur>i?'done':(l.status===k?'done current':'future');
+    h+='<div class="tstep '+cls+'"><span class="dot">'+(cur>=i?'✓':'')+'</span><div class="lab">'+t(S.STATUS[k].bn,S.STATUS[k].en)+'</div>'+
+       (l.status===k?'<div class="when">'+d(l.lastMoveUtc)+'</div>':'')+'</div>'; });
+  // terminal
+  if(l.status==='converted') h+='<div class="tstep conv done current"><span class="dot">✓</span><div class="lab" style="color:var(--success)">'+t('রূপান্তরিত','Converted')+'</div><div class="when">'+d(l.lastMoveUtc)+'</div></div>';
+  else if(l.status==='closed') h+='<div class="tstep closed done current"><span class="dot">×</span><div class="lab">'+t('বন্ধ','Closed')+'</div><div class="when">'+d(l.lastMoveUtc)+'</div></div>';
+  else h+='<div class="tstep future"><span class="dot"></span><div class="lab">'+t('রূপান্তরিত / বন্ধ','Converted / Closed')+'</div></div>';
+  return h+'</div>';
+}
+function render(){
+  var h='<div class="wkbar"><a class="bk" href="leads.page.html">‹</a><h2>'+t(l.nameBn,l.name)+'</h2>'+
+    '<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span></div>';
+  h+='<div class="wkgrid"><div class="wktile"><div class="k">'+t('প্রকল্প','Project')+'</div><div class="v" style="font-size:14px">'+l.projectName+'</div></div>'+
+    '<div class="wktile"><div class="k">'+t('ফোন','Phone')+'</div><div class="v" style="font-size:14px">'+l.phone+'</div></div>'+
+    '<div class="wktile"><div class="k">'+t('জমা','Submitted')+'</div><div class="v" style="font-size:13px">'+d(l.submittedUtc)+'</div></div>'+
+    '<div class="wktile"><div class="k">'+t('রেফারেন্স','Reference')+'</div><div class="v" style="font-size:13px">'+l.id+'</div></div></div>';
+  h+='<div class="pad" style="margin-top:4px">'+pill(l.status)+'</div>';
+  h+='<div class="sectitle" style="margin-left:16px">'+t('স্ট্যাটাস','Status')+'</div>'+timeline();
+  // the wall
+  h+='<div class="wall">🔒 '+t('আপনি শুধু সরলীকৃত স্ট্যাটাস দেখছেন। অভ্যন্তরীণ নোট, ম্যানেজার বা CRM-এর বিস্তারিত দেখানো হয় না — ক্রেতার গোপনীয়তা ও স্যামনের কার্যক্রমের জন্য।','You see only the simplified status. Internal notes, the manager, and CRM details are not shown — for the buyer’s privacy and Salmon’s operations.')+'</div>';
+  // converted emphasis (P31)
+  if(l.status==='converted'){
+    h+='<div class="convbox"><h3>✓ '+t('স্যামন এই রূপান্তর যাচাই করেছে','Salmon verified this conversion')+'</h3>'+
+      '<p>'+t('এই রূপান্তর স্যামনের সেলস টিম যাচাই করেছে — আপনি নিজে করতে পারেন না। যাচাইয়ের ফলে কমিশন যোগ্যতা তৈরি হয়েছে।','This conversion was verified by Salmon’s sales team — you cannot mark it yourself. The verification created commission eligibility.')+'</p>'+
+      '<div class="row" style="border:none;padding:8px 0 0"><span class="sub">'+t('কমিশন রেফ','Commission ref')+'</span><span class="u">'+(l.commissionRef||'—')+'</span></div>'+
+      '<a class="btn block" href="commission.page.html" style="margin:12px 0 0;border-radius:10px">'+t('কমিশন লেজারে দেখুন','View in commission ledger')+'</a></div>';
+  } else if(l.status!=='closed'){
+    h+='<p class="phelp" style="margin:0 16px 16px">'+t('আপনি এই লিড নিজে “রূপান্তরিত” চিহ্নিত করতে পারবেন না — কেবল স্যামন যাচাই করতে পারে।','You can’t mark this lead “Converted” yourself — only Salmon can verify it.')+'</p>';
+  }
+  document.getElementById('screen').innerHTML=h;
+}
+function setLang(l2){ lang=l2; document.documentElement.lang=l2; render(); }
+render();
+</script>
+</body></html>

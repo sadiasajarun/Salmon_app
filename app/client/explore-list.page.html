@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Explore (List)</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<script src="../assets/js/currency.js"></script>
+<script src="../assets/js/filters.js"></script>
+<style>
+  .authtop{display:flex;justify-content:flex-end;padding:8px var(--gutter) 0}
+  .langtoggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+  .langtoggle button{border:none;background:transparent;font:inherit;font-size:12px;padding:6px 11px;color:var(--ink-subtle);cursor:pointer;min-height:32px}
+  .langtoggle button.on{background:var(--primary);color:#fff}
+  .pcard{margin:0 var(--gutter) 16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden;box-shadow:0 8px 24px rgba(34,34,34,.06);text-decoration:none;color:var(--ink);display:block}
+  .pcard .imgwrap{height:180px}
+  .pcard .body{padding:14px 16px}
+  .pcard h3{font-family:var(--serif);font-size:18px}
+  .pcard .loc{font-size:12.5px;color:var(--ink-subtle);margin-top:2px}
+  .pcard .foot{display:flex;align-items:flex-end;justify-content:space-between;margin-top:12px}
+  .skelcard{margin:0 var(--gutter) 16px;height:250px;border-radius:var(--r-card)}
+  .state{margin:26px var(--gutter);text-align:center;color:var(--ink-subtle);font-size:13.5px;line-height:1.6}
+  .state .ic{font-size:34px;display:block;margin-bottom:10px}
+  .state h3{font-family:var(--serif);color:var(--ink);font-size:19px;margin-bottom:8px}
+</style>
+</head><body>
+<div class="page-label">Client · Explore — List / Results (23/25/26/27) <small>Editorial cards · active-filter chips · live count · states</small></div>
+
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen">
+    <div class="authtop">
+      <div class="langtoggle" role="group" aria-label="Language">
+        <button id="l-en" class="on" onclick="setLang('en')">English</button>
+        <button id="l-bn" onclick="setLang('bn')">বাংলা</button>
+      </div>
+    </div>
+    <div class="appbar" style="padding-bottom:6px"><h2 id="t-explore">Explore</h2></div>
+    <div class="seg">
+      <a href="explore-map.page.html" id="t-map">Map</a>
+      <span class="on" id="t-list">List</span>
+    </div>
+    <div class="fchips" id="fchips"></div>
+    <div class="countbar" id="countbar"></div>
+    <div id="results"></div>
+  </div>
+
+  <div class="bottomnav">
+    <a class="nav on" href="../client/explore-map.page.html"><svg viewBox="0 0 24 24"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Discover</a>
+    <a class="nav" href="../client/my-bookings.page.html"><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/></svg>Bookings</a>
+    <a class="nav" href="../client/installments.page.html"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>Ledger</a>
+    <a class="nav" href="../shared/profile.page.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Profile</a>
+  </div>
+</div>
+
+<div class="devbar" role="group" aria-label="Developer state preview">
+  <h4>Dev · preview states</h4>
+  <div class="dchips">
+    <button class="on" onclick="setState('data')">Data</button>
+    <button onclick="setState('loading')">Loading</button>
+    <button onclick="setState('empty')">Empty</button>
+    <button onclick="setState('error')">Error</button>
+    <button onclick="setState('offline')">Offline</button>
+    <button onclick="loadRezaul()">Rezaul’s query</button>
+  </div>
+</div>
+
+<script>
+var D=window.SALMON, C=window.Currency, F=window.Filters, lang='en', state='data';
+var GL={ongoing:'●',completed:'■',upcoming:'▲'};
+function s(k){ return D.strings[lang][k]||k; }
+function statusPill(st){ return '<span class="st st-'+st+'"><span class="gl">'+GL[st]+'</span>'+s(st)+'</span>'; }
+function priceBlock(p){
+  if(!p.price) return '<span class="price-dual">'+(lang==='bn'?'মূল্য জানতে চান':'Price on request')+'</span>';
+  var m=C.priceModel(p.price,'AED'), one=p.price.amountBdtFrom===p.price.amountBdtTo;
+  var disp=one?C.fmtDisplay(m.dispFrom,'AED'):C.fmtDisplay(m.dispFrom,'AED')+'–'+C.fmtDisplay(m.dispTo,'AED');
+  var bdt=one?C.fmtBdt(m.bdtFrom):C.fmtBdt(m.bdtFrom)+'–'+C.fmtBdt(m.bdtTo);
+  return '<span class="price-dual">'+disp+'<span class="bdt">'+bdt+'</span></span>';
+}
+function card(p){
+  var sqft=p.glance?p.glance.sqft.join('/')+' sqft':'';
+  var avail=p.glance?s('flatsAvailable').replace('{n}',p.availableUnits).replace('{total}',p.glance.flats):'';
+  var img=p.banner?'<div class="imgwrap skel"><img alt="'+p.name+'" src="'+p.banner+'" onload="this.classList.add(\'on\');this.parentNode.classList.remove(\'skel\')" onerror="this.parentNode.classList.remove(\'skel\');this.parentNode.style.background=\'linear-gradient(135deg,#b98a72,#7d5647)\'"><span style="position:absolute;top:12px;left:12px">'+statusPill(p.status)+'</span></div>'
+                  :'<div class="imgwrap" style="height:180px;background:linear-gradient(135deg,#b98a72,#7d5647)"><span style="position:absolute;top:12px;left:12px">'+statusPill(p.status)+'</span></div>';
+  return '<a class="pcard" href="project-detail.page.html?slug='+p.slug+'">'+img+
+    '<div class="body"><h3>'+p.name+'</h3><div class="loc">'+p.address+(sqft?' · '+sqft:'')+'</div>'+
+    (avail?'<div class="loc" style="margin-top:6px">'+avail+'</div>':'')+
+    '<div class="foot">'+priceBlock(p)+'</div></div></a>';
+}
+function renderChips(f){
+  var box=document.getElementById('fchips'); box.innerHTML='';
+  var cs=F.chips(f,D,lang);
+  if(!cs.length){ box.style.display='none'; return; } box.style.display='flex';
+  cs.forEach(function(c){ var el=document.createElement('span'); el.className='fchip';
+    el.innerHTML=c.label+' <button aria-label="Remove" onclick="removeChip(\''+c.k+'\')">×</button>'; box.appendChild(el); });
+  var clr=document.createElement('button'); clr.className='clearall'; clr.textContent=s('clearAll'); clr.onclick=clearAll; box.appendChild(clr);
+}
+function removeChip(k){ var f=F.load(); F.removeChip(f,k); F.save(f); render(); }
+function clearAll(){ F.clear(); render(); }
+function emptyMsg(f){
+  var t=lang==='bn'?'কোনো মিল নেই':'No matches', sub;
+  if(f.priceMaxAed!=null) sub=lang==='bn'?'এই বাজেটে কিছু নেই। মূল্যসীমা বাড়ান বা এলাকা বদলান।':'Nothing in this budget. Widen the price, or change the area.';
+  else if(f.beds.length) sub=lang==='bn'?'এই শয়নকক্ষ সংখ্যায় কিছু নেই। কম বেডরুম দেখুন।':'No flats with that bedroom count. Try fewer bedrooms.';
+  else if(f.sqftMin!=null||f.sqftMax!=null) sub=lang==='bn'?'এই আয়তনে কিছু নেই। পরিসর বাড়ান।':'Nothing in that size band. Widen the range.';
+  else sub=lang==='bn'?'ফিল্টার শিথিল করুন।':'Try relaxing a filter.';
+  return '<div class="state"><span class="ic">🔍</span><h3>'+t+'</h3><p>'+sub+'</p><button class="btn ghost" style="margin:14px auto 0;max-width:220px" onclick="clearAll()">'+s('clearAll')+'</button></div>';
+}
+function render(){
+  var f=F.load(); renderChips(f);
+  var out=document.getElementById('results'), cb=document.getElementById('countbar');
+  if(state==='loading'){ cb.textContent=''; out.innerHTML=Array(3).fill('<div class="skelcard imgwrap skel"></div>').join(''); return; }
+  if(state==='error'){ cb.textContent=''; out.innerHTML='<div class="state"><span class="ic">⚠</span><h3>'+(lang==='bn'?'লোড হয়নি':'Couldn’t load')+'</h3><p>'+(lang==='bn'?'সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।':'Check your connection and try again.')+'</p><button class="btn" style="margin:14px auto 0;max-width:200px" onclick="setState(\'data\')">'+(lang==='bn'?'আবার চেষ্টা':'Retry')+'</button></div>'; return; }
+  if(state==='offline'){ cb.textContent=''; out.innerHTML='<div class="state"><span class="ic">📶</span><h3>'+(lang==='bn'?'আপনি অফলাইনে':'You’re offline')+'</h3><p>'+(lang==='bn'?'সর্বশেষ দেখা প্রকল্পগুলো দেখানো হচ্ছে। ছবি অনলাইনে ফিরলে লোড হবে।':'Showing the projects you last viewed. Images load when you’re back online.')+'</p></div>'; return; }
+  var list=F.apply(D.projects,f,C);
+  cb.innerHTML=s('showing').replace('{n}','<b>'+list.length+'</b>').replace('{total}',D.projects.length);
+  if(state==='empty'||list.length===0){ out.innerHTML=emptyMsg(f); return; }
+  out.innerHTML=list.map(card).join('');
+}
+function setState(st){ state=st; document.querySelectorAll('.devbar button').forEach(function(b){b.classList.remove('on');}); if(event&&event.target)event.target.classList.add('on'); render(); }
+function loadRezaul(){ var q=D.sampleQuery; F.save({status:[q.status],areas:[q.area],cats:[q.category],beds:[String(q.bed)],sqftMin:q.sqftMin,sqftMax:q.sqftMax,priceMaxAed:q.maxAed,availableOnly:q.availableOnly}); state='data'; document.querySelectorAll('.devbar button').forEach(function(b){b.classList.remove('on');}); render(); }
+function applyLang(){ document.documentElement.lang=lang;
+  document.getElementById('l-en').classList.toggle('on',lang==='en'); document.getElementById('l-bn').classList.toggle('on',lang==='bn');
+  document.getElementById('t-explore').textContent=s('explore'); document.getElementById('t-map').textContent=s('map'); document.getElementById('t-list').textContent=s('list'); render(); }
+function setLang(l){ lang=l; applyLang(); }
+applyLang();
+</script>
+</body></html>

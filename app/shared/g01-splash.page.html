@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Starting…</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/auth-accounts.js"></script>
+<script src="../assets/js/auth-router.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+</head><body>
+<div class="page-label">G01 · Splash / bootstrap <small>Valid session → route by role, skip the fork · biometric unlock sits here</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="display:flex;flex-direction:column"></div>
+</div>
+<div class="devbar"><h4>Dev · session on launch (backend token check)</h4><div class="dchips">
+  <button onclick="boot(null)">No session → Welcome</button>
+  <button onclick="boot('client-only')">Session: client → home</button>
+  <button onclick="boot('partner-approved')">Session: partner (approved) → dashboard</button>
+  <button onclick="boot('partner-pending')">Session: partner (pending) → P07</button>
+  <button onclick="boot('dual')">Session: dual → resolver</button>
+</div></div>
+<script>
+var AR=window.AuthRouter, AC=window.AuthAccounts, lang='en';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function render(msg){
+  document.getElementById('screen').innerHTML=
+    '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 30px;text-align:center">'+
+    '<img src="../assets/salmon-logo.png" alt="Salmon Developers" style="height:120px;max-width:70%;object-fit:contain"/>'+
+    '<div class="spinner" style="margin-top:24px"></div>'+
+    '<p style="font-size:12.5px;color:var(--ink-subtle);margin-top:16px">'+(msg||t('সেশন যাচাই করা হচ্ছে…','Checking your session…'))+'</p>'+
+    '<p class="empty-note" style="margin-top:6px">'+t('বায়োমেট্রিক আনলক (চালু থাকলে) এখানে হয়।','Biometric unlock (if enabled) happens here.')+'</p></div>';
+}
+function boot(id){
+  var acc=id?AC.find(AC.list.filter(function(a){return a.id===id;})[0].identifier):null;
+  var r=AR.bootstrap(acc);
+  render(t('রাউট করা হচ্ছে…','Routing…'));
+  setTimeout(function(){ AR.go(r.dest); }, 500);
+}
+render(); // default: waiting (dev picks the session)
+</script>
+</body></html>

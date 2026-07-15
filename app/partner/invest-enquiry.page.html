@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Investment enquiry</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-invest.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  /* Act 9 tone: restrained, formal, financial-record. No marketing sparkle. */
+  .wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}
+  .wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}.wklang button.on{background:#ffffff33}
+  .formal{background:#f6f5f4;border:1px solid #e4e1de;border-left:3px solid var(--ink);border-radius:8px;padding:12px 13px;margin:12px 16px;font-size:12.5px;color:#3a3a3a;line-height:1.55}
+  .fld{margin:0 16px 12px} .fld label{display:block;font-size:12px;color:var(--ink-subtle);font-weight:700;margin:0 0 5px}
+  .fld input,.fld select,.fld textarea{width:100%;box-sizing:border-box;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:11px 12px;font:inherit;font-size:14px}
+  .help{font-size:11px;color:var(--ink-subtle);margin:5px 2px 0;line-height:1.5}
+  .discstrip{margin:4px 16px 14px;font-size:11.5px}
+  .discstrip a{color:var(--primary);font-weight:700;text-decoration:none}
+  .ctabar{position:absolute;left:0;right:0;bottom:0;background:#fffdfb;border-top:1px solid var(--line);padding:12px 16px}
+  .ctabar .btn{margin:0;border-radius:10px;width:100%}
+  .screen{padding-bottom:80px}
+</style>
+</head><body>
+<div class="page-label">P51 · Investment enquiry <small>With Investment · a request to be contacted — NOT a purchase/commitment/transaction · no calculator, no maths</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen"></div>
+  <div class="ctabar"><a class="btn" id="submit" href="#" onclick="return submit(event)">Submit enquiry</a></div>
+</div>
+<script>
+var V=window.PartnerInvest, lang='en'; var K='salmon_invest_enquiry_draft';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function s(k){ return V.strings[lang][k]||k; }
+function draft(){ try{ return JSON.parse(localStorage.getItem(K))||{}; }catch(e){ return {}; } }
+function save(){ var d={ ref:val('ref'), amount:val('amount'), time:val('time'), notes:val('notes') }; localStorage.setItem(K,JSON.stringify(d)); }
+function val(id){ var el=document.getElementById(id); return el?el.value:''; }
+function render(){
+  var d=draft();
+  var lt='<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span>';
+  var times=V.contactTimes.map(function(c){ return '<option value="'+c.key+'"'+(d.time===c.key?' selected':'')+'>'+t(c.bn,c.en)+'</option>'; }).join('');
+  document.getElementById('screen').innerHTML=
+    '<div class="wkbar"><a class="bk" href="program-with.page.html">‹</a><h2>'+s('enquiryTitle')+'</h2>'+lt+'</div>'+
+    '<div class="formal">'+s('enquiryLead')+'</div>'+
+    '<div class="fld"><label>'+s('projectRef')+'</label><input id="ref" value="'+(d.ref||'')+'" placeholder="'+t('যেমন SHARE-OP-07 · স্যামন ওয়েসিস পার্ক','e.g. SHARE-OP-07 · Salmon Oasis Park')+'" oninput="save()"></div>'+
+    '<div class="fld"><label>'+s('interestAmount')+'</label><input id="amount" inputmode="numeric" value="'+(d.amount||'')+'" placeholder="'+t('আনুমানিক পরিমাণ','Indicative amount')+'" oninput="save()"><div class="help">'+s('interestHelp')+'</div></div>'+
+    '<div class="fld"><label>'+s('preferredTime')+'</label><select id="time" onchange="save()">'+times+'</select></div>'+
+    '<div class="fld"><label>'+s('notes')+'</label><textarea id="notes" rows="3" placeholder="'+t('কিছু জানাতে চাইলে লিখুন','Anything you want us to know')+'" oninput="save()">'+(d.notes||'')+'</textarea></div>'+
+    '<div class="discstrip">'+t('চালিয়ে যাওয়ার আগে ','Before you continue, ')+'<a href="disclaimer.page.html">'+s('readDisclaimer')+' ›</a></div>';
+  document.getElementById('submit').textContent=s('submitEnquiry');
+}
+function submit(e){ e.preventDefault();
+  if(window.NetSim && window.NetSim.isOffline && window.NetSim.isOffline()){ alert(t('অনুসন্ধান জমা দিতে সংযোগ দরকার। কিছু জমা হয়নি।','You need a connection to submit an enquiry. Nothing has been submitted.')); return false; }
+  save(); window.location.href='enquiry-status.page.html'; return false;
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

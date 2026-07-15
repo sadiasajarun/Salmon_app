@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Booking created</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<script src="../assets/js/currency.js"></script>
+<script src="../assets/js/payment-state.js"></script>
+</head><body>
+<div class="page-label">Client · Booking created — locked, countdown (39) <small>Calm urgency · booking ref · what happens if it runs out</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen"></div>
+</div>
+<script>
+var D=window.SALMON, C=window.Currency, PS=window.PayState, lang='en', timer=null;
+var t=PS.load();
+if(t.status!==PS.S.BOOKING_PENDING){ PS.reset(); t=PS.dispatch({type:'BOOK', slug: (new URLSearchParams(location.search).get('slug')||'the-rossa'), unit:(new URLSearchParams(location.search).get('unit')||'A-7')}); }
+var proj=D.projects.find(function(x){return x.slug===t.slug;});
+function render(){
+  t=PS.tickExpiry();
+  if(t.status===PS.S.EXPIRED){ window.location.href='payment-result.page.html?type=expired'; return; }
+  var left=PS.msLeft(), mm=Math.floor(left/60000), ss=Math.floor((left%60000)/1000);
+  var pct=Math.max(0,Math.min(100,left/(PS.CONFIG.lockMinutes*60000)*100)), warn=left<5*60000;
+  var disp=C.fmtDisplay(C.toDisplay(t.amountBdt,'AED'),'AED');
+  document.getElementById('screen').innerHTML=
+    '<div class="appbar"><h2>'+(lang==='bn'?'বুকিং তৈরি':'Booking created')+'</h2><span class="langtoggle" style="display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden"><button onclick="setLang(\'en\')" style="border:none;background:'+(lang==='en'?'var(--primary)':'transparent')+';color:'+(lang==='en'?'#fff':'var(--ink-subtle)')+';font-size:12px;padding:6px 10px;cursor:pointer">EN</button><button onclick="setLang(\'bn\')" style="border:none;background:'+(lang==='bn'?'var(--primary)':'transparent')+';color:'+(lang==='bn'?'#fff':'var(--ink-subtle)')+';font-size:12px;padding:6px 10px;cursor:pointer">বাং</button></span></div>'+
+    '<div class="rowlist" style="margin:8px var(--gutter) 14px"><div class="row"><span>'+(lang==='bn'?'প্রকল্প':'Project')+'</span><span class="u">'+proj.name+'</span></div>'+
+    '<div class="row"><span>'+(lang==='bn'?'ইউনিট':'Unit')+'</span><span class="u">'+t.unit+'</span></div>'+
+    '<div class="row"><span>'+(lang==='bn'?'বুকিং রেফারেন্স':'Booking reference')+'</span><span class="u">'+t.bookingRef+'</span></div></div>'+
+    '<div class="countdown'+(warn?' warn':'')+'"><div class="lbl">'+(lang==='bn'?'আপনার ইউনিট সংরক্ষিত':'Your unit is held for you')+'</div><div class="clock">'+String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'</div><div class="track"><i style="width:'+pct+'%"></i></div></div>'+
+    '<div class="amount-hero"><div class="lbl" style="font-size:12px;color:var(--ink-subtle)">'+(lang==='bn'?'টোকেন বুকিং পরিমাণ':'Token booking amount')+'</div><div class="amt" style="font-size:24px">'+disp+'<div class="bdt">'+C.fmtBdt(t.amountBdt)+'</div></div></div>'+
+    '<div class="txncur">'+(lang==='bn'?'আপনাকে চার্জ করা হবে <b>বিডিটি</b>-তে (প্রকৃত লেনদেন মুদ্রা)। এইডি শুধু রেফারেন্স।':'You will be charged in <b>BDT</b> — the authoritative transaction currency. AED is for reference.')+' <span class="sub">('+ (PS.CONFIG.__PLACEHOLDER?(lang==='bn'?'টোকেন পরিমাণ ও হোল্ড সময় চূড়ান্ত নয়':'token amount & hold duration are placeholders'):'') +')</span></div>'+
+    '<p class="terms">'+(lang==='bn'?'সময় শেষ হলে: ইউনিট '+t.unit+' মুক্ত হয়ে Available-এ ফিরে যাবে এবং এই বুকিং বাতিল হয়ে যাবে। কোনো টাকা কাটা হয়নি।':'If the timer runs out: unit '+t.unit+' is released back to Available and this booking expires. No money has been taken.')+'</p>'+
+    '<a class="btn block" href="payment-channel.page.html" style="margin-bottom:8px">'+(lang==='bn'?'বুকিং পরিমাণ পরিশোধ করুন':'Pay booking amount')+'</a>'+
+    '<a class="btn ghost block" href="unit-detail.page.html?slug='+t.slug+'&unit='+t.unit+'" style="margin-bottom:16px">'+(lang==='bn'?'বিস্তারিত':'View unit')+'</a>';
+}
+function setLang(l){ lang=l; render(); }
+render(); timer=setInterval(render,1000);
+</script>
+</body></html>

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Raise a ticket</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}
+  .wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}.wklang button.on{background:#ffffff33}
+  .newform{margin:12px 16px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:none}
+  .newform.show{display:block}
+  .newform label{display:block;font-size:12px;color:var(--ink-subtle);font-weight:700;margin:8px 0 5px}
+  .newform input,.newform select,.newform textarea{width:100%;box-sizing:border-box;background:var(--canvas);border:1px solid var(--line);border-radius:9px;padding:10px 12px;font:inherit;font-size:14px}
+  .brow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 16px 8px;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:12px;text-decoration:none;color:inherit}
+  .brow .ttl{font-weight:700;font-size:14px}.brow .sub2{font-size:11.5px;color:var(--ink-subtle);margin-top:2px}
+  .chat{padding:0 16px} .composer{display:flex;gap:8px;align-items:center;padding:8px 16px 4px}
+  .composer .box{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:999px}
+  .composer .box input{width:100%;box-sizing:border-box;border:none;background:transparent;outline:none;font:inherit;font-size:13px;padding:11px 14px}
+  .composer .send{cursor:pointer;color:#fff;background:var(--primary);width:44px;height:44px;border-radius:999px;display:grid;place-items:center;font-size:18px;flex:0 0 auto}
+</style>
+</head><body>
+<div class="page-label">P70 · Raise a ticket · P71 · Ticket thread <small>Partner shell · Care/Sales/Accounts/Admin · back → partner dashboard · no client nav</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div id="top" style="flex:0 0 auto"></div>
+  <div class="screen" style="padding-bottom:20px" id="body"></div>
+</div>
+<script>
+var lang='en';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function bar(){ document.getElementById('top').innerHTML=
+  '<div class="wkbar"><a class="bk" href="dashboard.page.html">‹</a><h2>'+t('টিকিট','Tickets')+'</h2>'+
+  '<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span></div>'; }
+var cats=[['care','Customer Care','কাস্টমার কেয়ার'],['sales','Sales','সেলস'],['accounts','Accounts','অ্যাকাউন্টস'],['admin','Administration','প্রশাসন']];
+function render(){
+  bar();
+  var opts=cats.map(function(c){return '<option value="'+c[0]+'">'+t(c[2],c[1])+'</option>';}).join('');
+  document.getElementById('body').innerHTML=
+    '<div style="display:flex;justify-content:flex-end;padding:10px 16px 0"><a class="lang" href="#" onclick="return toggleNew(event)" style="color:var(--primary);font-weight:700;text-decoration:none">＋ '+t('নতুন টিকিট','New ticket')+'</a></div>'+
+    '<div class="newform" id="newform">'+
+      '<div style="font-family:var(--serif);font-size:15px;margin-bottom:4px">'+t('নতুন টিকিট','New ticket')+'</div>'+
+      '<label>'+t('বিভাগ','Category')+'</label><select id="nt-cat">'+opts+'</select>'+
+      '<label>'+t('বিষয়','Subject')+'</label><input id="nt-sub" placeholder="'+t('সংক্ষিপ্ত বিষয়','Short subject')+'">'+
+      '<label>'+t('বিবরণ','Description')+'</label><textarea id="nt-desc" rows="3" placeholder="'+t('সমস্যাটি বর্ণনা করুন','Describe the issue')+'"></textarea>'+
+      '<label>'+t('সংযুক্তি','Attachment')+'</label><div style="border:1px dashed var(--line);border-radius:9px;padding:12px;text-align:center;color:var(--ink-subtle);font-size:12px">＋ '+t('ফাইল সংযুক্ত করুন (ঐচ্ছিক)','Attach a file (optional)')+'</div>'+
+      '<a class="btn block" href="#" onclick="return createTicket(event)" style="margin:12px 0 0;border-radius:9px">'+t('টিকিট তৈরি করুন','Create ticket')+'</a></div>'+
+    '<div class="sectitle" style="margin-left:16px">'+t('আপনার টিকিট','Your tickets')+'</div>'+
+    '<div id="tickets">'+
+      '<a class="brow" href="#" onclick="return false"><div><div class="ttl">'+t('কমিশন প্রশ্ন','Commission question')+'</div><div class="sub2">'+t('অ্যাকাউন্টস','Accounts')+' · #PT-2087</div></div><span class="pill p-amber"><span class="dot"></span>'+t('চলমান','In progress')+'</span></a>'+
+      '<a class="brow" href="#" onclick="return false"><div><div class="ttl">'+t('লিড স্ট্যাটাস আপডেট','Lead status update')+'</div><div class="sub2">'+t('সেলস','Sales')+' · #PT-2071</div></div><span class="pill p-green"><span class="dot"></span>'+t('সমাধান','Resolved')+'</span></a>'+
+      '<a class="brow" href="#" onclick="return false"><div><div class="ttl">'+t('অ্যাপ লগইন সমস্যা','App login issue')+'</div><div class="sub2">'+t('কেয়ার','Care')+' · #PT-2050</div></div><span class="pill p-grey"><span class="dot"></span>'+t('পুনরায় খোলা','Reopened')+'</span></a>'+
+    '</div>'+
+    '<div class="sectitle" style="margin-left:16px">'+t('থ্রেড','Thread')+' · #PT-2087</div>'+
+    '<div class="chat" id="thread">'+
+      '<div class="bubble me">'+t('বেলিসিমো কমিশন CM-2026-0217 কবে অনুমোদিত হবে?','When will the Bellissimo commission CM-2026-0217 be approved?')+'</div>'+
+      '<div class="bubble them">'+t('ধন্যবাদ — অ্যাকাউন্টস যাচাই করছে, শীঘ্রই জানাবে।','Thanks — Accounts is reviewing and will update shortly.')+'</div>'+
+    '</div>'+
+    '<div class="composer"><span class="box"><input id="reply" placeholder="'+t('উত্তর দিন…','Reply…')+'" onkeydown="if(event.key===\'Enter\')sendReply(event)"></span><span class="send" onclick="sendReply(event)">➤</span></div>'+
+    '<a class="btn ghost block" href="dashboard.page.html" style="margin:12px 16px 16px;border-radius:10px">'+t('ড্যাশবোর্ড','Dashboard')+'</a>';
+}
+function toggleNew(e){ e.preventDefault(); document.getElementById('newform').classList.toggle('show'); return false; }
+function createTicket(e){ e.preventDefault();
+  if(window.NetSim && window.NetSim.isOffline && window.NetSim.isOffline()){ alert(t('টিকিট জমা দিতে সংযোগ দরকার। খসড়া সংরক্ষিত।','You need a connection to submit. Your draft is kept.')); return false; }
+  var cat=cats.filter(function(c){return c[0]===document.getElementById('nt-cat').value;})[0];
+  var sub=document.getElementById('nt-sub').value.trim()||t('শিরোনামহীন','Untitled');
+  var num='PT-'+(2090+Math.floor(Math.random()*90));
+  var row=document.createElement('a'); row.className='brow'; row.href='#'; row.onclick=function(){return false;};
+  row.innerHTML='<div><div class="ttl">'+sub+'</div><div class="sub2">'+t(cat[2],cat[1])+' · #'+num+'</div></div><span class="pill p-amber"><span class="dot"></span>'+t('খোলা','Open')+'</span>';
+  var list=document.getElementById('tickets'); list.insertBefore(row,list.firstChild);
+  document.getElementById('nt-sub').value=''; document.getElementById('nt-desc').value='';
+  document.getElementById('newform').classList.remove('show');
+  return false;
+}
+function sendReply(e){ if(e&&e.preventDefault)e.preventDefault();
+  var inp=document.getElementById('reply'); var v=(inp.value||'').trim(); if(!v) return;
+  var b=document.createElement('div'); b.className='bubble me'; b.textContent=v;
+  document.getElementById('thread').appendChild(b); inp.value=''; b.scrollIntoView({block:'nearest'});
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

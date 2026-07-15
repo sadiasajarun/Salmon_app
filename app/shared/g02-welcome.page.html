@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Welcome</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .hero-g{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 28px;
+    background:radial-gradient(120% 80% at 50% 0%, #f6 e8 ec 0%, transparent 60%)}
+  .hero-g{background:linear-gradient(180deg,#faf0f2 0%,var(--canvas) 55%)}
+  .hero-g h1{font-family:var(--serif);font-size:26px;margin-top:20px;line-height:1.25}
+  .hero-g p{font-size:13.5px;color:var(--ink-subtle);margin-top:12px;line-height:1.6;max-width:280px}
+  .glang{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;position:absolute;top:10px;right:12px;background:var(--surface)}
+  .glang button{border:none;background:transparent;font-size:12px;padding:6px 11px;color:var(--ink-subtle);cursor:pointer}
+  .glang button.on{background:var(--primary);color:#fff}
+</style>
+</head><body>
+<div class="page-label">G02 · Welcome <small>Salmon’s face · Get started + Sign in · language toggle · fast, honest, not a campaign</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="display:flex;flex-direction:column;position:relative;padding:0"></div>
+</div>
+<script>
+var lang='en';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function render(){
+  document.getElementById('screen').innerHTML=
+    '<span class="glang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span>'+
+    '<div class="hero-g"><img src="../assets/salmon-logo.png" alt="Salmon Developers" style="height:130px;max-width:66%;object-fit:contain"/>'+
+    '<h1>'+t('স্যামন ডেভেলপার্স-এ স্বাগতম','Welcome to Salmon Developers')+'</h1>'+
+    '<p>'+t('বাংলাদেশে সম্পত্তি কিনুন, অথবা আমাদের সেলস পার্টনার নেটওয়ার্কে যোগ দিন — এক অ্যাপে।','Buy property in Bangladesh, or join our sales-partner network — in one app.')+'</p></div>'+
+    '<div style="padding:0 20px 24px">'+
+    '<a class="btn" href="g03-fork.page.html" style="margin:0;border-radius:12px">'+t('শুরু করুন','Get started')+'</a>'+
+    '<a class="btn ghost" href="g04-signin.page.html" style="margin:10px 0 0;border-radius:12px">'+t('সাইন ইন','Sign in')+'</a>'+
+    '</div>';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

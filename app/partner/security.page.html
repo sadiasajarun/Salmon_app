@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Security</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}
+  .wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}.wklang button.on{background:#ffffff33}
+  .sec{margin:14px 16px 4px;font-size:11.5px;font-weight:800;color:var(--ink-subtle);text-transform:uppercase;letter-spacing:.4px}
+  .row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 16px 8px;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:12px 13px}
+  .row .lb{font-size:13.5px;font-weight:600} .row .sub2{font-size:11px;color:var(--ink-subtle);margin-top:2px}
+  .sw{width:44px;height:26px;border-radius:999px;background:#ccc;position:relative;cursor:pointer;flex:0 0 auto}
+  .sw.on{background:var(--primary)} .sw i{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .15s} .sw.on i{left:21px}
+  .sess .dev{font-weight:700;font-size:13px} .sess a{color:#a13636;font-size:12px;font-weight:700;text-decoration:none;cursor:pointer}
+  .note{margin:0 16px 12px;font-size:11.5px;color:var(--ink-subtle);line-height:1.55}
+</style>
+</head><body>
+<div class="page-label">P76 · Security <small>Biometric unlock · active sessions · logout · Keychain/Keystore, biometric-after-login, server-side token revocation</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<script>
+var lang='en'; var bio=true;
+function t(bn,en){ return lang==='bn'?bn:en; }
+var sessions=[
+  { dev:'Realme 9 · '+({bn:'কুমিল্লা',en:'Cumilla'}), thisOne:true },
+];
+function render(){
+  var lt='<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span>';
+  document.getElementById('screen').innerHTML=
+    '<div class="wkbar"><a class="bk" href="profile.page.html">‹</a><h2>'+t('নিরাপত্তা','Security')+'</h2>'+lt+'</div>'+
+    '<div class="sec">'+t('আনলক','Unlock')+'</div>'+
+    '<div class="row"><div><div class="lb">'+t('বায়োমেট্রিক আনলক','Biometric unlock')+'</div><div class="sub2">'+t('প্রাথমিক লগইনের পর ফিঙ্গারপ্রিন্ট/ফেস দিয়ে খুলুন','Open with fingerprint/face after primary login')+'</div></div><span class="sw '+(bio?'on':'')+'" onclick="bio=!bio;render()"><i></i></span></div>'+
+    '<p class="note">'+t('টোকেন ডিভাইসের নিরাপদ স্টোরেজে (Keychain/Keystore) রাখা হয় — কখনো সাধারণ স্টোরেজে নয়।','Tokens are held in the device secure store (Keychain/Keystore) — never in plain storage.')+'</p>'+
+    '<div class="sec">'+t('সক্রিয় সেশন','Active sessions')+'</div>'+
+    '<div class="row sess"><div><div class="dev">Realme 9 · '+t('কুমিল্লা','Cumilla')+'</div><div class="sub2">'+t('এই ডিভাইস · এখন সক্রিয়','This device · active now')+'</div></div><span class="pill p-green"><span class="dot"></span>'+t('এই ডিভাইস','This device')+'</span></div>'+
+    '<div class="row sess"><div><div class="dev">Chrome · Dhaka</div><div class="sub2">'+t('সর্বশেষ ২ দিন আগে','Last seen 2 days ago')+'</div></div><a onclick="revoke(this)">'+t('সাইন আউট','Sign out')+'</a></div>'+
+    '<p class="note">'+t('লগ আউট করলে সার্ভারে টোকেন বাতিল হয় — শুধু এই ফোনে নয়, সব জায়গায়।','Logging out revokes the token on the server — everywhere, not just this phone.')+'</p>'+
+    '<a class="btn block" href="../shared/g02-welcome.page.html" style="margin:8px 16px 6px;border-radius:10px">'+t('লগ আউট','Log out')+'</a>'+
+    '<a class="btn ghost block" href="profile.page.html" style="margin:0 16px 16px;border-radius:10px">'+t('ফিরে যান','Back')+'</a>';
+}
+function revoke(el){ el.textContent=t('সাইন আউট হয়েছে','Signed out'); el.style.color='var(--ink-subtle)'; el.onclick=null; }
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

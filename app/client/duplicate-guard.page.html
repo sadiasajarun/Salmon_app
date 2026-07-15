@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Transaction in progress</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<script src="../assets/js/payment-state.js"></script>
+</head><body>
+<div class="page-label">Client · Duplicate-submission guard (48) <small>Double-tap / back / app-restart → shows the in-flight status, never a fresh form</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:24px"></div>
+</div>
+<div class="devbar"><h4>Dev · simulate re-entry</h4><div class="dchips">
+  <button onclick="sim('BOOKING_PENDING')">While booking pending</button>
+  <button onclick="sim('PAYMENT_PENDING')">While payment pending</button>
+  <button onclick="sim('WIRE_PENDING')">While wire pending</button>
+  <button onclick="sim('NONE')">No transaction</button>
+</div></div>
+<script>
+var D=window.SALMON, PS=window.PayState, lang='en';
+var ROUTE={ BOOKING_PENDING:'booking-created.page.html', PAYMENT_INITIATED:'payment-channel.page.html', PAYMENT_PENDING:'payment-pending.page.html', WIRE_PENDING:'payment-pending.page.html' };
+var LABEL={ BOOKING_PENDING:['Booking held, awaiting payment','বুকিং সংরক্ষিত, পেমেন্টের অপেক্ষায়'], PAYMENT_INITIATED:['Payment started','পেমেন্ট শুরু হয়েছে'], PAYMENT_PENDING:['Payment is being confirmed','পেমেন্ট নিশ্চিত করা হচ্ছে'], WIRE_PENDING:['Wire is being verified','ওয়্যার যাচাই হচ্ছে'] };
+function sim(st){
+  if(st==='NONE'){ PS.reset(); }
+  else { PS.reset(); PS.dispatch({type:'BOOK',slug:'the-rossa',unit:'A-7'}); if(st!=='BOOKING_PENDING'){ PS.dispatch({type:'SELECT_CHANNEL',channel:st==='WIRE_PENDING'?'wire':'stripe'}); if(st==='PAYMENT_PENDING') PS.dispatch({type:'GO_PENDING',channel:'stripe'}); if(st==='WIRE_PENDING') PS.dispatch({type:'GO_PENDING',channel:'wire'}); } }
+  render();
+}
+function render(){
+  var t=PS.tickExpiry();
+  var lt='<span class="langtoggle" style="display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden"><button onclick="setLang(\'en\')" style="border:none;background:'+(lang==='en'?'var(--primary)':'transparent')+';color:'+(lang==='en'?'#fff':'var(--ink-subtle)')+';font-size:12px;padding:6px 10px">EN</button><button onclick="setLang(\'bn\')" style="border:none;background:'+(lang==='bn'?'var(--primary)':'transparent')+';color:'+(lang==='bn'?'#fff':'var(--ink-subtle)')+';font-size:12px;padding:6px 10px">বাং</button></span>';
+  var el=document.getElementById('screen');
+  if(!PS.inFlight(t.status)){
+    el.innerHTML='<div class="appbar"><h2>'+(lang==='bn'?'কোনো চলমান লেনদেন নেই':'No transaction')+'</h2>'+lt+'</div>'+
+      '<div class="state" style="margin:26px var(--gutter);text-align:center;color:var(--ink-subtle)"><span style="font-size:34px;display:block;margin-bottom:10px">✓</span><p>'+(lang==='bn'?'আপনার কোনো চলমান বুকিং বা পেমেন্ট নেই।':'You have no booking or payment in progress.')+'</p><a class="btn block" href="explore-list.page.html" style="margin-top:16px">'+(lang==='bn'?'প্রকল্প দেখুন':'Browse projects')+'</a></div>';
+    return;
+  }
+  var lab=LABEL[t.status]||['In progress','চলমান'];
+  el.innerHTML='<div class="appbar"><h2>'+(lang==='bn'?'ইতিমধ্যে চলছে':'Already in progress')+'</h2>'+lt+'</div>'+
+    '<div class="rhero"><div class="badge-ic warn2">⏳</div><h2>'+(lang==='bn'?'আপনার একটি লেনদেন চলছে':'You already have a transaction in progress')+'</h2>'+
+    '<p>'+(lang==='bn'?'আমরা নতুন পেমেন্ট ফর্ম দেখাব না। একটি বুকিং, একটি পেমেন্ট — ব্যস।':'We won’t show a fresh payment form. One booking, one payment — ever.')+'</p></div>'+
+    '<div class="honest"><div class="h did"><span class="ic">•</span><div class="tx"><b>'+(lang==='bn'?lab[1]:lab[0])+'</b><span>'+t.bookingRef+' · '+D.projects.find(function(p){return p.slug===t.slug;}).name+' '+t.unit+'</span></div></div></div>'+
+    '<a class="btn block" href="'+(ROUTE[t.status]||'explore-list.page.html')+'">'+(lang==='bn'?'আমার লেনদেন দেখুন':'View my transaction')+'</a>'+
+    '<a class="btn ghost block" onclick="discard(event)" href="#" style="margin-top:10px;margin-bottom:16px">'+(lang==='bn'?'বাতিল করে নতুন শুরু করুন':'Cancel it and start over')+'</a>';
+}
+function discard(e){ e.preventDefault(); if(confirm(lang==='bn'?'বর্তমান লেনদেন বাতিল করবেন?':'Discard the current transaction?')){ PS.reset(); render(); } }
+function setLang(l){ lang=l; render(); }
+render();
+</script>
+</body></html>

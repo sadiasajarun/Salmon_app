@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · System</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}
+  .wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}.wklang button.on{background:#ffffff33}
+  .full{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 26px;min-height:520px}
+  .full .ic{width:76px;height:76px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:34px;margin-bottom:16px}
+  .err .ic{background:#fbeaea;color:#a13636} .upd .ic{background:#f0e6ea;color:var(--primary)}
+  .full h1{font-family:var(--serif);font-size:22px;margin:0} .full p{color:var(--ink-subtle);font-size:13.5px;line-height:1.6;margin:12px 0 0}
+  .full .btn{margin-top:22px;border-radius:10px;min-width:200px}
+  .seg{display:flex;gap:6px;justify-content:center;margin:10px 0 0}
+  .seg button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:11.5px;cursor:pointer}
+  .seg button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .ver{font-size:11px;color:var(--ink-subtle);margin-top:14px}
+</style>
+</head><body>
+<div class="page-label">P78 · Global error / force update <small>Graceful error with a real recovery path · force-update vs minimum-supported-version</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen"></div>
+</div>
+<script>
+var lang='en', mode='error';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function render(){
+  var lt='<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span>';
+  var body;
+  if(mode==='error'){
+    body='<div class="full err"><div class="ic">⚠</div><h1>'+t('কিছু একটা ভুল হয়েছে','Something went wrong')+'</h1>'+
+      '<p>'+t('আমরা এই মুহূর্তে সংযোগ করতে পারছি না। আপনার কোনো কাজ হারায়নি — আবার চেষ্টা করুন।','We couldn’t connect just now. None of your work is lost — please try again.')+'</p>'+
+      '<a class="btn block" href="dashboard.page.html">'+t('আবার চেষ্টা করুন','Try again')+'</a>'+
+      '<a class="btn ghost block" href="raise-ticket.page.html" style="margin-top:8px">'+t('সহায়তা নিন','Get help')+'</a></div>';
+  } else {
+    body='<div class="full upd"><div class="ic">⬆</div><h1>'+t('আপডেট প্রয়োজন','Update required')+'</h1>'+
+      '<p>'+t('নিরাপদে চালিয়ে যেতে অনুগ্রহ করে অ্যাপটি সর্বশেষ সংস্করণে আপডেট করুন। এই সংস্করণটি আর সমর্থিত নয়।','Please update to the latest version to continue safely. This version is no longer supported.')+'</p>'+
+      '<a class="btn block" href="#" onclick="return false">'+t('আপডেট করুন','Update now')+'</a>'+
+      '<div class="ver">'+t('আপনার সংস্করণ','Your version')+' 1.0.3 · '+t('সর্বনিম্ন সমর্থিত','Minimum supported')+' 1.2.0</div></div>';
+  }
+  document.getElementById('screen').innerHTML=
+    '<div class="wkbar"><a class="bk" href="dashboard.page.html">‹</a><h2>'+t('সিস্টেম','System')+'</h2>'+lt+'</div>'+body+
+    '<div class="seg"><button class="'+(mode==='error'?'on':'')+'" onclick="setMode(\'error\')">'+t('ত্রুটি','Error')+'</button><button class="'+(mode==='update'?'on':'')+'" onclick="setMode(\'update\')">'+t('ফোর্স আপডেট','Force update')+'</button></div>';
+}
+function setMode(m){ mode=m; render(); }
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

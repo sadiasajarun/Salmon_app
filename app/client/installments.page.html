@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Installment tracker</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<script src="../assets/js/currency.js"></script>
+<script src="../assets/js/ledger.js"></script>
+<style>
+  .langtoggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+  .langtoggle button{border:none;background:transparent;font-size:12px;padding:6px 10px;color:var(--ink-subtle);cursor:pointer}
+  .langtoggle button.on{background:var(--primary);color:#fff}
+  .stat{margin:0 var(--gutter) 12px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px}
+  .stat .l{font-size:12px;color:var(--ink-subtle)} .stat .v{font-size:24px;font-weight:800;margin-top:3px}
+  .stat .bdt{font-size:12px;color:var(--ink);font-weight:600}
+  .segbar{height:12px;border-radius:999px;overflow:hidden;display:flex;margin-top:12px;background:#eee3d7}
+  .segbar i{height:100%} .seg-paid{background:var(--primary)} .seg-pend{background:#B7791F}
+  .legend2{display:flex;gap:14px;font-size:11.5px;color:var(--ink-subtle);margin-top:8px;flex-wrap:wrap}
+  .legend2 b{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:5px;vertical-align:middle}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 var(--gutter) 12px}
+  .grid2 .c{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:13px}
+  .grid2 .c .l{font-size:11.5px;color:var(--ink-subtle)} .grid2 .c .v{font-size:16px;font-weight:700;margin-top:3px}
+  .overdue-c{border-color:#eecccd;background:#fdf3f3}
+  .pending-c{border-color:#eaddc2;background:#fcf6ec}
+</style>
+</head><body>
+<div class="page-label">Client · Installment tracker (51) ★ <small>Verified paid vs pending kept separate · overdue flagged without shaming · his timezone</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen"></div>
+  <div class="bottomnav">
+    <a class="nav" href="../client/explore-map.page.html"><svg viewBox="0 0 24 24"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Discover</a>
+    <a class="nav" href="../client/my-bookings.page.html"><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/></svg>Bookings</a>
+    <a class="nav on" href="../client/installments.page.html"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>Ledger</a>
+    <a class="nav" href="../shared/profile.page.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Profile</a>
+  </div>
+</div>
+<script>
+var D=window.SALMON, C=window.Currency, L=window.LEDGER, lang='en';
+function s(k){ return L.strings[lang][k]||k; }
+function fmtDue(iso){ try{ return new Intl.DateTimeFormat(lang==='bn'?'bn-BD':'en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:L.tz}).format(new Date(iso)); }catch(e){ return iso.slice(0,10); } }
+function render(){
+  var total=L.TOTAL, paid=L.verifiedPaidBdt(), pend=L.pendingBdt(), over=L.overdueBdt(), out=L.outstandingBdt(), nd=L.nextDue();
+  var paidPct=paid/total*100, pendPct=pend/total*100;
+  var p=D.projects.find(function(x){return x.slug===L.booking.slug;});
+  var lt='<span class="langtoggle"><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button></span>';
+  var h='<div class="appbar"><h2>'+s('tracker')+'</h2>'+lt+'</div>';
+  h+='<div class="sub" style="margin:0 var(--gutter) 10px">'+p.name+' · '+(lang==='bn'?'ইউনিট':'Unit')+' '+L.booking.unit+'</div>';
+  // total + progress
+  h+='<div class="stat"><div class="l">'+s('total')+'</div><div class="v" style="color:var(--primary)">'+C.fmtDisplay(C.toDisplay(total,'AED'),'AED')+'<span class="bdt" style="display:block">'+C.fmtBdt(total)+'</span></div>'+
+    '<div class="segbar"><i class="seg-paid" style="width:'+paidPct+'%"></i><i class="seg-pend" style="width:'+pendPct+'%"></i></div>'+
+    '<div class="legend2"><span><b class="seg-paid"></b>'+s('verifiedPaid')+'</span><span><b class="seg-pend"></b>'+s('pendingVerify')+'</span><span><b style="background:#eee3d7"></b>'+s('outstanding')+'</span></div></div>';
+  // verified paid + pending (separate!)
+  h+='<div class="grid2"><div class="c"><div class="l">'+s('verifiedPaid')+'</div><div class="v" style="color:var(--success)">'+C.fmtBdt(paid)+'</div></div>'+
+    '<div class="c pending-c"><div class="l">'+s('pendingVerify')+'</div><div class="v" style="color:#B7791F">'+C.fmtBdt(pend)+'</div></div></div>';
+  h+='<p class="empty-note" style="text-align:left;margin:0 var(--gutter) 12px">'+(lang==='bn'?'গতকাল পাঠানো ওয়্যার ফিন্যান্স এখনো যাচাই করেনি — এটি এখনো “পরিশোধিত” নয়।':'A wire sent yesterday isn’t finance-verified yet — it is not counted as paid.')+'</p>';
+  // outstanding + next due
+  h+='<div class="grid2"><div class="c"><div class="l">'+s('outstanding')+'</div><div class="v">'+C.fmtBdt(out)+'</div></div>'+
+    '<div class="c"><div class="l">'+s('nextDue')+'</div><div class="v">'+(nd?fmtDue(nd.dueUtc):'—')+'</div><div class="sub" style="margin-top:2px">'+(nd?C.fmtBdt(nd.amountBdt):'')+' · '+L.tz.split('/')[1]+'</div></div></div>';
+  // overdue — flagged, not shaming
+  if(over>0){ h+='<div class="stat overdue-c"><div class="l" style="color:#B4232B;font-weight:700">'+s('overdue')+' · '+C.fmtBdt(over)+'</div>'+
+    '<p style="font-size:12.5px;color:#8a2b30;margin-top:6px;line-height:1.5">'+(lang==='bn'?'একটি কিস্তি বকেয়া। আপনি হয়তো ভ্রমণে আছেন — সুবিধামতো পরিশোধ করুন, কোনো তাড়া নেই।':'One installment is overdue. You may be travelling — pay when it suits you, no rush.')+'</p></div>'; }
+  h+='<a class="btn block" href="pay-installment.page.html?seq='+(nd?nd.seq:1)+'">'+s('payInstallment')+'</a>'+
+    '<a class="btn ghost block" href="installment-schedule.page.html" style="margin-top:10px;margin-bottom:16px">'+s('schedule')+'</a>';
+  document.getElementById('screen').innerHTML=h;
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

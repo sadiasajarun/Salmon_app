@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="bn"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Rank</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-state.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .unlock{display:flex;gap:10px;align-items:flex-start;padding:11px 14px;border-bottom:1px solid var(--line);font-size:13.5px}
+  .unlock:last-child{border-bottom:none}
+  .unlock .c{color:var(--success);flex:0 0 auto}
+  .ranktier{display:flex;gap:10px;align-items:center;margin:0 16px 8px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:11px 13px}
+  .ranktier.cur{border-color:var(--primary);box-shadow:0 0 0 3px #80002014}
+  .ranktier .dot{width:14px;height:14px;border-radius:999px;flex:0 0 auto}
+  .ranktier .nm{font-weight:700;font-size:14px;flex:1}
+  .ranktier .badge{font-size:10.5px;font-weight:700;color:var(--primary);background:#f4e6ea;border-radius:999px;padding:2px 8px}
+</style>
+</head><body>
+<div class="page-label">P14 · Rank detail <small>Current rank + what it unlocks · NO progress bar (criteria undefined — the trap)</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<script>
+var P=window.Partner, lang='en';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function render(){
+  var cur=P.identity.rank, R=P.RANKS[cur];
+  var unlocks=(lang==='bn'?R.unlocksBn:R.unlocksEn).map(function(x){ return '<div class="unlock"><span class="c">✓</span><div>'+x+'</div></div>'; }).join('');
+  var tiers=['silver','gold','platinum'].map(function(k){ var r=P.RANKS[k]; return '<div class="ranktier'+(k===cur?' cur':'')+'"><span class="dot" style="background:'+r.hex+'"></span><span class="nm">'+t(r.bn,r.en)+'</span>'+(k===cur?'<span class="badge">'+t('বর্তমান','current')+'</span>':'')+'</div>'; }).join('');
+  document.getElementById('screen').innerHTML=
+    '<div class="wkbar"><a class="bk" href="partner-identity.page.html">‹</a><h2>'+t('আমার র‍্যাংক','My rank')+'</h2>'+
+    '<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span></div>'+
+    '<div class="rankmedal" style="background:linear-gradient(135deg,'+R.hex+',#5b6068)">◆</div>'+
+    '<div class="rankname">'+t(R.bn,R.en)+'</div>'+
+    '<div class="ranknote">'+t('র‍্যাংক স্যামন অ্যাডমিন কর্তৃক ম্যানুয়ালি নির্ধারিত হয়।','Rank is assigned manually by a Salmon admin.')+'</div>'+
+    '<div class="sectitle" style="margin-left:16px">'+t('এই র‍্যাংক যা আনলক করে','What this rank unlocks')+'</div>'+
+    '<div class="rowlist" style="margin:0 16px 14px">'+unlocks+'</div>'+
+    '<div class="sectitle" style="margin-left:16px">'+t('সব র‍্যাংক','All ranks')+'</div>'+tiers+
+    '<p class="phelp" style="margin-top:12px">'+t('আমরা ইচ্ছাকৃতভাবে "পরবর্তী র‍্যাংকের দিকে অগ্রগতি" দেখাই না — এর নিয়ম এখনো নির্ধারিত হয়নি। এমন কোনো বার দেখানো হলে তা এমন প্রতিশ্রুতি হবে যা স্যামন দেয়নি। (OPEN_QUESTIONS: র‍্যাংক কি অগ্রগতি দেখাবে, কোন নিয়মে?)','We deliberately do NOT show “progress toward the next rank” — the rule isn’t defined. Showing a bar would imply a promise Salmon hasn’t made. (OPEN_QUESTIONS: should ranks show progression, and by what rule?)')+'</p>';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

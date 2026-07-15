@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Commission detail</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-state.js"></script>
+<script src="../assets/js/partner-ledger.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>.wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}.wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}</style>
+</head><body>
+<div class="page-label">P45 · Commission detail <small>Traces to a converted lead · amount is human-entered on the web panel, never computed</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<script>
+var L=window.PartnerLedger, P=window.Partner, lang='en';
+function qs(k){ return new URLSearchParams(location.search).get(k); }
+var c=L.find(qs('ref'))||L.commissions[0];
+function t(bn,en){ return lang==='bn'?bn:en; }
+function bdt(n){ var x=String(Math.round(n)); var l=x.slice(-3),r=x.slice(0,-3); if(r)r=r.replace(/\B(?=(\d{2})+(?!\d))/g,','); return '৳ '+(r?r+','+l:l); }
+function fmt(iso){ if(!iso)return '—'; try{ return new Intl.DateTimeFormat(lang==='bn'?'bn-BD':'en-GB',{day:'numeric',month:'short',year:'numeric'}).format(new Date(iso)); }catch(e){return iso;} }
+function pill(st){ var o=L.STATUS[st]; return '<span class="st '+o.cls+'"><span class="gl">'+o.gl+'</span>'+t(o.bn,o.en)+'</span>'; }
+function render(){
+  var lt='<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span>';
+  var prog=P.PROGRAMS[c.program]?t(P.PROGRAMS[c.program].bn,P.PROGRAMS[c.program].en):c.program;
+  document.getElementById('screen').innerHTML=
+    '<div class="wkbar"><a class="bk" href="commission-ledger.page.html">‹</a><h2>'+L.strings[lang].detail+'</h2>'+lt+'</div>'+
+    '<div class="headline" style="margin:12px 16px 6px;background:linear-gradient(135deg,#fff,#faf0f2);border:1px solid #eccdd5;border-radius:16px;padding:18px;text-align:center"><div style="font-size:12px;color:var(--ink-subtle)">'+t('কমিশন','Commission')+'</div><div style="font-size:30px;font-weight:800;color:var(--primary);margin-top:3px">'+bdt(c.amountBdt)+'</div><div style="margin-top:8px">'+pill(c.status)+'</div></div>'+
+    '<div class="rowlist" style="margin:8px 16px 12px"><a class="row" style="text-decoration:none;color:inherit" href="lead-detail.page.html?id='+c.leadId+'"><span>'+L.strings[lang].relatedLead+'</span><span class="u">'+t(c.leadNameBn,c.leadName)+' ('+c.leadId+') ›</span></a>'+
+    '<div class="row"><span>'+L.strings[lang].project+'</span><span class="u">'+c.project+'</span></div>'+
+    '<div class="row"><span>'+L.strings[lang].program+'</span><span class="u">'+prog+'</span></div>'+
+    '<div class="row"><span>'+L.strings[lang].approvedOn+'</span><span class="u">'+fmt(c.approvedDate)+'</span></div>'+
+    '<div class="row"><span>'+L.strings[lang].reference+'</span><span class="u">'+c.ref+'</span></div></div>'+
+    '<div class="wall" style="margin:0 16px 14px;background:#faf3ec;border:1px dashed #e3d3c1;border-radius:12px;padding:12px 13px;font-size:12px;color:var(--ink-subtle);line-height:1.55">💡 '+L.strings[lang].humanNote+'</div>'+
+    '<p class="empty-note" style="text-align:left;margin:0 16px 16px">'+t('প্রতিটি কমিশন একটি নির্দিষ্ট রূপান্তরিত লিডে ফিরে যায় — এই ট্রেসেবিলিটিই একে বিশ্বাসযোগ্য করে।','Every commission traces back to a specific converted lead — that traceability is what makes it trustworthy.')+'</p>';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Terms</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<script src="../assets/js/payment-state.js"></script>
+<style>
+  .langtoggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+  .langtoggle button{border:none;background:transparent;font-size:12px;padding:6px 10px;color:var(--ink-subtle);cursor:pointer}
+  .langtoggle button.on{background:var(--primary);color:#fff}
+  .scrollnote{font-size:11.5px;color:var(--ink-subtle);text-align:center;margin:4px var(--gutter)}
+  .consent{display:flex;gap:11px;align-items:flex-start;margin:12px var(--gutter);background:#f4e6ea;border:1px solid #e6cdd5;border-radius:12px;padding:13px;cursor:pointer}
+  .consent.dim{opacity:.5;pointer-events:none}
+  .consent input{position:absolute;opacity:0;width:0;height:0}
+  .consent .cbx{width:22px;height:22px;border-radius:6px;border:1.6px solid #cbb9ad;background:#fff;display:grid;place-items:center;flex:0 0 auto;color:#fff;font-size:13px}
+  .consent input:checked + .cbx{background:var(--primary);border-color:var(--primary)}
+  .consent p{font-size:12.5px;color:#6a4a52;line-height:1.5}
+</style>
+</head><body>
+<div class="page-label">Client · Terms — scroll to accept (38) <small>Full text · no pre-tick · explicit checkbox (financial commitment)</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" style="padding-bottom:90px">
+    <div class="appbar"><a class="back" id="back" href="#" style="font-size:20px;text-decoration:none;color:var(--ink)">‹</a><h2 id="ttl">Terms</h2>
+      <span class="langtoggle"><button id="l-en" class="on" onclick="setLang('en')">EN</button><button id="l-bn" onclick="setLang('bn')">বাং</button></span></div>
+    <div class="termsbox" id="termsbox" tabindex="0"></div>
+    <p class="scrollnote" id="scrollnote"></p>
+    <label class="consent dim" id="consentwrap"><input type="checkbox" id="agree" onchange="upd()"><span class="cbx">✓</span><span id="consenttx"></span></label>
+  </div>
+  <div style="position:absolute;left:0;right:0;bottom:0;background:#fffdfb;border-top:1px solid var(--line);padding:12px var(--gutter)">
+    <a class="btn" id="accept" style="opacity:.5;pointer-events:none" href="#" onclick="accept(event)">Accept & create booking</a>
+  </div>
+</div>
+<script>
+var D=window.SALMON, PS=window.PayState, lang='en', scrolled=false;
+function qs(k){ return new URLSearchParams(location.search).get(k); }
+var slug=qs('slug')||'the-rossa', unit=qs('unit')||'A-7';
+document.getElementById('back').href='booking-review.page.html?slug='+slug+'&unit='+unit;
+var TXT={
+  en:'<h4>1. Nature of the token booking</h4>This token reserves the selected unit for a limited hold window. It does not complete the purchase of the property.<h4>2. Transaction currency</h4>You are charged in BDT, the authoritative transaction currency. Any other currency shown is an indicative reference only.<h4>3. Confirmation</h4>Your booking is confirmed only after Salmon receives and verifies the payment provider’s notification. A gateway or app screen indicating payment is not, by itself, confirmation.<h4>4. Hold expiry</h4>If payment is not confirmed within the hold window, the unit is released and the booking expires. Amounts already captured are handled under Salmon’s refund process.<h4>5. Cancellation & refund</h4>Cancellation and refund terms are set by Salmon and provided before completion. (Placeholder — to be finalised.)<h4>6. Installments</h4>The balance is payable under an installment schedule provided after booking.<h4>7. No card storage</h4>Salmon never collects or stores your card, CVV, PIN or bank credentials. Payment is handled by the gateway’s hosted checkout.<h4>8. Data</h4>Your information is processed per Salmon’s Privacy Policy.<br><br>— End of terms —',
+  bn:'<h4>১. টোকেন বুকিংয়ের প্রকৃতি</h4>এই টোকেন নির্বাচিত ইউনিটটি একটি নির্দিষ্ট সময়ের জন্য সংরক্ষণ করে। এটি সম্পত্তির সম্পূর্ণ ক্রয় সম্পন্ন করে না।<h4>২. লেনদেন মুদ্রা</h4>আপনাকে বিডিটি-তে চার্জ করা হয়, যা প্রকৃত লেনদেন মুদ্রা। অন্য যেকোনো মুদ্রা কেবল নির্দেশক রেফারেন্স।<h4>৩. নিশ্চিতকরণ</h4>স্যামন পেমেন্ট প্রোভাইডারের যাচাইকৃত নোটিফিকেশন পাওয়ার পরই বুকিং নিশ্চিত হয়। গেটওয়ে বা অ্যাপ স্ক্রিন নিজে থেকে নিশ্চিতকরণ নয়।<h4>৪. হোল্ড মেয়াদ</h4>হোল্ড সময়ের মধ্যে পেমেন্ট নিশ্চিত না হলে ইউনিট মুক্ত হয় ও বুকিং বাতিল হয়। ইতিমধ্যে গৃহীত অর্থ স্যামনের রিফান্ড প্রক্রিয়ায় পরিচালিত হয়।<h4>৫. বাতিল ও রিফান্ড</h4>বাতিল ও রিফান্ড শর্ত স্যামন নির্ধারণ করে (প্লেসহোল্ডার — চূড়ান্ত হয়নি)।<h4>৬. কিস্তি</h4>বাকি মূল্য বুকিংয়ের পর প্রদত্ত কিস্তি সময়সূচি অনুযায়ী পরিশোধযোগ্য।<h4>৭. কার্ড সংরক্ষণ নয়</h4>স্যামন কখনো আপনার কার্ড, সিভিভি, পিন বা ব্যাংক তথ্য সংগ্রহ/সংরক্ষণ করে না। পেমেন্ট গেটওয়ের হোস্টেড চেকআউটে হয়।<h4>৮. ডেটা</h4>আপনার তথ্য স্যামনের গোপনীয়তা নীতি অনুযায়ী প্রক্রিয়া করা হয়।<br><br>— শর্তাবলি সমাপ্ত —'
+};
+var box=document.getElementById('termsbox');
+box.addEventListener('scroll', function(){ if(box.scrollTop + box.clientHeight >= box.scrollHeight - 8){ scrolled=true; document.getElementById('consentwrap').classList.remove('dim'); document.getElementById('scrollnote').textContent=''; upd(); } });
+function upd(){ var ok=scrolled && document.getElementById('agree').checked; var a=document.getElementById('accept'); a.style.opacity=ok?'1':'.5'; a.style.pointerEvents=ok?'auto':'none'; }
+function accept(e){ e.preventDefault(); if(!(scrolled && document.getElementById('agree').checked))return;
+  PS.reset(); PS.dispatch({type:'BOOK', slug:slug, unit:unit}); window.location.href='booking-created.page.html'; }
+function render(){
+  document.getElementById('ttl').textContent=lang==='bn'?'শর্তাবলি':'Terms & conditions';
+  box.innerHTML=TXT[lang];
+  document.getElementById('scrollnote').textContent = scrolled?'':(lang==='bn'?'সম্মতি দিতে শেষ পর্যন্ত স্ক্রল করুন':'Scroll to the end to accept');
+  document.getElementById('consenttx').textContent = lang==='bn'?'আমি বুকিং শর্তাবলি পড়েছি এবং সম্মত। এটি একটি আর্থিক প্রতিশ্রুতি।':'I have read and accept the booking terms. This is a financial commitment.';
+  document.getElementById('accept').textContent = lang==='bn'?'সম্মত হয়ে বুকিং তৈরি করুন':'Accept & create booking';
+  upd();
+}
+function setLang(l){ lang=l; document.getElementById('l-en').classList.toggle('on',l==='en'); document.getElementById('l-bn').classList.toggle('on',l==='bn'); render(); }
+render();
+</script>
+</body></html>

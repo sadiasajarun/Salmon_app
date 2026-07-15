@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Units</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<script src="../assets/js/currency.js"></script>
+<script src="../assets/js/payment-state.js"></script>
+<style>
+  .langtoggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+  .langtoggle button{border:none;background:transparent;font-size:12px;padding:6px 10px;color:var(--ink-subtle);cursor:pointer}
+  .langtoggle button.on{background:var(--primary);color:#fff}
+  .ustat{margin:8px var(--gutter) 6px;font-size:13px;color:var(--ink-subtle)}.ustat b{color:var(--ink)}
+  .floor{font-size:12px;font-weight:700;color:var(--ink-subtle);margin:14px var(--gutter) 8px;text-transform:uppercase;letter-spacing:.04em}
+  .urow{display:flex;align-items:center;justify-content:space-between;margin:0 var(--gutter) 8px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:13px 14px;text-decoration:none;color:var(--ink)}
+  .urow.inert{opacity:.6}
+  .urow .code{font-weight:700}
+  .inflight{margin:8px var(--gutter) 0;background:#f7efe0;border:1px solid #eaddc2;color:#8a6414;border-radius:12px;padding:10px 12px;font-size:12.5px;display:block;text-decoration:none}
+</style>
+</head><body>
+<div class="page-label">Client · Unit list (35) <small>Status chips · only Available is bookable · seeing what’s gone is a selling tool</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen"></div>
+  <div class="bottomnav">
+    <a class="nav" href="../client/explore-map.page.html"><svg viewBox="0 0 24 24"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Discover</a>
+    <a class="nav" href="../client/my-bookings.page.html"><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/></svg>Bookings</a>
+    <a class="nav" href="../client/installments.page.html"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>Ledger</a>
+    <a class="nav" href="../shared/profile.page.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Profile</a>
+  </div>
+</div>
+<script>
+var D=window.SALMON, C=window.Currency, PS=window.PayState, lang='en';
+function qs(k){ return new URLSearchParams(location.search).get(k); }
+var p=D.projects.find(function(x){return x.slug===qs('slug');})||D.projects.find(function(x){return x.slug==='the-rossa';});
+var GL={available:'●',reserved:'■',booked:'▲',sold:'✕'};
+function s(k){ return D.strings[lang][k]||k; }
+function chip(st){ var cls={available:'st-ongoing',reserved:'st-completed',booked:'st-upcoming',sold:'st-completed'}[st]; return '<span class="st '+cls+'"><span class="gl">'+GL[st]+'</span>'+s(st)+'</span>'; }
+function floorOf(label){ var m=(label||'').match(/^(\d+)/); return m?+m[1]:0; }
+function render(){
+  var t=PS.tickExpiry();
+  var gone=p.units.filter(function(u){return u.status!=='available';}).length;
+  var lt='<span class="langtoggle"><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button></span>';
+  var h='<div class="appbar"><a class="back" href="project-detail.page.html?slug='+p.slug+'" style="font-size:20px;text-decoration:none;color:var(--ink)">‹</a><h2>'+(lang==='bn'?'ইউনিট':'Units')+'</h2>'+lt+'</div>';
+  if(PS.inFlight(t.status)) h+='<a class="inflight" href="duplicate-guard.page.html">⏳ '+(lang==='bn'?'আপনার একটি লেনদেন চলছে — দেখুন':'You have a transaction in progress — view it')+' ›</a>';
+  h+='<div class="ustat"><b>'+gone+'</b> '+(lang==='bn'?'টির মধ্যে ':'of ')+p.units.length+' '+(lang==='bn'?'বুক হয়ে গেছে · ':'gone · ')+'<b>'+p.availableUnits+'</b> '+s('available')+'</div>';
+  h+='<div class="legend"><span><span class="gl lg-ongoing">●</span>'+s('available')+'</span><span><span class="gl lg-completed">■</span>'+s('reserved')+'</span><span><span class="gl lg-upcoming">▲</span>'+s('booked')+'</span><span><span class="gl" style="color:#6B7280">✕</span>'+s('sold')+'</span></div>';
+  var floors={}; p.units.forEach(function(u){ (floors[floorOf(u.label)]=floors[floorOf(u.label)]||[]).push(u); });
+  Object.keys(floors).sort(function(a,b){return a-b;}).forEach(function(f){
+    h+='<div class="floor">'+(lang==='bn'?'তলা ':'Floor ')+f+'</div>';
+    floors[f].forEach(function(u){
+      var meta=p.glance.bed+' '+(lang==='bn'?'বেড':'bed')+' · '+p.glance.sqft[0]+' sqft · '+p.glance.facing;
+      if(u.status==='available') h+='<a class="urow" href="unit-detail.page.html?slug='+p.slug+'&unit='+u.label+'"><div><div class="code">'+u.label+'</div><div class="sub">'+meta+'</div></div>'+chip(u.status)+'</a>';
+      else h+='<div class="urow inert"><div><div class="code">'+u.label+'</div><div class="sub">'+meta+'</div></div>'+chip(u.status)+'</div>';
+    });
+  });
+  document.getElementById('screen').innerHTML=h;
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

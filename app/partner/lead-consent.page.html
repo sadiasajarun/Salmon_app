@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Confirm consent</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .consentbox{margin:14px 16px;background:#fff;border:2px solid var(--primary);border-radius:14px;padding:16px}
+  .consentbox h3{font-family:var(--serif);font-size:17px;color:var(--primary)}
+  .consentbox p{font-size:13px;color:var(--ink);line-height:1.65;margin-top:10px}
+  .cbrow{display:flex;gap:12px;align-items:flex-start;margin-top:14px;cursor:pointer}
+  .cbrow input{position:absolute;opacity:0;width:0;height:0}
+  .cbrow .cbx{width:26px;height:26px;border-radius:7px;border:2px solid #cbb9ad;background:#fff;display:grid;place-items:center;color:#fff;font-size:15px;flex:0 0 auto}
+  .cbrow input:checked + .cbx{background:var(--primary);border-color:var(--primary)}
+  .cbrow input:focus-visible + .cbx{outline:2px solid var(--primary);outline-offset:2px}
+  .cbrow .lbl{font-size:13px;font-weight:600;line-height:1.5}
+  .why{font-size:11.5px;color:var(--ink-subtle);margin:0 16px 14px;line-height:1.5}
+</style>
+</head><body>
+<div class="page-label">P28 · Consent to share ⭐⭐ <small>Mandatory · explicit · NOT pre-ticked · unskippable — the app’s data-protection shield</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div id="top" style="flex:0 0 auto"></div>
+  <div class="screen" style="padding-bottom:80px" id="body"></div>
+  <div class="pbtnbar"><a class="btn ghost" href="submit-lead.page.html" style="flex:0 0 auto">‹</a><a class="btn" id="submit" href="#" onclick="submitLead(event)" style="flex:1">Submit lead</a></div>
+</div>
+<script>
+var D=window.SALMON, lang='en', agreed=false;
+var LD_KEY='salmon_lead_draft';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function draft(){ try{ return JSON.parse(localStorage.getItem(LD_KEY))||{}; }catch(e){ return {}; } }
+function bar(){ document.getElementById('top').innerHTML=
+  '<div class="wkbar"><a class="bk" href="submit-lead.page.html">‹</a><h2>'+t('সম্মতি নিশ্চিত করুন','Confirm consent')+'</h2>'+
+  '<span class="wklang" style="display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden"><button style="border:none;background:'+(lang==='bn'?'#ffffff33':'transparent')+';color:#fdf3f1;font-size:12px;padding:5px 9px" onclick="setLang(\'bn\')">বাং</button><button style="border:none;background:'+(lang==='en'?'#ffffff33':'transparent')+';color:#fdf3f1;font-size:12px;padding:5px 9px" onclick="setLang(\'en\')">EN</button></span></div>'; }
+function render(){
+  bar(); var d=draft(); var nm=d.name||t('এই ব্যক্তি','this person'); var proj=(D.projects.filter(function(p){return p.slug===d.projectSlug;})[0]||{}).name||'';
+  document.getElementById('body').innerHTML=
+    '<div class="rowlist" style="margin:12px 16px 4px"><div class="row"><span>'+t('নাম','Name')+'</span><span class="u">'+nm+'</span></div>'+
+    '<div class="row"><span>'+t('ফোন','Phone')+'</span><span class="u">'+((d.cc||'+880'))+' '+((d.phone||''))+'</span></div>'+
+    '<div class="row"><span>'+t('প্রকল্প','Project')+'</span><span class="u">'+proj+'</span></div></div>'+
+    '<div class="consentbox"><h3>'+t('আপনি কী নিশ্চিত করছেন','What you are confirming')+'</h3>'+
+    '<p>'+t('আমি নিশ্চিত করছি যে <b>'+nm+'</b> আমাকে তাঁর নাম ও ফোন নম্বর স্যামন ডেভেলপার্স-এর সাথে শেয়ার করার অনুমতি দিয়েছেন, যাতে স্যামনের একজন প্রতিনিধি সম্পত্তি সম্পর্কে তাঁর সাথে যোগাযোগ করতে পারেন। এই অনুমতি নেওয়ার দায়িত্ব আমার।','I confirm that <b>'+nm+'</b> has given me permission to share their name and phone number with Salmon Developers, so that a Salmon representative may contact them about property. I am responsible for having obtained this permission.')+'</p>'+
+    '<label class="cbrow"><input type="checkbox" id="agree" onchange="onAgree()"><span class="cbx">✓</span><span class="lbl">'+t('হ্যাঁ, এই ব্যক্তি তাঁর তথ্য শেয়ারে সম্মতি দিয়েছেন।','Yes, this person consented to sharing their details.')+'</span></label></div>'+
+    '<p class="why">'+t('এই নিশ্চিতকরণ বাধ্যতামূলক এবং আগে থেকে টিক দেওয়া নেই — এটি ইচ্ছাকৃত। অনুমতি ছাড়া কারও তথ্য জমা দেওয়া তথ্য-সুরক্ষা লঙ্ঘন।','This confirmation is mandatory and not pre-ticked — deliberately. Submitting someone’s details without their permission is a data-protection violation.')+
+    ' <span class="pflag">'+t('চেকবক্স যথেষ্ট কিনা — আইনি যাচাই প্রয়োজন (OPEN_QUESTIONS)','Is a checkbox sufficient? Legal check pending (OPEN_QUESTIONS)')+'</span></p>';
+  upd();
+}
+function onAgree(){ agreed=document.getElementById('agree').checked; upd(); }
+function upd(){ var b=document.getElementById('submit'); b.textContent=t('লিড জমা দিন','Submit lead'); b.style.opacity=agreed?'1':'.45'; b.style.pointerEvents=agreed?'auto':'none'; }
+function submitLead(e){ e.preventDefault(); if(!agreed) return;
+  if(window.NetSim&&NetSim.isOffline()){ NetSim.blockPay(t('জমা দিতে সংযোগ প্রয়োজন। আপনার লেখা সংরক্ষিত আছে।','You need a connection to submit. Your input is saved.')); return; }
+  var d=draft(); var ref='LD-'+Math.floor(3100+Math.random()*900);
+  try{ localStorage.setItem('salmon_last_lead', JSON.stringify(Object.assign({ref:ref,consentAt:'2026-07-15'},d))); localStorage.removeItem(LD_KEY); }catch(err){}
+  window.location.href='lead-submitted.page.html';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Request settlement</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-ledger.js"></script>
+<script src="../assets/js/settlement-state.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}.wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}
+  .balance{margin:14px 16px 4px;background:linear-gradient(135deg,#fff,#faf0f2);border:1px solid #eccdd5;border-radius:14px;padding:16px;text-align:center}
+  .balance .l{font-size:12px;color:var(--ink-subtle)} .balance .v{font-size:26px;font-weight:800;color:var(--primary);margin-top:2px}
+  .amtin{margin:0 16px}.amtin .row{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px 12px}
+  .amtin .cur{font-size:18px;font-weight:700;color:var(--ink-subtle)}
+  .amtin input{flex:1;border:none;outline:none;font:inherit;font-size:24px;font-weight:800;color:var(--ink);padding:12px 0;background:transparent;width:100%}
+  .amtin.bad .row{border-color:var(--error);box-shadow:0 0 0 3px #b4232b1f}
+  .amterr{display:none;font-size:12px;color:var(--error);margin:6px 16px 0}.amterr.show{display:block}
+  .why{margin:14px 16px;background:#eef4f0;border:1px solid #cfe6da;border-radius:12px;padding:12px 13px;font-size:12.5px;color:#1E7A46;line-height:1.55}
+  .blockhero{text-align:center;padding:24px 20px 8px}.blockhero .ic{width:70px;height:70px;border-radius:999px;display:grid;place-items:center;margin:0 auto 12px;font-size:32px}
+</style>
+</head><body>
+<div class="page-label">P46 · Request settlement ⭐⭐ / P50 blocks <small>ONE input (amount) · capped at Approved · NO bank/account/card/MFS field · offline blocked</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:80px"></div>
+  <div class="pbtnbar" id="btnbar"><a class="btn ghost" href="commission.page.html" style="flex:0 0 auto">‹</a><a class="btn" id="submit" href="#" onclick="submitReq(event)" style="flex:1">Request settlement</a></div>
+</div>
+<div class="devbar"><h4>Dev · P50 block states</h4><div class="dchips">
+  <button onclick="sim('none')">Clear (can request)</button>
+  <button onclick="sim('inflight')">Simulate in-flight</button>
+</div></div>
+<script>
+var L=window.PartnerLedger, ST=window.Settlement, lang='en', amount=0;
+var BAL=L.approvedBalanceBdt();
+function t(bn,en){ return lang==='bn'?bn:en; }
+function bdt(n){ var x=String(Math.round(n)); var l=x.slice(-3),r=x.slice(0,-3); if(r)r=r.replace(/\B(?=(\d{2})+(?!\d))/g,','); return '৳ '+(r?r+','+l:l); }
+function lt(){ return '<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span>'; }
+function sim(w){ if(w==='inflight'){ ST.reset(); ST.dispatch({type:'SUBMIT', amountBdt:55000}); } else { ST.reset(); } render(); }
+function render(){
+  var st=ST.load();
+  var head='<div class="wkbar"><a class="bk" href="commission.page.html">‹</a><h2>'+t('সেটেলমেন্ট অনুরোধ','Request settlement')+'</h2>'+lt()+'</div>';
+  // P50: in-flight block
+  if(ST.inFlight(st.status)){
+    document.getElementById('btnbar').style.display='none';
+    document.getElementById('screen').innerHTML=head+
+      '<div class="blockhero"><div class="ic" style="background:#f7efe0;color:#B7791F">⏳</div><h1 style="font-family:var(--serif);font-size:20px">'+t('একটি অনুরোধ প্রক্রিয়াধীন','A request is being processed')+'</h1>'+
+      '<p style="font-size:13.5px;color:var(--ink-subtle);margin-top:10px;line-height:1.6">'+t('আপনার একটি সেটেলমেন্ট অনুরোধ ('+bdt(st.amountBdt)+') চলমান। এটি সমাধান হলে আপনি আরেকটি জমা দিতে পারবেন।','You have a settlement request ('+bdt(st.amountBdt)+') being processed. You can submit another once it resolves.')+'</p></div>'+
+      '<a class="btn block" href="settlement-status.page.html" style="margin:8px 16px 0;border-radius:10px">'+t('অবস্থা দেখুন','View status')+'</a>'+
+      '<a class="btn ghost block" href="commission.page.html" style="margin:10px 16px 16px;border-radius:10px">'+t('আয়ে ফিরুন','Back to earnings')+'</a>';
+    return;
+  }
+  document.getElementById('btnbar').style.display='flex';
+  var over=amount>BAL;
+  document.getElementById('screen').innerHTML=head+
+    '<div class="balance"><div class="l">'+t('অনুমোদিত ব্যালেন্স (অনুরোধযোগ্য)','Approved balance (requestable)')+'</div><div class="v">'+bdt(BAL)+'</div></div>'+
+    '<p class="phelp" style="margin:6px 16px 8px">'+t('শুধু অনুমোদিত কমিশন অনুরোধ করা যায়। কত ছাড় করতে হবে লিখুন।','Only approved commission is requestable. Enter how much to release.')+'</p>'+
+    '<div class="amtin'+(over?' bad':'')+'"><div class="row"><span class="cur">৳</span><input type="tel" inputmode="numeric" id="amt" placeholder="0" value="'+(amount||'')+'" oninput="onAmt(this.value)"></div></div>'+
+    '<div class="amterr'+(over?' show':'')+'" id="err">'+t('আপনি সর্বোচ্চ '+bdt(BAL)+' অনুরোধ করতে পারেন (আপনার অনুমোদিত ব্যালেন্স)।','You can request up to '+bdt(BAL)+' (your approved balance).')+'</div>'+
+    '<div class="why">💳 '+t('স্যামনের ফিন্যান্স টিম আপনার সম্মত পদ্ধতিতে সেটেলমেন্ট পরিশোধ করে। শুধু কত ছাড় করতে হবে সেটি বলুন — কোনো ব্যাংক/অ্যাকাউন্ট তথ্যের প্রয়োজন নেই।','Salmon’s finance team pays your settlement through your agreed method. Just tell us how much to release — no bank or account details are needed.')+'</div>';
+  var b=document.getElementById('submit'); b.textContent=t('সেটেলমেন্ট অনুরোধ','Request settlement');
+  var ok=amount>0 && !over; b.style.opacity=ok?'1':'.45'; b.style.pointerEvents=ok?'auto':'none';
+}
+function onAmt(v){ amount=parseInt((v||'').replace(/\D/g,''),10)||0; var b=document.getElementById('submit'); var over=amount>BAL;
+  document.querySelector('.amtin').classList.toggle('bad',over); document.getElementById('err').classList.toggle('show',over);
+  var ok=amount>0&&!over; b.style.opacity=ok?'1':'.45'; b.style.pointerEvents=ok?'auto':'none'; }
+function submitReq(e){ e.preventDefault(); if(!(amount>0&&amount<=BAL)) return;
+  if(window.NetSim&&NetSim.isOffline()){ NetSim.blockPay(t('সেটেলমেন্ট অনুরোধে সংযোগ প্রয়োজন। কিছু জমা হয়নি।','You need a connection to request settlement. Nothing has been submitted.')); return; }
+  ST.dispatch({type:'SUBMIT', amountBdt:amount});   // SUBMITTED only after a real submit — never optimistic
+  window.location.href='settlement-submitted.page.html';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

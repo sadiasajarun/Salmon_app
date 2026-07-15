@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Sales catalogue</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<script src="../assets/js/currency.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .wklang{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+  .wklang button{border:none;background:transparent;font-size:12px;padding:6px 10px;color:var(--ink-subtle);cursor:pointer}.wklang button.on{background:var(--primary);color:#fff}
+  .pcard2{margin:0 16px 10px;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;text-decoration:none;color:var(--ink);display:flex;gap:0}
+  .pcard2 .th{width:104px;flex:0 0 auto;background:linear-gradient(135deg,#b98a72,#7d5647)}
+  .pcard2 .th img{width:100%;height:100%;object-fit:cover;display:block}
+  .pcard2 .bd{padding:11px 12px;flex:1}
+  .pcard2 .nm{font-weight:700;font-size:14px} .pcard2 .lc{font-size:11.5px;color:var(--ink-subtle);margin-top:1px}
+  .avpill{font-size:11px;font-weight:700;color:var(--success);background:#e7f2ec;border-radius:999px;padding:2px 8px}
+  .price2{font-size:13px;font-weight:700;color:var(--primary);margin-top:6px} .price2 .b{display:block;font-size:11px;color:var(--ink);font-weight:600}
+</style>
+</head><body>
+<div class="page-label">P20 · Sales catalogue (partner view) <small>Same catalogue, framed to pitch · filter by type/location/status/availability</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen"></div>
+  <div class="bottomnav">
+    <a class="nav" href="../partner/dashboard.page.html"><svg viewBox="0 0 24 24"><path d="M4 13h6V4H4zM14 20h6V4h-6zM4 20h6v-5H4z"/></svg>Dashboard</a>
+    <a class="nav" href="../partner/leads.page.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Leads</a>
+    <a class="nav" href="../partner/commission.page.html"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>Commission</a>
+    <a class="nav" href="../partner/partner-identity.page.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.4"/><path d="M12 2v3M12 19v3M4.5 4.5l2 2M17.5 17.5l2 2M2 12h3M19 12h3M4.5 19.5l2-2M17.5 6.5l2-2"/></svg>Account</a>
+  </div>
+</div>
+<script>
+var D=window.SALMON, C=window.Currency, lang='en', fStatus='all';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function price(p){ if(!p.price) return ''; var m=C.priceModel(p.price,'AED'); return '<div class="price2">'+C.fmtDisplay(m.dispFrom,'AED')+'<span class="b">'+C.fmtBdt(m.bdtFrom)+'</span></div>'; }
+function render(){
+  var lt='<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span>';
+  var h='<div class="wkbar"><a class="bk" href="dashboard.page.html">‹</a><h2>'+t('সেলস ক্যাটালগ','Sales catalogue')+'</h2>'+
+    '<span class="wklang" style="border-color:#ffffff55;background:transparent"><button class="'+(lang==='bn'?'on':'')+'" style="color:#fdf3f1;background:'+(lang==='bn'?'#ffffff33':'transparent')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" style="color:#fdf3f1;background:'+(lang==='en'?'#ffffff33':'transparent')+'" onclick="setLang(\'en\')">EN</button></span></div>';
+  h+='<p class="phelp" style="margin:10px 16px 4px">'+t('আপনি কিনছেন না — পিচ করার জন্য প্রস্তুত হচ্ছেন। উপলব্ধতা দেখান, প্রকল্প বেছে নিন।','You’re not shopping — you’re arming yourself to pitch. Show availability, pick a project.')+'</p>';
+  h+='<div class="chips">'+['all','ongoing','completed','upcoming'].map(function(s){ var lab={all:t('সব','All'),ongoing:t('চলমান','Ongoing'),completed:t('সম্পন্ন','Completed'),upcoming:t('আসন্ন','Upcoming')}[s]; return '<span class="chip'+(fStatus===s?' active':'')+'" onclick="setF(\''+s+'\')">'+lab+'</span>'; }).join('')+'</div>';
+  var list=D.projects.filter(function(p){ return fStatus==='all'||p.status===fStatus; });
+  h+='<div class="countbar">'+t('মোট ','')+'<b>'+list.length+'</b> '+t('প্রকল্প','projects')+'</div>';
+  list.forEach(function(p){
+    var img=p.banner?'<img src="'+p.banner+'" onerror="this.style.display=\'none\'">':'';
+    var av=p.glance?('<span class="avpill">'+p.availableUnits+' / '+p.glance.flats+' '+t('খালি','avail')+'</span>'):('<span class="avpill" style="color:#B7791F;background:#f7efe0">'+t('আসন্ন','soon')+'</span>');
+    h+='<a class="pcard2" href="project-pitch.page.html?slug='+p.slug+'"><div class="th">'+img+'</div><div class="bd"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div class="nm">'+p.name+'</div><div class="lc">'+p.address+'</div></div>'+av+'</div>'+price(p)+'</div></a>';
+  });
+  h+='<div style="height:16px"></div>';
+  document.getElementById('screen').innerHTML=h;
+}
+function setF(s){ fStatus=s; render(); }
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

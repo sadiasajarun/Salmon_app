@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Consultation reminder</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/support-channel.js"></script>
+<script src="../assets/js/timezone.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .langtoggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+  .langtoggle button{border:none;background:transparent;font-size:12px;padding:6px 10px;color:var(--ink-subtle);cursor:pointer}
+  .langtoggle button.on{background:var(--primary);color:#fff}
+  .remind{margin:26px var(--gutter) 0;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:22px;text-align:center;box-shadow:0 10px 30px rgba(34,34,34,.08)}
+  .remind .bell{font-size:34px}
+  .remind h2{font-family:var(--serif);font-size:20px;margin-top:12px}
+  .remind .cl{font-size:16px;font-weight:700;margin-top:10px}
+  .remind .dh{font-size:12.5px;color:var(--ink-subtle);margin-top:3px}
+  .remind .join{display:block;background:var(--primary);color:#fff;border-radius:12px;padding:14px;text-decoration:none;font-weight:700;margin-top:16px}
+</style>
+</head><body>
+<div class="page-label">Client · Consultation reminder (62) <small>Timezone-adjusted · carries the meeting link with one-tap join · lead time = placeholder</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen"></div>
+</div>
+<script>
+var SC=window.SupportChannel, TZ=window.TZ, lang='en';
+var utc=Date.UTC(2026,6,16,12,0), LINK='https://zoom.us/j/000000000?pwd=__PLACEHOLDER';
+function cl(){ return new Intl.DateTimeFormat('en-GB',{timeZone:TZ.getTz(),weekday:'long',hour:'numeric',minute:'2-digit',hour12:true}).format(new Date(utc)); }
+function dh(){ return new Intl.DateTimeFormat('en-GB',{timeZone:TZ.DHAKA,hour:'numeric',minute:'2-digit',hour12:true}).format(new Date(utc)); }
+function lt(){ return '<span class="langtoggle"><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button></span>'; }
+function render(){
+  var city=TZ.getTz().split('/')[1].replace('_',' ');
+  document.getElementById('screen').innerHTML=
+    '<div class="appbar"><h2>'+(lang==='bn'?'রিমাইন্ডার':'Reminder')+'</h2>'+lt()+'</div>'+
+    '<div class="remind"><div class="bell">🔔</div><h2>'+(lang==='bn'?'আপনার কনসালটেশন ১ ঘণ্টায়':'Your consultation is in 1 hour')+'</h2>'+
+    '<div class="cl">'+cl()+'</div><div class="dh">'+(lang==='bn'?'আপনার সময় ('+city+') · ঢাকায় ':'Your time ('+city+') · ')+dh()+' Dhaka</div>'+
+    '<a class="join" href="'+LINK+'" target="_blank">'+(lang==='bn'?'Zoom-এ যোগ দিন':'Join on Zoom')+'</a>'+
+    '<div class="sub" style="margin-top:12px">'+(lang==='bn'?SC.rm.name+'-এর সাথে':'with '+SC.rm.name)+'</div></div>'+
+    '<p class="empty-note" style="text-align:left;margin:14px var(--gutter)">'+(lang==='bn'?'রিমাইন্ডার আপনার সময় অনুযায়ী পাঠানো হয়। লিড টাইম (২৪ঘ/১ঘ) এখনো চূড়ান্ত নয় (OPEN_QUESTIONS)। বিজ্ঞপ্তির পেলোডে কোনো আর্থিক তথ্য নেই।':'Reminders fire in your timezone. Lead time (24h/1h) is not finalised (OPEN_QUESTIONS). The notification payload carries no financial detail.')+'</p>';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

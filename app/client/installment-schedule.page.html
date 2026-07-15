@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Payment schedule</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<script src="../assets/js/currency.js"></script>
+<script src="../assets/js/ledger.js"></script>
+<style>
+  .langtoggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+  .langtoggle button{border:none;background:transparent;font-size:12px;padding:6px 10px;color:var(--ink-subtle);cursor:pointer}
+  .langtoggle button.on{background:var(--primary);color:#fff}
+  .irow{display:flex;align-items:center;gap:12px;margin:0 var(--gutter) 8px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 13px;text-decoration:none;color:var(--ink)}
+  .irow.over{border-color:#eecccd;background:#fdf3f3}
+  .irow .seq{width:34px;height:34px;border-radius:10px;background:#f4e6ea;color:var(--primary);display:grid;place-items:center;font-weight:700;font-size:13px;flex:0 0 auto}
+  .irow .m{flex:1}.irow .m .d{font-weight:600;font-size:13.5px}.irow .m .a{font-size:12px;color:var(--ink-subtle);margin-top:2px}
+</style>
+</head><body>
+<div class="page-label">Client · Payment schedule (52) <small>Every installment · per-item status · overdue surfaced to top · his timezone</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen"></div>
+  <div class="bottomnav">
+    <a class="nav" href="../client/explore-map.page.html"><svg viewBox="0 0 24 24"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Discover</a>
+    <a class="nav" href="../client/my-bookings.page.html"><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/></svg>Bookings</a>
+    <a class="nav on" href="../client/installments.page.html"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>Ledger</a>
+    <a class="nav" href="../shared/profile.page.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Profile</a>
+  </div>
+</div>
+<script>
+var D=window.SALMON, C=window.Currency, L=window.LEDGER, lang='en';
+var GL={paid:'✓',due:'▲',overdue:'!',upcoming:'•'};
+function s(k){ return (D.strings[lang][k]||L.strings[lang][k]||k); }
+function fmtDue(iso){ try{ return new Intl.DateTimeFormat(lang==='bn'?'bn-BD':'en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:L.tz}).format(new Date(iso)); }catch(e){ return iso.slice(0,10); } }
+function pill(st){ var c={paid:'st-ongoing',due:'st-upcoming',overdue:'st-upcoming',upcoming:'st-completed'}[st]; var lab={paid:s('paid'),due:s('due'),overdue:L.strings[lang].overdue,upcoming:s('upcoming')}[st]; var g={paid:'✓',due:'▲',overdue:'!',upcoming:'•'}[st]; var extra=st==='overdue'?' style="color:#B4232B;background:#f7e6e7"':''; return '<span class="st '+c+'"'+extra+'><span class="gl">'+g+'</span>'+lab+'</span>'; }
+function render(){
+  var lt='<span class="langtoggle"><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button></span>';
+  var h='<div class="appbar"><a class="back" href="installments.page.html" style="font-size:20px;text-decoration:none;color:var(--ink)">‹</a><h2>'+L.strings[lang].schedule+'</h2>'+lt+'</div>';
+  h+='<div class="sub" style="margin:0 var(--gutter) 8px">'+(lang==='bn'?'সময় ':'Times in ')+L.tz+'</div>';
+  // overdue surfaced to top, then chronological
+  var order=L.installments.slice().sort(function(a,b){ if((a.status==='overdue')!=(b.status==='overdue')) return a.status==='overdue'?-1:1; return a.seq-b.seq; });
+  order.forEach(function(i){
+    var payable=(i.status==='due'||i.status==='overdue');
+    var inner='<span class="seq">'+i.seq+'</span><div class="m"><div class="d">'+(lang==='bn'?'কিস্তি ':'Installment ')+i.seq+'</div><div class="a">'+fmtDue(i.dueUtc)+' · '+C.fmtDisplay(C.toDisplay(i.amountBdt,'AED'),'AED')+' · '+C.fmtBdt(i.amountBdt)+'</div></div>'+pill(i.status);
+    if(payable) h+='<a class="irow'+(i.status==='overdue'?' over':'')+'" href="pay-installment.page.html?seq='+i.seq+'">'+inner+'</a>';
+    else h+='<div class="irow">'+inner+'</div>';
+  });
+  h+='<div style="height:16px"></div>';
+  document.getElementById('screen').innerHTML=h;
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

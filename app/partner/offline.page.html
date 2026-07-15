@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Offline</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}
+  .wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}.wklang button.on{background:#ffffff33}
+  .obar{margin:12px 16px;background:#33251f;color:#f6e9e0;border-radius:12px;padding:13px 14px;display:flex;gap:10px;align-items:center}
+  .obar .d{font-size:22px} .obar .tx{font-size:12.5px;line-height:1.5}
+  .cat{margin:14px 16px 6px;font-size:11.5px;font-weight:800;color:var(--ink-subtle);text-transform:uppercase;letter-spacing:.4px}
+  .crow{display:flex;gap:11px;align-items:flex-start;margin:0 16px 8px;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:12px}
+  .crow .ic{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex:0 0 auto}
+  .ok .ic{background:#e7f1ea;color:#1E7A46} .stale .ic{background:#f7efe0;color:#8a6d2f} .blocked .ic{background:#fbeaea;color:#a13636}
+  .crow .lb{font-weight:700;font-size:13px} .crow .sub2{font-size:11.5px;color:var(--ink-subtle);margin-top:2px;line-height:1.5}
+  .crow .tag{margin-left:auto;font-size:10.5px;font-weight:800;white-space:nowrap}
+  .ok .tag{color:#1E7A46} .stale .tag{color:#8a6d2f} .blocked .tag{color:#a13636}
+</style>
+</head><body>
+<div class="page-label">P77 · Offline / weak network ⭐ <small>Rural BD is baseline · viewed+downloaded offline · dashboard/leads/notices cached+stale · money BLOCKED, never queued</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<script>
+var lang='en';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function row(cls,ic,lb,sub,tag){ return '<div class="crow '+cls+'"><span class="ic">'+ic+'</span><div><div class="lb">'+lb+'</div><div class="sub2">'+sub+'</div></div><span class="tag">'+tag+'</span></div>'; }
+function render(){
+  var lt='<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span>';
+  document.getElementById('screen').innerHTML=
+    '<div class="wkbar"><a class="bk" href="dashboard.page.html">‹</a><h2>'+t('অফলাইন','Offline')+'</h2>'+lt+'</div>'+
+    '<div class="obar"><span class="d">📴</span><span class="tx">'+t('আপনি এখন অফলাইন। যা ডাউনলোড বা দেখা আছে তা কাজ করবে; বাকিটা সংযোগ ফিরলে রিফ্রেশ হবে।','You’re offline. Anything downloaded or already viewed still works; the rest refreshes when the connection returns.')+'</span></div>'+
+    '<div class="cat">'+t('অফলাইনে উপলব্ধ','Available offline')+'</div>'+
+    row('ok','📄',t('প্রশিক্ষণ ও ডাউনলোড','Training & downloads'),t('আপনি যা দেখেছেন বা নামিয়েছেন — মাঠে দেখানোর জন্য প্রস্তুত।','What you viewed or downloaded — ready to show in the field.'),'✓ '+t('উপলব্ধ','Ready'))+
+    row('ok','🧰',t('সেলস কিট (নামানো)','Sales kit (downloaded)'),t('নামানো ব্রোশিওর ও পিচ ডেক।','Downloaded brochures and pitch decks.'),'✓ '+t('উপলব্ধ','Ready'))+
+    '<div class="cat">'+t('ক্যাশড — বাসি হিসেবে চিহ্নিত','Cached — marked stale')+'</div>'+
+    row('stale','▦',t('ড্যাশবোর্ড','Dashboard'),t('সর্বশেষ আপডেট: গতকাল ৫:৪০ pm (ঢাকা) — রিফ্রেশ করা যাচ্ছে না।','Last updated: yesterday 5:40 pm (Dhaka) — can’t refresh now.'),'⏳ '+t('বাসি','Stale'))+
+    row('stale','👤',t('লিড','Leads'),t('সর্বশেষ আপডেট: গতকাল ৫:৪০ pm (ঢাকা)।','Last updated: yesterday 5:40 pm (Dhaka).'),'⏳ '+t('বাসি','Stale'))+
+    row('stale','📢',t('নোটিশ বোর্ড','Notice board'),t('ক্যাশ থেকে দেখানো হচ্ছে।','Shown from cache.'),'⏳ '+t('বাসি','Stale'))+
+    '<div class="cat">'+t('খসড়া — ইনপুট নিরাপদ','Drafts — input safe')+'</div>'+
+    row('ok','✍',t('লিড / কাজ / টিকিট খসড়া','Lead / task / ticket drafts'),t('স্থানীয়ভাবে সংরক্ষিত, ড্রপ সয়, অনলাইনে ফিরলে জমা — কিছু হারায় না।','Saved locally, survive drops, submit when back online — nothing is lost.'),'✓ '+t('সুরক্ষিত','Kept'))+
+    '<div class="cat">'+t('অফলাইনে বন্ধ','Blocked offline')+'</div>'+
+    row('blocked','⇄',t('সেটেলমেন্ট অনুরোধ','Settlement request'),t('টাকা-সম্পর্কিত কিছু কখনো সারিবদ্ধ বা অপ্টিমিস্টিক নয়। “সেটেলমেন্ট অনুরোধ করতে সংযোগ দরকার। কিছু জমা হয়নি।”','Anything money-adjacent is never queued or optimistic. “You need a connection to request settlement. Nothing has been submitted.”'),'⛔ '+t('বন্ধ','Blocked'))+
+    row('blocked','🧾',t('সেল রেকর্ড জমা','Submit a booking record'),t('অনলাইনে ফিরলে জমা দিন — অফলাইনে সারিবদ্ধ হয় না।','Submit when back online — not queued offline.'),'⛔ '+t('বন্ধ','Blocked'))+
+    '<p class="phelp" style="margin:8px 16px 16px;font-size:11.5px">'+t('গ্রামীণ বাংলাদেশ এখানে ব্যতিক্রম নয় — এটি স্বাভাবিক। টাকার নিয়ম ক্লায়েন্ট অ্যাপের পেমেন্ট স্ক্রিনের মতোই কঠোর।','Rural Bangladesh isn’t the edge case here — it’s the baseline. The money rule is as strict as the client app’s payment screens.')+'</p>';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

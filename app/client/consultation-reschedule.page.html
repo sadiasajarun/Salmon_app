@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Reschedule / cancel</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/timezone.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .langtoggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+  .langtoggle button{border:none;background:transparent;font-size:12px;padding:6px 10px;color:var(--ink-subtle);cursor:pointer}
+  .langtoggle button.on{background:var(--primary);color:#fff}
+  .slots{display:flex;flex-wrap:wrap;gap:8px;margin:0 var(--gutter)}
+  .slot{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:9px 11px;font-size:12.5px;cursor:pointer;text-align:center;min-width:96px}
+  .slot .dh2{display:block;font-size:10.5px;color:var(--ink-subtle);margin-top:2px}
+</style>
+</head><body>
+<div class="page-label">Client · Reschedule / cancel (61) <small>Both possible · tells him what happens to the meeting link · window = placeholder</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<script>
+var TZ=window.TZ, lang='en';
+function qs(k){ return new URLSearchParams(location.search).get(k); }
+var utc=+(qs('t')||Date.UTC(2026,6,16,12,0)), cancel=qs('cancel')==='1';
+function cl(u){ return new Intl.DateTimeFormat('en-GB',{timeZone:TZ.getTz(),weekday:'long',day:'numeric',month:'short',hour:'numeric',minute:'2-digit',hour12:true}).format(new Date(u)); }
+function dh(u){ return new Intl.DateTimeFormat('en-GB',{timeZone:TZ.DHAKA,hour:'numeric',minute:'2-digit',hour12:true}).format(new Date(u)); }
+function lt(){ return '<span class="langtoggle"><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button></span>'; }
+function render(){
+  var h='<div class="appbar"><a class="back" href="consultation-confirmed.page.html?t='+utc+'" style="font-size:20px;text-decoration:none;color:var(--ink)">‹</a><h2>'+(cancel?(lang==='bn'?'বাতিল':'Cancel'):(lang==='bn'?'রিশিডিউল':'Reschedule'))+'</h2>'+lt()+'</div>';
+  h+='<div class="rowlist" style="margin:8px var(--gutter) 12px"><div class="row"><span>'+(lang==='bn'?'বর্তমান':'Current')+'</span><span class="u" style="text-align:right;font-size:12.5px">'+cl(utc)+'<br><span class="sub">'+dh(utc)+' Dhaka</span></span></div></div>';
+  if(cancel){
+    h+='<p class="terms">'+(lang==='bn'?'বাতিল করলে আপনার '+((''))+'মিটিং লিঙ্কটি নিষ্ক্রিয় হয়ে যাবে এবং স্লটটি অন্যদের জন্য মুক্ত হবে।':'If you cancel, your meeting link stops working and the slot is released to others.')+'</p>'+
+      '<p class="empty-note" style="text-align:left;margin:0 var(--gutter) 12px">'+(lang==='bn'?'বাতিলের সময়সীমা এখনো চূড়ান্ত নয় (OPEN_QUESTIONS)।':'The cancellation window is not yet finalised (OPEN_QUESTIONS).')+'</p>'+
+      '<a class="btn block" onclick="doCancel(event)" href="#" style="background:#B4232B">'+(lang==='bn'?'কনসালটেশন বাতিল করুন':'Cancel consultation')+'</a>'+
+      '<a class="btn ghost block" href="consultation-confirmed.page.html?t='+utc+'" style="margin-top:10px;margin-bottom:16px">'+(lang==='bn'?'থাক':'Keep it')+'</a>';
+  } else {
+    var data=TZ.build(TZ.getTz(),5);
+    var flat=[]; data.days.forEach(function(d){ d.slots.forEach(function(sl){ if(sl.inWaking && sl.utcMs!==utc) flat.push(sl); }); });
+    h+='<div class="lock info">🔗 '+(lang==='bn'?'নতুন সময় বেছে নিলে একটি নতুন মিটিং লিঙ্ক ইস্যু হবে এবং পুরনো লিঙ্কটি কাজ করা বন্ধ করবে — আপনাকে জানানো হবে।':'Picking a new time issues a NEW meeting link and the old one stops working — you’ll be told.')+'</div>';
+    h+='<div class="sectitle">'+(lang==='bn'?'নতুন স্লট বেছে নিন':'Pick a new slot')+'</div>';
+    h+='<div class="slots">'+flat.slice(0,9).map(function(s){ return '<div class="slot" onclick="doMove('+s.utcMs+')">'+s.clientLabel+'<span class="dh2">'+s.dhakaLabel+' Dhaka</span></div>'; }).join('')+'</div><div style="height:16px"></div>';
+  }
+  document.getElementById('screen').innerHTML=h;
+}
+function doCancel(e){ e.preventDefault(); alert(lang==='bn'?'কনসালটেশন বাতিল হয়েছে। লিঙ্ক নিষ্ক্রিয় (ডেমো)।':'Consultation cancelled. Link deactivated (demo).'); location.href='contact-hub.page.html'; }
+function doMove(u){ alert(lang==='bn'?'নতুন সময়ে সরানো হয়েছে; নতুন লিঙ্ক ইস্যু হয়েছে (ডেমো)।':'Moved to the new time; a new link was issued (demo).'); location.href='consultation-confirmed.page.html?t='+u; }
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

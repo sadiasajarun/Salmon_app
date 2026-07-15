@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Invoices &amp; receipts</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/currency.js"></script>
+<script src="../assets/js/ledger.js"></script>
+<style>
+  .langtoggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+  .langtoggle button{border:none;background:transparent;font-size:12px;padding:6px 10px;color:var(--ink-subtle);cursor:pointer}
+  .langtoggle button.on{background:var(--primary);color:#fff}
+  .drow{display:flex;align-items:center;gap:12px;margin:0 var(--gutter) 8px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 13px}
+  .drow .ic{width:42px;height:42px;border-radius:11px;background:#f4e6ea;color:var(--primary);display:grid;place-items:center;font-size:17px;flex:0 0 auto}
+  .drow .m{flex:1}.drow .m .t{font-weight:600;font-size:13.5px}.drow .m .s{font-size:11.5px;color:var(--ink-subtle);margin-top:2px}
+  .drow .act{display:flex;gap:6px}
+  .ib{width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--primary);display:grid;place-items:center;cursor:pointer;text-decoration:none;font-size:14px}
+  .kind{font-size:10px;font-weight:700;border-radius:999px;padding:2px 7px}
+  .k-r{background:#e7f2ec;color:var(--success)} .k-i{background:#f7efe0;color:#B7791F}
+  .toast{position:absolute;left:50%;bottom:80px;transform:translateX(-50%);background:#241c19;color:#fff;font-size:12.5px;padding:9px 14px;border-radius:999px;opacity:0;transition:opacity .25s}
+  .toast.show{opacity:1}
+</style>
+</head><body>
+<div class="page-label">Client · Invoices &amp; receipts (55) <small>Server PDFs · preview · download · one-tap forward to his accountant</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen"></div>
+  <div class="toast" id="toast"></div>
+  <div class="bottomnav">
+    <a class="nav" href="../client/explore-map.page.html"><svg viewBox="0 0 24 24"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Discover</a>
+    <a class="nav" href="../client/my-bookings.page.html"><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/></svg>Bookings</a>
+    <a class="nav on" href="../client/installments.page.html"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>Ledger</a>
+    <a class="nav" href="../shared/profile.page.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Profile</a>
+  </div>
+</div>
+<script>
+var C=window.Currency, L=window.LEDGER, lang='en';
+function s(k){ return L.strings[lang][k]||k; }
+function fmt(iso){ try{ return new Intl.DateTimeFormat(lang==='bn'?'bn-BD':'en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:L.tz}).format(new Date(iso)); }catch(e){ return iso.slice(0,10); } }
+function toast(m){ var t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(function(){t.classList.remove('show');},1500); }
+function share(id){ if(navigator.share){ navigator.share({title:id,text:'Salmon '+id}).catch(function(){}); } else { toast(lang==='bn'?'লিঙ্ক কপি হয়েছে':'Link copied'); } }
+function render(){
+  var lt='<span class="langtoggle"><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button></span>';
+  var h='<div class="appbar"><h2>'+s('invoices')+'</h2>'+lt+'</div>';
+  L.invoices.forEach(function(d){
+    var kind=d.kind==='receipt'?'<span class="kind k-r">'+s('receipt')+'</span>':'<span class="kind k-i">'+s('invoice')+'</span>';
+    h+='<div class="drow"><span class="ic">📄</span><div class="m"><div class="t">'+d.id+' '+kind+'</div><div class="s">'+d.title+' · '+fmt(d.dateUtc)+' · '+d.sizeMB+'</div></div>'+
+      '<div class="act"><a class="ib" href="invoice-detail.page.html?id='+d.id+'" aria-label="Open">⤢</a>'+
+      '<button class="ib" onclick="share(\''+d.id+'\')" aria-label="'+s('share')+'">↗</button></div></div>';
+  });
+  h+='<p class="empty-note" style="text-align:left;margin:8px var(--gutter) 16px">'+(lang==='bn'?'রসিদ/ইনভয়েস স্যামনের সার্ভার থেকে PDF হিসেবে তৈরি। নম্বরিং, কর ও আইনি ভাষা এখনো চূড়ান্ত নয় (OPEN_QUESTIONS)।':'Receipts/invoices are server-generated PDFs. Numbering, tax fields and legal wording are not yet finalised (OPEN_QUESTIONS).')+'</p>';
+  document.getElementById('screen').innerHTML=h;
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

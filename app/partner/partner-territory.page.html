@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="bn"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Territory</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-state.js"></script>
+<script src="../assets/js/territory.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .tlevel{display:flex;gap:12px;align-items:center;margin:0 16px 8px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:13px 14px}
+  .tlevel .step{width:30px;height:30px;border-radius:8px;background:#f4e6ea;color:var(--primary);display:grid;place-items:center;font-weight:700;font-size:12px;flex:0 0 auto}
+  .tlevel .k{font-size:11px;color:var(--ink-subtle)} .tlevel .v{font-size:15px;font-weight:700}
+  .tline{width:2px;height:10px;background:var(--line);margin:0 16px 8px 30px}
+</style>
+</head><body>
+<div class="page-label">P13 · Territory detail <small>Division › District › Upazila/Thana › Union — his patch, drawn clearly</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<script>
+var P=window.Partner, TZ=window.Territory, lang='en';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function level(n,k,bn,en){ return '<div class="tlevel"><span class="step">'+n+'</span><div><div class="k">'+k+'</div><div class="v">'+t(bn,en)+'</div></div></div>'; }
+function render(){
+  var a=TZ.assigned;
+  document.getElementById('screen').innerHTML=
+    '<div class="wkbar"><a class="bk" href="partner-identity.page.html">‹</a><h2>'+t('আমার টেরিটরি','My territory')+'</h2>'+
+    '<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span></div>'+
+    '<p class="phelp" style="margin-top:14px">'+t('অনুমোদনের সময় আপনাকে এই এলাকা বরাদ্দ দেওয়া হয়েছে। এর মধ্যেই আপনি লিড ও বুকিং কাজ করবেন।','This patch was assigned to you on approval. You work leads and bookings within it.')+'</p>'+
+    level('১',t('বিভাগ','Division'),a.divisionBn,a.divisionEn)+'<div class="tline"></div>'+
+    level('২',t('জেলা','District'),a.districtBn,a.districtEn)+'<div class="tline"></div>'+
+    level('৩',t('উপজেলা / থানা','Upazila / Thana'),a.upazilaBn,a.upazilaEn)+'<div class="tline"></div>'+
+    level('৪',t('ইউনিয়ন','Union'),a.unionBn,a.unionEn)+
+    '<p class="phelp" style="margin-top:14px">'+t('টেরিটরি কাঠামো (বিভাগ › জেলা › উপজেলা › ইউনিয়ন) সঠিক ও সম্পূর্ণ কিনা তা নিশ্চিত করা বাকি (OPEN_QUESTIONS)।','Whether the territory structure (Division › District › Upazila › Union) is correct and complete is still to be confirmed (OPEN_QUESTIONS).')+'</p>'+
+    '<a class="btn ghost block" href="partner-identity.page.html" style="margin:0 16px 16px;border-radius:10px">'+t('পরিচয় পাতায় ফিরুন','Back to identity')+'</a>';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

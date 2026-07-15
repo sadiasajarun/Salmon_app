@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Tasks</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-tasks.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}
+  .wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}.wklang button.on{background:#ffffff33}
+  .p-red{background:#fbeaea;color:#a13636}
+  .filt{display:flex;gap:7px;padding:8px 16px 2px;overflow-x:auto}
+  .filt button{flex:0 0 auto;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:12px;font-weight:600;color:var(--ink);cursor:pointer}
+  .filt button.on{background:var(--primary);color:#fff;border-color:var(--primary)}
+  .trow{display:block;margin:0 16px 8px;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:12px;text-decoration:none;color:inherit}
+  .trow.ov{border-left:3px solid #a13636}
+  .trow .tt{font-weight:700;font-size:13.5px;line-height:1.4} .trow .mt{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+  .trow .due{font-size:11.5px;color:var(--ink-subtle)}
+</style>
+</head><body>
+<div class="page-label">P63 · Tasks list <small>Assigned by managers/team leads · filter by status · overdue surfaces first</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<script>
+var K=window.PartnerTasks, lang='en', filter='all';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function s(k){ return K.strings[lang][k]||k; }
+function due(iso,overdue){ try{ var d=new Intl.DateTimeFormat(lang==='bn'?'bn-BD':'en-GB',{day:'numeric',month:'short',timeZone:'Asia/Dhaka'}).format(new Date(iso)); return (overdue?'⚠ ':'')+s('due')+' '+d; }catch(e){ return iso.slice(0,10); } }
+function render(){
+  var lt='<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span>';
+  var c=K.counts();
+  var chips=[['all',s('all')]].concat(K.ORDER.map(function(k){return [k,t(K.STATUS[k].bn,K.STATUS[k].en)+' ('+c[k]+')'];}));
+  // overdue first, then assigned, inProgress, complete
+  var list=K.tasks.slice().sort(function(a,b){ return K.ORDER.indexOf(a.status)-K.ORDER.indexOf(b.status); });
+  if(filter!=='all') list=list.filter(function(x){return x.status===filter;});
+  var rows=list.length?list.map(function(x){
+    var st=K.STATUS[x.status];
+    return '<a class="trow'+(x.status==='overdue'?' ov':'')+'" href="task-detail.page.html?id='+x.id+'">'+
+      '<div class="tt">'+t(x.titleBn,x.titleEn)+'</div>'+
+      '<div class="mt"><span class="due">'+due(x.dueUtc,x.status==='overdue')+' · '+t(x.assignedByBn,x.assignedByEn)+'</span>'+
+      '<span class="pill '+st.cls+'"><span class="dot"></span>'+t(st.bn,st.en)+'</span></div></a>';
+  }).join(''):'<div class="empty" style="text-align:center;color:var(--ink-subtle);padding:30px">'+s('empty')+'</div>';
+  document.getElementById('screen').innerHTML=
+    '<div class="wkbar"><a class="bk" href="dashboard.page.html">‹</a><h2>'+s('tasks')+'</h2>'+lt+'</div>'+
+    '<div class="filt">'+chips.map(function(ch){return '<button class="'+(filter===ch[0]?'on':'')+'" onclick="setFilter(\''+ch[0]+'\')">'+ch[1]+'</button>';}).join('')+'</div>'+
+    rows;
+}
+function setFilter(f){ filter=f; render(); }
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

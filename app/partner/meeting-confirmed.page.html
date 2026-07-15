@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Meeting confirmed</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-ops.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>.wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}.wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}
+  .when{margin:12px 16px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;text-align:center}
+  .when .c{font-family:var(--serif);font-size:20px} .when .dh{font-size:12.5px;color:var(--ink-subtle);margin-top:4px}
+  .linkcard{margin:0 16px 12px;background:linear-gradient(135deg,#fff,#faf0f2);border:1px solid #eccdd5;border-radius:16px;padding:16px}
+  .linkcard a.join{display:block;text-align:center;background:var(--primary);color:#fff;border-radius:12px;padding:13px;text-decoration:none;font-weight:600;margin-top:12px}
+</style>
+</head><body>
+<div class="page-label">P36 · Meeting confirmed ⭐ <small>His timezone · external Zoom/Meet/Teams link attached · app hosts NO video</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<script>
+var O=window.PartnerOps, lang='en';
+function qs(k){ return new URLSearchParams(location.search).get(k); }
+var m=O.meetings.filter(function(x){return x.id===qs('id');})[0]||O.meetings[0];
+function t(bn,en){ return lang==='bn'?bn:en; }
+function cl(){ try{ return new Intl.DateTimeFormat(lang==='bn'?'bn-BD':'en-GB',{weekday:'long',day:'numeric',month:'short',hour:'numeric',minute:'2-digit',hour12:true,timeZone:'Asia/Dhaka'}).format(new Date(m.whenUtc)); }catch(e){return m.whenUtc;} }
+function lt(){ return '<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span>'; }
+function render(){
+  document.getElementById('screen').innerHTML=
+    '<div class="wkbar"><a class="bk" href="calendar.page.html">‹</a><h2>'+O.strings[lang].confirmed+'</h2>'+lt()+'</div>'+
+    '<div class="rhero" style="padding-top:8px"><div class="badge-ic ok">✓</div><h2>'+t(m.titleBn,m.title)+'</h2></div>'+
+    '<div class="when"><div class="c">'+cl()+'</div><div class="dh">'+t('আপনার সময় (ঢাকা)','Your time (Dhaka)')+'</div></div>'+
+    '<div class="linkcard"><span style="font-weight:700;color:var(--primary)">🔗 '+O.PROVIDER+' '+t('মিটিং','meeting')+'</span>'+
+      '<p class="sub" style="margin-top:6px;line-height:1.5">'+t('স্যামন অ্যাপ কলটি হোস্ট করে না — এটি শুধু একটি বাহ্যিক লিঙ্ক সংযুক্ত করে। প্রোভাইডার (Zoom/Meet/Teams) এখনো চূড়ান্ত নয়।','The app does not host the call — it attaches an external link. The provider (Zoom/Meet/Teams) isn’t finalised.')+'</p>'+
+      '<a class="join" href="'+(m.link||'#')+'" target="_blank">'+t(O.PROVIDER+'-এ যোগ দিন','Join on '+O.PROVIDER)+'</a></div>'+
+    '<div class="rowlist" style="margin:0 16px 12px"><div class="row"><span>'+t('কার সাথে','With')+'</span><span class="u">'+(m.withKey?O.withLabel(m.withKey,lang):t('সাইট ভিজিট','Site visit'))+'</span></div>'+
+    '<div class="row"><span>'+O.strings[lang].prepare+'</span><span class="sub">'+t('বুকিং রেফ, প্রশ্ন','Booking ref, questions')+'</span></div></div>'+
+    '<a class="btn ghost block" href="meeting-reminder-note" onclick="return remind(event)" style="margin:0 16px 8px;border-radius:10px">'+t('রিমাইন্ডার লিঙ্ক বহন করে','Reminder carries the join link')+'</a>'+
+    '<a class="btn ghost block" href="calendar.page.html" style="margin:0 16px 16px;border-radius:10px">'+t('ক্যালেন্ডার','Calendar')+'</a>';
+}
+function ics(e){ e.preventDefault(); var dt=new Date(m.whenUtc); function z(n){return String(n).padStart(2,'0');}
+  function f(d){ return d.getUTCFullYear()+z(d.getUTCMonth()+1)+z(d.getUTCDate())+'T'+z(d.getUTCHours())+z(d.getUTCMinutes())+'00Z'; }
+  var body='BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:'+m.title+'\nDTSTART:'+f(dt)+'\nDTEND:'+f(new Date(m.whenUtc+3600000?dt.getTime()+3600000:dt))+'\nDESCRIPTION:'+O.PROVIDER+' link: '+(m.link||'')+'\nEND:VEVENT\nEND:VCALENDAR';
+  var a=document.createElement('a'); a.href='data:text/calendar;charset=utf-8,'+encodeURIComponent(body); a.download='salmon-meeting.ics'; a.click(); }
+function remind(e){ e.preventDefault(); alert(t('রিমাইন্ডার লিঙ্কসহ পাঠানো হবে — এক ট্যাপে যোগ দিন (ডেমো)।','The reminder will carry the join link — one tap to join (demo).')); return false; }
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

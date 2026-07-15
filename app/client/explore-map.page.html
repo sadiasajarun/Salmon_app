@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Explore (Map)</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<script src="../assets/js/currency.js"></script>
+<style>
+  .authtop{display:flex;justify-content:flex-end;padding:8px var(--gutter) 0}
+  .langtoggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+  .langtoggle button{border:none;background:transparent;font:inherit;font-size:12px;padding:6px 11px;color:var(--ink-subtle);cursor:pointer;min-height:32px}
+  .langtoggle button.on{background:var(--primary);color:#fff}
+  .prow{display:flex;align-items:center;justify-content:space-between;padding:11px 13px;border-bottom:1px solid var(--line);cursor:pointer}
+  .prow:last-child{border-bottom:none}
+  .prow .nm{font-weight:600;font-size:14px}
+  .pvbtns{display:flex;gap:10px;margin:14px var(--gutter) 16px}
+  .pvbtns .btn{flex:1}
+</style>
+</head><body>
+<div class="page-label">Client · Explore — Map (21/22) <small>Status-coded clustered pins · tap → preview · MapProvider seam (no real SDK)</small></div>
+
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" style="padding-bottom:0">
+    <div class="authtop">
+      <div class="langtoggle" role="group" aria-label="Language">
+        <button id="l-en" class="on" onclick="setLang('en')">English</button>
+        <button id="l-bn" onclick="setLang('bn')">বাংলা</button>
+      </div>
+    </div>
+    <div class="appbar" style="padding-bottom:6px"><h2 id="t-explore">Explore</h2></div>
+    <div class="seg">
+      <span class="on" id="t-map">Map</span>
+      <a href="explore-list.page.html" id="t-list">List</a>
+    </div>
+    <div class="fchips" style="padding-top:0">
+      <a href="filters.page.html" class="fchip" style="text-decoration:none;background:var(--surface);color:var(--ink-subtle);border-color:var(--line)">⚙ <span id="t-filters">Filters</span></a>
+      <span class="countbar" style="padding:0" id="countbar"></span>
+    </div>
+
+    <!-- faux Dhaka basemap behind a MapProvider seam -->
+    <div class="basemap" id="map">
+      <div class="water" style="left:-4%;top:60%;width:40%;height:26%;border-radius:40%;transform:rotate(-12deg)"></div>
+      <div class="water" style="right:2%;top:12%;width:22%;height:18%;border-radius:45%"></div>
+      <div class="road" style="left:0;top:44%;width:100%;height:8px;transform:rotate(-4deg)"></div>
+      <div class="road" style="left:40%;top:0;width:8px;height:100%;transform:rotate(6deg)"></div>
+      <div class="maplabel" style="left:44%;top:20%">Basundhara R/A</div>
+      <div class="maplabel" style="left:22%;top:70%">Sanarpar</div>
+      <div class="maplabel" style="left:60%;top:56%">Badda</div>
+      <!-- pins injected -->
+    </div>
+
+    <div class="legend" aria-label="Status legend">
+      <span><span class="gl lg-ongoing">●</span> <span id="lg-o">Ongoing</span></span>
+      <span><span class="gl lg-completed">■</span> <span id="lg-c">Completed</span></span>
+      <span><span class="gl lg-upcoming">▲</span> <span id="lg-u">Upcoming</span></span>
+      <span style="color:#8a7f78"><span class="gl" style="color:var(--primary)">◈</span> <span id="lg-cl">cluster (tap to expand)</span></span>
+    </div>
+  </div>
+
+  <!-- bottom sheet -->
+  <div class="sheet-ov" id="ov" onclick="closeSheet()"></div>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Project preview">
+    <div class="grab"></div>
+    <div id="sheet-body"></div>
+  </div>
+
+  <div class="bottomnav">
+    <a class="nav on" href="../client/explore-map.page.html"><svg viewBox="0 0 24 24"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Discover</a>
+    <a class="nav" href="../client/my-bookings.page.html"><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/></svg>Bookings</a>
+    <a class="nav" href="../client/installments.page.html"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>Ledger</a>
+    <a class="nav" href="../shared/profile.page.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Profile</a>
+  </div>
+</div>
+
+<script>
+var D = window.SALMON, C = window.Currency, lang='en';
+var GL = { ongoing:'●', completed:'■', upcoming:'▲' };
+var SCLS = { ongoing:'o', completed:'c', upcoming:'u' };
+function s(k){ return D.strings[lang][k] || k; }
+function pos(coords){
+  var latMax=23.85, latMin=23.66, lngMin=90.36, lngMax=90.52;
+  var x=(coords.lng-lngMin)/(lngMax-lngMin)*100;
+  var y=(latMax-coords.lat)/(latMax-latMin)*100;
+  return { x:Math.max(7,Math.min(93,x)), y:Math.max(8,Math.min(88,y)) };
+}
+function priceShort(p){
+  if(!p.price) return '<span class="price-dual">'+ (lang==='bn'?'মূল্য জানতে চান':'Price on request') +'</span>';
+  var m=C.priceModel(p.price,'AED');
+  var disp = p.price.amountBdtFrom===p.price.amountBdtTo ? C.fmtDisplay(m.dispFrom,'AED') : C.fmtDisplay(m.dispFrom,'AED')+'–'+C.fmtDisplay(m.dispTo,'AED');
+  var bdt  = p.price.amountBdtFrom===p.price.amountBdtTo ? C.fmtBdt(m.bdtFrom) : C.fmtBdt(m.bdtFrom)+'–'+C.fmtBdt(m.bdtTo);
+  return '<span class="price-dual">'+disp+'<span class="bdt">'+bdt+'</span><span class="ref">'+s('txnNote')+'</span></span>';
+}
+function statusPill(st){ return '<span class="st st-'+st+'"><span class="gl">'+GL[st]+'</span>'+s(st)+'</span>'; }
+
+function renderMap(){
+  var map=document.getElementById('map');
+  map.querySelectorAll('.mappin').forEach(function(n){n.remove();});
+  // group by area
+  var byArea={}; D.projects.forEach(function(p){ (byArea[p.area]=byArea[p.area]||[]).push(p); });
+  Object.keys(byArea).forEach(function(ak){
+    var arr=byArea[ak], a=D.areas[ak];
+    if(arr.length>1){
+      var pt=pos({lat:a.lat,lng:a.lng});
+      var el=document.createElement('div'); el.className='mappin cluster'; el.style.left=pt.x+'%'; el.style.top=pt.y+'%';
+      el.innerHTML='<div class="bub"><span class="gl">◈</span>'+a[lang]+' · '+arr.length+'</div><div class="stem"></div>';
+      el.onclick=function(){ openCluster(ak); }; map.appendChild(el);
+    } else {
+      var p=arr[0], pt2=pos(p.coords);
+      var el2=document.createElement('div'); el2.className='mappin '+SCLS[p.status]; el2.style.left=pt2.x+'%'; el2.style.top=pt2.y+'%';
+      el2.innerHTML='<div class="bub"><span class="gl">'+GL[p.status]+'</span>'+p.name+'</div><div class="stem"></div>';
+      el2.onclick=function(){ openPreview(p.slug); }; map.appendChild(el2);
+    }
+  });
+  document.getElementById('countbar').innerHTML = s('showing').replace('{n}',D.projects.length).replace('{total}',D.projects.length);
+}
+function openCluster(ak){
+  var arr=D.projects.filter(function(p){return p.area===ak;}), a=D.areas[ak];
+  var h='<div style="padding:2px var(--gutter) 6px"><h3 style="font-family:var(--serif);font-size:19px">'+a[lang]+'</h3><div class="sub">'+arr.length+' '+ (lang==='bn'?'প্রকল্প':'projects') +'</div></div>';
+  arr.forEach(function(p){
+    h+='<div class="prow" onclick="openPreview(\''+p.slug+'\')"><div><div class="nm">'+p.name+'</div><div class="sub">'+ (p.glance?p.glance.sqft.join('/')+' sqft':'') +'</div></div>'+statusPill(p.status)+'</div>';
+  });
+  setSheet(h);
+}
+function openPreview(slug){
+  var p=D.projects.find(function(x){return x.slug===slug;});
+  var sqft = p.glance? p.glance.sqft.join(' / ')+' sqft' : (lang==='bn'?'শীঘ্রই':'Coming soon');
+  var avail = p.glance? s('flatsAvailable').replace('{n}',p.availableUnits).replace('{total}',p.glance.flats) : '';
+  var img = p.banner ? '<div class="imgwrap ph skel"><img alt="'+p.name+'" src="'+p.banner+'" onload="this.classList.add(\'on\');this.parentNode.classList.remove(\'skel\')" onerror="this.parentNode.classList.remove(\'skel\');this.parentNode.style.background=\'linear-gradient(135deg,#b98a72,#7d5647)\'">'+statusPill(p.status)+'</div>'
+                      : '<div class="ph" style="background:linear-gradient(135deg,#b98a72,#7d5647)">'+statusPill(p.status)+'</div>';
+  var h='<div class="preview">'+img+
+    '<div style="padding:14px var(--gutter) 0"><h3 style="font-family:var(--serif);font-size:20px">'+p.name+'</h3>'+
+    '<div class="sub" style="margin-top:2px">'+p.address+' · '+sqft+'</div>'+
+    (avail?'<div class="sub" style="margin-top:6px">'+avail+'</div>':'')+
+    '<div style="margin-top:12px">'+priceShort(p)+'</div></div>'+
+    '<div class="pvbtns"><a class="btn" href="project-detail.page.html?slug='+p.slug+'">'+(lang==='bn'?'প্রকল্প দেখুন':'View project')+'</a>'+
+    '<button class="btn ghost" onclick="closeSheet()">'+(lang==='bn'?'বন্ধ':'Close')+'</button></div></div>';
+  setSheet(h);
+}
+function setSheet(html){ document.getElementById('sheet-body').innerHTML=html; document.getElementById('sheet').classList.add('show'); document.getElementById('ov').classList.add('show'); }
+function closeSheet(){ document.getElementById('sheet').classList.remove('show'); document.getElementById('ov').classList.remove('show'); }
+function applyLang(){
+  document.documentElement.lang=lang;
+  document.getElementById('l-en').classList.toggle('on',lang==='en'); document.getElementById('l-bn').classList.toggle('on',lang==='bn');
+  document.getElementById('t-explore').textContent=s('explore');
+  document.getElementById('t-map').textContent=s('map'); document.getElementById('t-list').textContent=s('list');
+  document.getElementById('t-filters').textContent=s('filters');
+  document.getElementById('lg-o').textContent=s('ongoing'); document.getElementById('lg-c').textContent=s('completed'); document.getElementById('lg-u').textContent=s('upcoming');
+  renderMap();
+}
+function setLang(l){ lang=l; applyLang(); closeSheet(); }
+applyLang();
+</script>
+</body></html>

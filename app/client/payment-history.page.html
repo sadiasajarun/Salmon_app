@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Payment history</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/currency.js"></script>
+<script src="../assets/js/ledger.js"></script>
+<style>
+  .langtoggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+  .langtoggle button{border:none;background:transparent;font-size:12px;padding:6px 10px;color:var(--ink-subtle);cursor:pointer}
+  .langtoggle button.on{background:var(--primary);color:#fff}
+  .search{margin:0 var(--gutter) 8px;display:flex;gap:8px}
+  .search input{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font:inherit;font-size:13px}
+  .exp{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:0 12px;font-size:12.5px;color:var(--primary);cursor:pointer}
+  .prow{display:flex;align-items:center;gap:10px;margin:0 var(--gutter) 8px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 13px}
+  .prow .cat{font-size:11px;font-weight:700;border-radius:999px;padding:3px 9px;background:#f4e6ea;color:var(--primary)}
+  .prow .m{flex:1}.prow .m .a{font-weight:700;font-size:14px}.prow .m .d{font-size:11.5px;color:var(--ink-subtle);margin-top:2px}
+  .toast{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);background:#241c19;color:#fff;font-size:12.5px;padding:9px 14px;border-radius:999px;opacity:0;transition:opacity .25s}
+  .toast.show{opacity:1}
+</style>
+</head><body>
+<div class="page-label">Client · Payment history (54) <small>Date · amount · currency · channel category · reference · status — never a card number</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen"></div>
+  <div class="toast" id="toast"></div>
+  <div class="bottomnav">
+    <a class="nav" href="../client/explore-map.page.html"><svg viewBox="0 0 24 24"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Discover</a>
+    <a class="nav" href="../client/my-bookings.page.html"><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/></svg>Bookings</a>
+    <a class="nav on" href="../client/installments.page.html"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>Ledger</a>
+    <a class="nav" href="../shared/profile.page.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Profile</a>
+  </div>
+</div>
+<script>
+var C=window.Currency, L=window.LEDGER, lang='en', filter='all', query='';
+function s(k){ return L.strings[lang][k]||k; }
+function fmt(iso){ try{ return new Intl.DateTimeFormat(lang==='bn'?'bn-BD':'en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:L.tz}).format(new Date(iso)); }catch(e){ return iso.slice(0,10); } }
+function stpill(st){ var m={success:['st-ongoing','●'],pending:['st-upcoming','▲'],failed:['st-completed','✕']}[st]; var lab={success:lang==='bn'?'সফল':'Success',pending:lang==='bn'?'অপেক্ষমাণ':'Pending',failed:lang==='bn'?'ব্যর্থ':'Failed'}[st]; var extra=st==='failed'?' style="color:#B4232B;background:#f7e6e7"':''; return '<span class="st '+m[0]+'"'+extra+'><span class="gl">'+m[1]+'</span>'+lab+'</span>'; }
+function catLabel(c){ return c; } // Card / Wallet / Wire / MFS — categories only, never a PAN
+function toast(m){ var t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(function(){t.classList.remove('show');},1500); }
+function exportCsv(){ toast(lang==='bn'?'CSV এক্সপোর্ট (ডেমো)':'Exported CSV (demo)'); }
+function render(){
+  var lt='<span class="langtoggle"><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button></span>';
+  var h='<div class="appbar"><h2>'+s('payHistory')+'</h2>'+lt+'</div>';
+  h+='<div class="search"><input id="q" placeholder="'+(lang==='bn'?'রেফারেন্স খুঁজুন':'Search reference')+'" value="'+query+'" oninput="onQ(this.value)"><button class="exp" onclick="exportCsv()">'+(lang==='bn'?'এক্সপোর্ট':'Export')+'</button></div>';
+  h+='<div class="chips">'+['all','success','pending','failed'].map(function(f){ var lab={all:lang==='bn'?'সব':'All',success:lang==='bn'?'সফল':'Success',pending:lang==='bn'?'অপেক্ষমাণ':'Pending',failed:lang==='bn'?'ব্যর্থ':'Failed'}[f]; return '<span class="chip'+(filter===f?' active':'')+'" onclick="setFilter(\''+f+'\')">'+lab+'</span>'; }).join('')+'</div>';
+  var rows=L.payments.slice().sort(function(a,b){return a.dateUtc<b.dateUtc?1:-1;})
+    .filter(function(p){ return (filter==='all'||p.status===filter) && (!query || p.ref.toLowerCase().indexOf(query.toLowerCase())>-1); });
+  if(!rows.length) h+='<p class="empty-note" style="margin:20px var(--gutter)">'+(lang==='bn'?'কোনো লেনদেন নেই':'No payments match')+'</p>';
+  rows.forEach(function(p){
+    h+='<div class="prow"><span class="cat">'+catLabel(p.channelCat)+'</span><div class="m"><div class="a">'+C.fmtBdt(p.amountBdt)+' <span style="font-weight:500;color:var(--ink-subtle);font-size:12px">'+p.currency+'</span></div><div class="d">'+fmt(p.dateUtc)+' · '+p.ref+'</div></div>'+stpill(p.status)+'</div>';
+  });
+  h+='<p class="empty-note" style="text-align:left;margin:8px var(--gutter) 16px">'+(lang==='bn'?'চ্যানেল কেবল বিভাগ (কার্ড/ওয়ালেট/ওয়্যার/MFS) — কখনো কার্ড নম্বর নয়। আমাদের কাছে তা কখনো ছিল না।':'Channel is a category (Card/Wallet/Wire/MFS) — never a card number. We never had it.')+'</p>';
+  document.getElementById('screen').innerHTML=h;
+}
+function onQ(v){ query=v; render(); setTimeout(function(){ var el=document.getElementById('q'); if(el){el.focus(); el.setSelectionRange(v.length,v.length);} },0); }
+function setFilter(f){ filter=f; render(); }
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

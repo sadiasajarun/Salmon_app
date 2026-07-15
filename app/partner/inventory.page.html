@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Live inventory</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}.wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}
+  .gone{margin:12px 16px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center}
+  .gone .big{font-size:26px;font-weight:800;color:var(--primary)} .gone .l{font-size:12px;color:var(--ink-subtle);margin-top:2px}
+  .gone .bar{height:10px;background:#eee3d7;border-radius:999px;overflow:hidden;margin-top:10px;display:flex}
+  .gone .bar i{height:100%} .g-sold{background:#6B7280}.g-booked{background:#B4232B}.g-reserved{background:#B7791F}.g-avail{background:#1E7A46}
+  .floor{font-size:11.5px;font-weight:700;color:var(--ink-subtle);margin:12px 16px 6px;text-transform:uppercase}
+  .urow{display:flex;align-items:center;justify-content:space-between;margin:0 16px 6px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px}
+</style>
+</head><body>
+<div class="page-label">P22 · Live inventory <small>Per-unit status · “X of N gone” is a closing tool — surface it</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<script>
+var D=window.SALMON, lang='en';
+function qs(k){ return new URLSearchParams(location.search).get(k); }
+var p=D.projects.find(function(x){return x.slug===qs('slug');})||D.projects.find(function(x){return x.slug==='the-rossa';});
+var GL={available:'●',reserved:'■',booked:'▲',sold:'✕'};
+function t(bn,en){ return lang==='bn'?bn:en; }
+function lab(st){ return {available:t('খালি','Available'),reserved:t('সংরক্ষিত','Reserved'),booked:t('বুকড','Booked'),sold:t('বিক্রীত','Sold')}[st]; }
+function pill(st){ var c={available:'st-ongoing',reserved:'st-completed',booked:'st-upcoming',sold:'st-completed'}[st]; return '<span class="st '+c+'"><span class="gl">'+GL[st]+'</span>'+lab(st)+'</span>'; }
+function floorOf(l){ var m=(l||'').match(/^(\d+)/); return m?+m[1]:0; }
+function render(){
+  var units=p.units||[]; var by={}; ['available','reserved','booked','sold'].forEach(function(s){by[s]=units.filter(function(u){return u.status===s;}).length;});
+  var gone=units.length-by.available; var tot=units.length||1;
+  var lt='<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span>';
+  var h='<div class="wkbar"><a class="bk" href="project-pitch.page.html?slug='+p.slug+'">‹</a><h2>'+p.name+'</h2>'+lt+'</div>';
+  h+='<div class="gone"><div class="big">'+gone+' / '+units.length+'</div><div class="l">'+t('ইউনিট বুক হয়ে গেছে — ক্রেতাকে দেখান ভবন ভরে যাচ্ছে।','gone — show a hesitant buyer the building is filling up.')+'</div>'+
+    '<div class="bar"><i class="g-sold" style="width:'+(by.sold/tot*100)+'%"></i><i class="g-booked" style="width:'+(by.booked/tot*100)+'%"></i><i class="g-reserved" style="width:'+(by.reserved/tot*100)+'%"></i><i class="g-avail" style="width:'+(by.available/tot*100)+'%"></i></div></div>';
+  h+='<div class="legend"><span><span class="gl lg-ongoing">●</span>'+lab('available')+' ('+by.available+')</span><span><span class="gl lg-completed">■</span>'+lab('reserved')+' ('+by.reserved+')</span><span><span class="gl lg-upcoming">▲</span>'+lab('booked')+' ('+by.booked+')</span><span><span class="gl" style="color:#6B7280">✕</span>'+lab('sold')+' ('+by.sold+')</span></div>';
+  var floors={}; units.forEach(function(u){ (floors[floorOf(u.label)]=floors[floorOf(u.label)]||[]).push(u); });
+  Object.keys(floors).sort(function(a,b){return a-b;}).forEach(function(f){
+    h+='<div class="floor">'+t('তলা ','Floor ')+f+'</div>';
+    floors[f].forEach(function(u){ h+='<div class="urow"><span style="font-weight:700">'+u.label+'</span>'+pill(u.status)+'</div>'; });
+  });
+  h+='<p class="empty-note" style="margin:8px 16px 16px">'+t('ক্লায়েন্ট অ্যাপের মতো একই নিয়ন্ত্রিত ইনভেন্টরি উৎস।','Same controlled inventory source as the client app.')+'</p>';
+  document.getElementById('screen').innerHTML=h;
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Booking detail</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<script src="../assets/js/currency.js"></script>
+<script src="../assets/js/ledger.js"></script>
+<style>
+  .langtoggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+  .langtoggle button{border:none;background:transparent;font-size:12px;padding:6px 10px;color:var(--ink-subtle);cursor:pointer}
+  .langtoggle button.on{background:var(--primary);color:#fff}
+</style>
+</head><body>
+<div class="page-label">Client · Booking detail (50) <small>One booking · status · links to tracker, schedule, receipts</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:24px"></div>
+  <div class="bottomnav">
+    <a class="nav" href="../client/explore-map.page.html"><svg viewBox="0 0 24 24"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Discover</a>
+    <a class="nav on" href="../client/my-bookings.page.html"><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/></svg>Bookings</a>
+    <a class="nav" href="../client/installments.page.html"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>Ledger</a>
+    <a class="nav" href="../shared/profile.page.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Profile</a>
+  </div>
+</div>
+<script>
+var D=window.SALMON, C=window.Currency, L=window.LEDGER, lang='en';
+function qs(k){ return new URLSearchParams(location.search).get(k); }
+var b=L.bookings.find(function(x){return x.ref===qs('ref');})||L.booking;
+var p=D.projects.find(function(x){return x.slug===b.slug;});
+function s(k){ return L.strings[lang][k]||k; }
+function render(){
+  var lt='<span class="langtoggle"><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button></span>';
+  var conf=b.status==='confirmed';
+  var pill=conf?'<span class="st st-ongoing"><span class="gl">●</span>'+s('confirmed')+'</span>':'<span class="st st-upcoming"><span class="gl">▲</span>'+s('wirePending')+'</span>';
+  var h='<div class="appbar"><a class="back" href="my-bookings.page.html" style="font-size:20px;text-decoration:none;color:var(--ink)">‹</a><h2>'+s('bookingDetail')+'</h2>'+lt+'</div>';
+  h+='<div class="pad" style="padding-top:4px">'+pill+'</div>';
+  h+='<div class="rowlist" style="margin:10px var(--gutter) 14px"><div class="row"><span>'+(lang==='bn'?'প্রকল্প':'Project')+'</span><span class="u">'+p.name+'</span></div>'+
+    '<div class="row"><span>'+(lang==='bn'?'ইউনিট':'Unit')+'</span><span class="u">'+b.unit+'</span></div>'+
+    '<div class="row"><span>'+s('reference')+'</span><span class="u">'+b.ref+'</span></div>'+
+    '<div class="row"><span>'+s('total')+'</span><span class="u">'+C.fmtBdt(b.totalBdt)+'</span></div>'+
+    '<div class="row"><span>'+(lang==='bn'?'টোকেন প্রদত্ত':'Token paid')+'</span><span class="u">'+C.fmtBdt(b.tokenBdt)+'</span></div></div>';
+  if(!conf) h+='<div class="lock" style="background:#f7efe0;color:#8a6414;border-color:#eaddc2">▲ '+(lang==='bn'?'ওয়্যার ফিন্যান্স দল যাচাই করছে — নিশ্চিত হলে জানানো হবে।':'The wire is being verified by finance — you’ll be notified when it confirms.')+'</div>';
+  h+='<a class="btn block" href="installments.page.html">'+s('tracker')+'</a>'+
+    '<a class="btn ghost block" href="installment-schedule.page.html" style="margin-top:10px">'+s('schedule')+'</a>'+
+    '<a class="btn ghost block" href="invoices.page.html" style="margin-top:10px;margin-bottom:16px">'+s('invoices')+'</a>';
+  document.getElementById('screen').innerHTML=h;
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

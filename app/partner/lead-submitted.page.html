@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Lead submitted</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+</head><body>
+<div class="page-label">P29 · Lead submitted <small>Reference + honest “what happens next” · sets expectations (he doesn’t control it now)</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<script>
+var D=window.SALMON, lang='en';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function last(){ try{ return JSON.parse(localStorage.getItem('salmon_last_lead'))||{}; }catch(e){ return {}; } }
+function render(){
+  var l=last(); var nm=l.name||''; var proj=(D.projects.filter(function(p){return p.slug===l.projectSlug;})[0]||{}).name||'';
+  document.getElementById('screen').innerHTML=
+    '<div class="wkbar"><a class="bk" href="leads.page.html">‹</a><h2>'+t('লিড জমা হয়েছে','Lead submitted')+'</h2>'+
+    '<span class="wklang" style="display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden"><button style="border:none;background:'+(lang==='bn'?'#ffffff33':'transparent')+';color:#fdf3f1;font-size:12px;padding:5px 9px" onclick="setLang(\'bn\')">বাং</button><button style="border:none;background:'+(lang==='en'?'#ffffff33':'transparent')+';color:#fdf3f1;font-size:12px;padding:5px 9px" onclick="setLang(\'en\')">EN</button></span></div>'+
+    '<div class="stathero" style="padding-top:16px"><div class="ic" style="background:#e7f2ec;color:#1E7A46">✓</div>'+
+    '<h1 style="font-size:20px">'+t('লিড জমা হয়েছে','Lead submitted')+'</h1>'+
+    '<p>'+t(nm+'-এর তথ্য স্যামনের কাছে পাঠানো হয়েছে।',nm+'’s details have been sent to Salmon.')+'</p></div>'+
+    '<div class="refchip" style="margin:0 16px 12px"><div>'+t('রেফারেন্স','Reference')+'<div class="r">'+(l.ref||'LD-—')+'</div></div></div>'+
+    '<div class="sectitle" style="margin-left:16px">'+t('এরপর কী হবে','What happens next')+'</div>'+
+    '<div class="previewlist" style="margin:0 16px 12px"><div class="r"><span class="ic2">📞</span><div>'+t('স্যামনের সেলস টিম এই ব্যক্তির সাথে যোগাযোগ করবে।','Salmon’s sales team will contact this person.')+'</div></div>'+
+    '<div class="r"><span class="ic2">↗</span><div>'+t('অগ্রগতি হলে আপনি সরল স্ট্যাটাস আপডেট দেখবেন।','You’ll see the status move as things progress.')+'</div></div>'+
+    '<div class="r"><span class="ic2">✓</span><div>'+t('রূপান্তর স্যামন যাচাই করে — আপনি নিজে করতে পারবেন না। যাচাই হলে কমিশন তৈরি হয়।','Conversion is verified by Salmon — you can’t mark it yourself. Verification creates the commission.')+'</div></div></div>'+
+    '<p class="phelp" style="margin:0 16px 14px">'+t('এখন থেকে কী হবে তা আপনি নিয়ন্ত্রণ করেন না — স্যামন এগিয়ে নেয়।','From here you don’t control what happens — Salmon moves it forward.')+'</p>'+
+    '<a class="btn block" href="leads.page.html" style="margin:0 16px 0;border-radius:10px">'+t('আমার পাইপলাইনে দেখুন','View in my pipeline')+'</a>'+
+    '<a class="btn ghost block" href="submit-lead.page.html" style="margin:10px 16px 16px;border-radius:10px">'+t('আরেকটি লিড জমা দিন','Submit another lead')+'</a>';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

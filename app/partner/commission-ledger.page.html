@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Commission ledger</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-ledger.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}.wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}
+  .crow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 16px 8px;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:12px;text-decoration:none;color:var(--ink)}
+  .crow .amt{font-weight:800;font-size:15px;color:var(--primary)} .crow .sub2{font-size:11.5px;color:var(--ink-subtle);margin-top:2px}
+</style>
+</head><body>
+<div class="page-label">P44 · Commission ledger <small>Full list · filter by status · each links to its detail</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<script>
+var L=window.PartnerLedger, lang='en', filter='all';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function bdt(n){ var x=String(Math.round(n)); var l=x.slice(-3),r=x.slice(0,-3); if(r)r=r.replace(/\B(?=(\d{2})+(?!\d))/g,','); return '৳ '+(r?r+','+l:l); }
+function pill(st){ var o=L.STATUS[st]; return '<span class="st '+o.cls+'"><span class="gl">'+o.gl+'</span>'+t(o.bn,o.en)+'</span>'; }
+function render(){
+  var lt='<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span>';
+  var h='<div class="wkbar"><a class="bk" href="commission.page.html">‹</a><h2>'+L.strings[lang].ledger+'</h2>'+lt+'</div>';
+  var keys=['all','approved','pending','settlementRequested','settled'];
+  h+='<div class="chips">'+keys.map(function(k){ var lab=k==='all'?t('সব','All'):t(L.STATUS[k].bn,L.STATUS[k].en); return '<span class="chip'+(filter===k?' active':'')+'" onclick="setF(\''+k+'\')">'+lab+'</span>'; }).join('')+'</div>';
+  var rows=L.commissions.filter(function(c){ return filter==='all'||c.status===filter; });
+  h+='<div class="countbar"><b>'+rows.length+'</b> '+t('এন্ট্রি','entries')+'</div>';
+  rows.forEach(function(c){
+    h+='<a class="crow" href="commission-detail.page.html?ref='+c.ref+'"><div><div class="amt">'+bdt(c.amountBdt)+'</div><div class="sub2">'+t(c.leadNameBn,c.leadName)+' · '+c.project+'</div></div>'+pill(c.status)+'</a>';
+  });
+  h+='<p class="empty-note" style="text-align:left;margin:8px 16px 16px">'+L.strings[lang].humanNote+'</p>';
+  document.getElementById('screen').innerHTML=h;
+}
+function setF(f){ filter=f; render(); }
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

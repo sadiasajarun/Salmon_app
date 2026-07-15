@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Pay installment</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<script src="../assets/js/currency.js"></script>
+<script src="../assets/js/ledger.js"></script>
+<script src="../assets/js/payment-state.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+</head><body>
+<div class="page-label">Client · Pay an installment (53) <small>Reuses the EXACT Act 4 pay path — channel → hosted checkout → pending</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:24px"></div>
+</div>
+<script>
+var D=window.SALMON, C=window.Currency, L=window.LEDGER, PS=window.PayState, lang='en';
+function qs(k){ return new URLSearchParams(location.search).get(k); }
+var seq=+(qs('seq')||L.nextDue().seq);
+var inst=L.installments.find(function(i){return i.seq===seq;})||L.nextDue();
+// duplicate guard: a payment already in flight?
+var t0=PS.tickExpiry(); if(PS.inFlight(t0.status)){ location.replace('duplicate-guard.page.html'); }
+function fmtDue(iso){ try{ return new Intl.DateTimeFormat(lang==='bn'?'bn-BD':'en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:L.tz}).format(new Date(iso)); }catch(e){ return iso.slice(0,10); } }
+function render(){
+  var disp=C.fmtDisplay(C.toDisplay(inst.amountBdt,'AED'),'AED');
+  var lt='<span class="langtoggle" style="display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden"><button onclick="setLang(\'en\')" style="border:none;background:'+(lang==='en'?'var(--primary)':'transparent')+';color:'+(lang==='en'?'#fff':'var(--ink-subtle)')+';font-size:12px;padding:6px 10px">EN</button><button onclick="setLang(\'bn\')" style="border:none;background:'+(lang==='bn'?'var(--primary)':'transparent')+';color:'+(lang==='bn'?'#fff':'var(--ink-subtle)')+';font-size:12px;padding:6px 10px">বাং</button></span>';
+  document.getElementById('screen').innerHTML=
+    '<div class="appbar"><a class="back" href="installment-schedule.page.html" style="font-size:20px;text-decoration:none;color:var(--ink)">‹</a><h2>'+L.strings[lang].payInstallment+'</h2>'+lt+'</div>'+
+    '<div class="rowlist" style="margin:8px var(--gutter) 14px"><div class="row"><span>'+(lang==='bn'?'কিস্তি':'Installment')+'</span><span class="u">#'+inst.seq+' / 12</span></div>'+
+    '<div class="row"><span>'+(lang==='bn'?'নির্ধারিত তারিখ':'Due date')+'</span><span class="u">'+fmtDue(inst.dueUtc)+' · '+L.tz.split('/')[1]+'</span></div>'+
+    '<div class="row"><span>'+(lang==='bn'?'বুকিং':'Booking')+'</span><span class="u">'+L.booking.ref+'</span></div></div>'+
+    '<div class="amount-hero"><div class="amt">'+disp+'<div class="bdt">'+C.fmtBdt(inst.amountBdt)+'</div></div></div>'+
+    '<div class="txncur">'+(lang==='bn'?'প্রকৃত লেনদেন মুদ্রা <b>বিডিটি</b>। এটি Act 4-এর একই নিরাপদ পেমেন্ট পথ ব্যবহার করে — কোনো কার্ড তথ্য অ্যাপে সংগ্রহ হয় না।':'Authoritative transaction currency: <b>BDT</b>. This uses the same secure payment path as Act 4 — no card details are collected in the app.')+'</div>'+
+    '<a class="btn block" onclick="pay(event)" href="#" style="margin-bottom:16px">'+(lang==='bn'?'নিরাপদ চেকআউটে যান':'Continue to secure checkout')+'</a>';
+}
+function pay(e){ e.preventDefault();
+  if(window.NetSim&&NetSim.isOffline()){ NetSim.blockPay(lang==='bn'?'পেমেন্টের জন্য সংযোগ প্রয়োজন। কিছু চার্জ করা হয়নি।':'You need a connection to pay. Nothing has been charged.'); return; }
+  PS.dispatch({type:'START_INSTALLMENT', slug:L.booking.slug, unit:L.booking.unit, seq:inst.seq, amountBdt:inst.amountBdt, ref:L.booking.ref+'-I'+inst.seq});
+  window.location.href='payment-channel.page.html';
+}
+function setLang(l){ lang=l; render(); }
+render();
+</script>
+</body></html>

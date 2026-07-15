@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="bn"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Splash</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-state.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+</head><body>
+<div class="page-label">P01 · Splash / role routing <small>Same binary · backend returns the role · app never guesses</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="display:flex;flex-direction:column"></div>
+</div>
+<div class="devbar"><h4>Dev · role returned by backend</h4><div class="dchips">
+  <button onclick="go('../client/explore-list.page.html')">→ Client shell</button>
+  <button onclick="routePartner()">→ Partner (by status)</button>
+</div></div>
+<script>
+var P=window.Partner, lang='en';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function go(u){ location.href=u; }
+function routePartner(){ location.href='partner-status.page.html'; }
+function render(){
+  document.getElementById('screen').innerHTML=
+    '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 24px;text-align:center">'+
+    '<img src="../assets/salmon-logo.png" alt="Salmon Developers" style="height:120px;max-width:70%;object-fit:contain"/>'+
+    '<p style="font-size:13.5px;color:var(--ink-subtle);margin-top:16px;line-height:1.6">'+t('লগইনের সময় ব্যাকএন্ড আপনার রোল ফেরত দেয় — অ্যাপ কখনো অনুমান করে না। রোল অনুযায়ী আপনাকে সঠিক শেল-এ নেওয়া হবে।','At login the backend returns your role — the app never guesses. You’re routed to the right shell by role.')+'</p>'+
+    '<div style="height:20px"></div>'+
+    '<a class="btn block" href="p02-register-identity.page.html" style="border-radius:10px">'+t('পার্টনার হিসেবে রেজিস্টার করুন','Register as a partner')+'</a>'+
+    '<a class="btn ghost block" href="../shared/login.page.html" style="margin-top:10px;border-radius:10px">'+t('সাইন ইন','Sign in')+'</a>'+
+    '</div>'+
+    '<div style="text-align:center;padding-bottom:18px"><span class="wklang" style="border-color:var(--line)"><button class="'+(lang==='bn'?'on':'')+'" style="color:'+(lang==='bn'?'#fff':'var(--ink-subtle)')+';background:'+(lang==='bn'?'var(--primary)':'transparent')+'" onclick="setLang(\'bn\')">বাংলা</button><button class="'+(lang==='en'?'on':'')+'" style="color:'+(lang==='en'?'#fff':'var(--ink-subtle)')+';background:'+(lang==='en'?'var(--primary)':'transparent')+'" onclick="setLang(\'en\')">English</button></span></div>';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

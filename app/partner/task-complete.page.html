@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Complete task</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-tasks.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}
+  .wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}.wklang button.on{background:#ffffff33}
+  .fld{margin:12px 16px} .fld label{display:block;font-size:12px;color:var(--ink-subtle);font-weight:700;margin:0 0 5px}
+  .fld textarea{width:100%;box-sizing:border-box;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:11px 12px;font:inherit;font-size:14px}
+  .drop{margin:0 16px 12px;border:1px dashed var(--line);border-radius:9px;padding:14px;text-align:center;color:var(--ink-subtle);font-size:12px}
+  .draftnote{margin:0 16px 12px;font-size:11.5px;color:#8a6d2f;background:#f7efe0;border:1px solid #ecdcbf;border-radius:9px;padding:10px 12px;display:none}
+  .ctabar{position:absolute;left:0;right:0;bottom:0;background:#fffdfb;border-top:1px solid var(--line);padding:12px 16px}
+  .ctabar .btn{margin:0;border-radius:10px;width:100%}
+  .screen{padding-bottom:80px}
+</style>
+</head><body>
+<div class="page-label">P65 · Complete a task <small>Mark complete with a note/evidence · fast · completion drafts locally, survives drops (not a money action)</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen"></div>
+  <div class="ctabar"><a class="btn" id="go" href="#" onclick="return done(event)">Submit</a></div>
+</div>
+<script>
+var K=window.PartnerTasks, lang='en';
+function qs(k){ return new URLSearchParams(location.search).get(k); }
+function t(bn,en){ return lang==='bn'?bn:en; }
+function s(k){ return K.strings[lang][k]||k; }
+var task=K.task(qs('id'))||K.tasks[0];
+function render(){
+  var lt='<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span>';
+  var pre=K.getCompletion(task.id);
+  document.getElementById('screen').innerHTML=
+    '<div class="wkbar"><a class="bk" href="task-detail.page.html?id='+task.id+'">‹</a><h2>'+s('markComplete')+'</h2>'+lt+'</div>'+
+    '<p class="phelp" style="margin-top:12px">'+t(task.titleBn,task.titleEn)+'</p>'+
+    '<div class="fld"><label>'+s('completionNote')+'</label><textarea id="note" rows="4" oninput="stash()" placeholder="'+t('কী করা হয়েছে সংক্ষেপে লিখুন','Briefly, what was done')+'">'+(pre&&pre.note?pre.note:'')+'</textarea></div>'+
+    '<div class="drop">📎 '+s('evidence')+'</div>'+
+    '<div class="draftnote" id="dn">'+s('savedDraft')+'</div>';
+  document.getElementById('go').textContent=s('submitComplete');
+}
+function stash(){ K.saveCompletion(task.id, document.getElementById('note').value); document.getElementById('dn').style.display='block'; }
+function done(e){ e.preventDefault();
+  if(window.NetSim && window.NetSim.isOffline && window.NetSim.isOffline()){ stash(); alert(t('অফলাইন — আপনার নোট খসড়া হিসেবে রাখা হলো, অনলাইনে ফিরলে জমা হবে। কিছু হারায়নি।','Offline — your note is kept as a draft and will submit when you’re back online. Nothing is lost.')); return false; }
+  K.saveCompletion(task.id, document.getElementById('note').value);
+  window.location.href='tasks.page.html'; return false;
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

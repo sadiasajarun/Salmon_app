@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Project</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<script src="../assets/js/currency.js"></script>
+<style>
+  .langtoggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+  .langtoggle button{border:none;background:transparent;font:inherit;font-size:12px;padding:6px 10px;color:var(--ink-subtle);cursor:pointer;min-height:30px}
+  .langtoggle button.on{background:var(--primary);color:#fff}
+  .hero{height:238px;position:relative}
+  .hero .top{position:absolute;top:10px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:flex-start}
+  .hero .back{width:36px;height:36px;border-radius:999px;background:#fff9;display:grid;place-items:center;color:var(--ink);text-decoration:none;font-size:20px}
+  .htitle{padding:14px var(--gutter) 0}
+  .htitle h1{font-family:var(--serif);font-size:24px;font-weight:600}
+  .htitle .tag{font-family:var(--serif);font-style:italic;color:var(--primary);font-size:14px;margin-top:4px}
+  .metaline{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:12px var(--gutter) 0;font-size:12.5px;color:var(--ink-subtle)}
+  .avail{display:inline-flex;align-items:center;gap:6px;background:#e7f2ec;color:#1E7A46;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:600}
+  .cta-fixed{position:absolute;left:0;right:0;bottom:66px;z-index:7;background:#fffdfb;border-top:1px solid var(--line);box-shadow:0 -6px 18px rgba(34,34,34,.06);padding:12px var(--gutter);display:flex;gap:10px;align-items:center}
+  .cta-fixed .p{flex:1;font-size:12px;color:var(--ink-subtle)}
+  .cta-fixed .btn{flex:0 0 auto;margin:0;width:auto;padding:14px 18px}
+  .screen{padding-bottom:150px}
+  .detailbar{position:sticky;top:0;z-index:8;display:flex;align-items:center;gap:10px;background:var(--canvas);border-bottom:1px solid var(--line);padding:8px 12px}
+  .backbtn{width:38px;height:38px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:22px;line-height:1;cursor:pointer;flex:0 0 auto;display:grid;place-items:center}
+  .backbtn:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+  .dbtitle{flex:1;font-family:var(--serif);font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+</style>
+</head><body>
+<div class="page-label">Client · Project detail (28) <small>Real At-A-Glance · dual-currency · availability · media rail</small></div>
+
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen"><!-- injected --></div>
+
+  <div class="cta-fixed" id="ctabar" style="display:none">
+    <div class="p" id="cta-price"></div>
+    <a class="btn" id="cta-btn" href="unit-list.page.html">See units</a>
+  </div>
+
+  <div class="bottomnav">
+    <a class="nav on" href="../client/explore-map.page.html"><svg viewBox="0 0 24 24"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Discover</a>
+    <a class="nav" href="../client/my-bookings.page.html"><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/></svg>Bookings</a>
+    <a class="nav" href="../client/installments.page.html"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>Ledger</a>
+    <a class="nav" href="../shared/profile.page.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Profile</a>
+  </div>
+</div>
+
+<script>
+var D=window.SALMON, C=window.Currency, lang='en';
+var GL={ongoing:'●',completed:'■',upcoming:'▲'};
+function s(k){ return D.strings[lang][k]||k; }
+function qs(k){ return new URLSearchParams(location.search).get(k); }
+var p = D.projects.find(function(x){return x.slug===qs('slug');}) || D.projects.find(function(x){return x.slug==='the-rossa';});
+function statusPill(st){ return '<span class="st st-'+st+'"><span class="gl">'+GL[st]+'</span>'+s(st)+'</span>'; }
+function priceModelHtml(){
+  if(!p.price) return '<span class="price-dual">'+(lang==='bn'?'মূল্য জানতে চান':'Price on request')+'</span>';
+  var m=C.priceModel(p.price,'AED'), one=p.price.amountBdtFrom===p.price.amountBdtTo;
+  var disp=one?C.fmtDisplay(m.dispFrom,'AED'):C.fmtDisplay(m.dispFrom,'AED')+'–'+C.fmtDisplay(m.dispTo,'AED');
+  var bdt=one?C.fmtBdt(m.bdtFrom):C.fmtBdt(m.bdtFrom)+'–'+C.fmtBdt(m.bdtTo);
+  return '<span class="price-dual">'+disp+'<span class="bdt">'+bdt+'</span><span class="ref">'+s('txnNote')+'</span></span>';
+}
+function glanceGrid(){
+  if(!p.glance) return '<p class="empty-note" style="margin:0 var(--gutter) 14px">'+(lang==='bn'?'বিস্তারিত শীঘ্রই আসছে।':'Full details coming soon.')+'</p>';
+  var g=p.glance, cells=[
+    [s('buildingType'),g.buildingType],[s('facing'),g.facing],[s('floors'),g.floors],
+    [s('sqft'),g.sqft.join(' / ')],[s('bed')+'/'+s('bath'),g.bed+' / '+g.bath],
+    [s('balcony')+'/'+s('lift'),g.balcony+' / '+g.lift],[s('frontRoad'),g.frontRoad],
+    [s('landArea'),g.landArea]
+  ];
+  return '<div class="glance">'+cells.map(function(c){return '<div class="cell"><div class="k">'+c[0]+'</div><div class="v">'+c[1]+'</div></div>';}).join('')+'</div>';
+}
+function amenitiesHtml(){
+  if(!p.amenities||!p.amenities.length) return '';
+  return '<div class="sectitle">'+s('amenities')+'</div><div class="mrail">'+p.amenities.map(function(u){
+    return '<a><div class="imgwrap mt" style="width:104px"><img src="'+u+'" onload="this.classList.add(\'on\');this.parentNode.classList.remove(\'skel\')" onerror="this.style.display=\'none\'"></div></a>';
+  }).join('')+'</div>';
+}
+function railItem(icon,label,href){ return '<a href="'+href+'"><div class="mt">'+icon+'</div><div class="ml">'+label+'</div></a>'; }
+function mediaRail(){
+  var items=[
+    railItem('🖼', s('gallery'), 'project-gallery.page.html?slug='+p.slug),
+    railItem('▶', s('video'), 'video.page.html?slug='+p.slug),
+    railItem('🧭', s('tour'), 'tour-360.page.html?slug='+p.slug),
+    railItem('⌕', s('floorPlans'), 'floor-plan.page.html?slug='+p.slug),
+    (p.progress? railItem('🏗', s('progress'), 'project-progress.page.html?slug='+p.slug):'')
+  ];
+  return '<div class="sectitle">'+ (lang==='bn'?'মিডিয়া':'Media') +'</div><div class="mrail">'+items.join('')+'</div>';
+}
+function neighbourhoodHtml(){
+  if(!p.neighbourhood) return '';   // catalogue empty -> section does not render (no invented copy)
+  var n=p.neighbourhood, cats=[['schools',n.schools],['hospitals',n.hospitals],['transport',n.transport],['markets',n.markets]];
+  var rows=cats.filter(function(c){return c[1]&&c[1].length;}).map(function(c){
+    return '<div class="row"><span>'+s(c[0])+'</span><span class="u" style="text-align:right;font-weight:500;font-size:12.5px;max-width:62%">'+c[1].join(', ')+'</span></div>';
+  }).join('');
+  if(!rows) return '';
+  return '<div class="sectitle">'+s('neighbourhood')+'</div><div class="rowlist" style="margin-bottom:6px">'+rows+'</div>'+
+    '<p class="empty-note" style="text-align:left;margin:0 var(--gutter) 14px">'+(lang==='bn'?'আশপাশের তথ্য নির্দেশক (স্যামন নিশ্চিত করবে)।':'Neighbourhood details are indicative (to be confirmed by Salmon).')+'</p>';
+}
+function visitHtml(){
+  var card=function(icon,title,desc){ return '<a class="row" href="consultation-slots.page.html" style="text-decoration:none;color:inherit;margin:0 var(--gutter) 8px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:13px 14px;display:flex;gap:12px;align-items:flex-start"><span style="font-size:20px;flex:0 0 auto">'+icon+'</span><span><span class="u" style="display:block">'+title+'</span><span class="sub">'+desc+'</span></span></a>'; };
+  return '<div class="sectitle">'+s('arrangeVisit')+'</div>'+card('🏙️',s('siteVisit'),s('siteVisitDesc'))+card('🖥️',s('virtualWalk'),s('virtualWalkDesc'));
+}
+function heroImg(){
+  if(!p.banner) return '<div class="hero" style="background:linear-gradient(135deg,#b98a72,#7d5647)"></div>';
+  return '<div class="imgwrap hero skel"><img alt="'+p.name+'" src="'+p.banner+'" onload="this.classList.add(\'on\');this.parentNode.classList.remove(\'skel\')" onerror="this.parentNode.classList.remove(\'skel\');this.parentNode.style.background=\'linear-gradient(135deg,#b98a72,#7d5647)\'"></div>';
+}
+function render(){
+  var avail = p.glance? s('flatsAvailable').replace('{n}',p.availableUnits).replace('{total}',p.glance.flats):'';
+  var brochure = '<div class="sectitle">'+s('brochure')+'</div><div class="rowlist" style="margin-bottom:14px"><a class="row" style="text-decoration:none;color:inherit" href="brochures.page.html?slug='+p.slug+'"><span class="u">📄 '+s('brochure')+'</span><span class="sub">'+(p.brochure?('PDF · '+(p.brochureSize||'—')):(lang==='bn'?'শীঘ্রই':'coming soon'))+' ›</span></a></div>';
+  var html =
+    '<div class="detailbar">'+
+      '<button class="backbtn" onclick="goBack()" aria-label="'+(lang==='bn'?'ফিরে যান':'Back')+'">‹</button>'+
+      '<span class="dbtitle">'+p.name+'</span>'+
+      '<span class="langtoggle"><button id="l-en" class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button><button id="l-bn" class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button></span>'+
+    '</div>'+
+    '<div style="position:relative">'+heroImg()+
+      '<div style="position:absolute;left:12px;bottom:12px">'+statusPill(p.status)+'</div></div>'+
+    '<div class="htitle"><h1>'+p.name+'</h1><div class="tag">“'+ (lang==='bn'?p.taglineBn:p.tagline) +'”</div></div>'+
+    '<div class="metaline"><span>📍 '+(lang==='bn'?p.addressBn:p.address)+'</span>'+(avail?'<span class="avail">'+GL.ongoing+' '+avail+'</span>':'')+'</div>'+
+    '<div style="padding:14px var(--gutter) 0">'+priceModelHtml()+'</div>'+
+    '<div class="sectitle">'+s('atAGlance')+'</div>'+glanceGrid()+
+    (p.description?'<div class="sectitle">'+s('description')+'</div><p style="font-size:13.5px;color:var(--ink-subtle);line-height:1.6;margin:0 var(--gutter) 14px">'+p.description+'</p>':'')+
+    amenitiesHtml()+ neighbourhoodHtml()+ mediaRail()+ visitHtml()+ brochure;
+  document.getElementById('screen').innerHTML=html;
+  // fixed CTA
+  var bar=document.getElementById('ctabar'); bar.style.display='flex';
+  document.getElementById('cta-price').innerHTML = p.glance? '<b style="color:var(--primary)">'+p.availableUnits+'</b> '+(lang==='bn'?'ইউনিট খালি':'units available') : (lang==='bn'?'শীঘ্রই':'Coming soon');
+  document.getElementById('cta-btn').textContent = s('seeUnits');
+  document.getElementById('cta-btn').href = 'unit-list.page.html?slug='+p.slug;
+  document.title = 'Salmon · '+p.name;
+}
+function goBack(){ if(document.referrer && history.length>1){ history.back(); } else { window.location.href='explore-map.page.html'; } }
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>
