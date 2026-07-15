@@ -1,0 +1,24 @@
+# Secrets / env — never commit real env files (examples are allowed)
+.env
+.env.*
+!.env.example
+*.env
+!*.env.example
+
+# Dependencies
+node_modules/
+
+# OS / editor cruft
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Logs / temp
+*.log
+tmp/
+temp/
+
+# 1Password-backed env files (op:// references — exclude to be safe)
+*.1password.live
+*.1password.test
+**/.env.1password.*

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Settlement status</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-ledger.js"></script>
+<script src="../assets/js/settlement-state.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}.wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}
+  .stline{margin:14px 16px;position:relative;padding-left:26px}
+  .stline::before{content:"";position:absolute;left:9px;top:8px;bottom:8px;width:2px;background:var(--line)}
+  .stline .s{position:relative;padding:0 0 16px}
+  .stline .dot{position:absolute;left:-26px;top:1px;width:20px;height:20px;border-radius:999px;background:#e6dacd;color:#fff;display:grid;place-items:center;font-size:11px}
+  .stline .s.done .dot{background:var(--primary)} .stline .s.settled .dot{background:var(--success)} .stline .s.bad .dot{background:#B4232B}
+  .stline .s.future{opacity:.5}.stline .lab{font-size:14px;font-weight:600}
+</style>
+</head><body>
+<div class="page-label">P48 · Settlement status <small>Status ONLY — never the finance reference, evidence, or approval trail</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<div class="devbar"><h4>Dev · finance advances it (web panel)</h4><div class="dchips">
+  <button onclick="adv('APPROVE')">Approve</button>
+  <button onclick="adv('SETTLE')">Settle</button>
+  <button onclick="adv('HOLD')">On hold</button>
+  <button onclick="adv('REJECT')">Reject</button>
+  <button onclick="adv('RESET')">Reset</button>
+</div></div>
+<script>
+var L=window.PartnerLedger, ST=window.Settlement, lang='en';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function bdt(n){ if(!n)return '—'; var x=String(Math.round(n)); var l=x.slice(-3),r=x.slice(0,-3); if(r)r=r.replace(/\B(?=(\d{2})+(?!\d))/g,','); return '৳ '+(r?r+','+l:l); }
+function adv(a){ ST.dispatch({type:a}); render(); }
+function statusMap(){ var s=ST.load().status; return {SUBMITTED:'submitted',APPROVED:'approved',SETTLED:'settled',REJECTED:'rejected',ON_HOLD:'onHold',NONE:null}[s]; }
+function pill(k){ var o=L.SETTLE_STATUS[k]; return '<span class="st '+o.cls+'"><span class="gl">'+o.gl+'</span>'+t(o.bn,o.en)+'</span>'; }
+function timeline(){
+  var s=ST.load().status; var order=['SUBMITTED','APPROVED','SETTLED']; var idx=order.indexOf(s);
+  var h='<div class="stline">';
+  order.forEach(function(k,i){ var cls=(idx>=i&&idx>=0)?(k==='SETTLED'?'settled done':'done'):'future'; if(s==='REJECTED'&&k==='APPROVED')cls='future'; if(s==='ON_HOLD'&&k==='APPROVED')cls='future';
+    h+='<div class="s '+cls+(order[idx]===k?' current':'')+'"><span class="dot">'+(idx>=i&&idx>=0?'✓':'')+'</span><div class="lab">'+t(L.SETTLE_STATUS[{SUBMITTED:'submitted',APPROVED:'approved',SETTLED:'settled'}[k]].bn,L.SETTLE_STATUS[{SUBMITTED:'submitted',APPROVED:'approved',SETTLED:'settled'}[k]].en)+'</div></div>'; });
+  if(s==='REJECTED') h+='<div class="s bad done current"><span class="dot">×</span><div class="lab" style="color:#B4232B">'+t('প্রত্যাখ্যাত','Rejected')+'</div></div>';
+  if(s==='ON_HOLD') h+='<div class="s done current" style="opacity:1"><span class="dot" style="background:#B7791F">⏸</span><div class="lab" style="color:#B7791F">'+t('স্থগিত','On hold')+'</div></div>';
+  return h+'</div>';
+}
+function render(){
+  var s=ST.load(); var key=statusMap();
+  var lt='<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span>';
+  var h='<div class="wkbar"><a class="bk" href="commission.page.html">‹</a><h2>'+t('সেটেলমেন্ট অবস্থা','Settlement status')+'</h2>'+lt+'</div>';
+  if(!key){ h+='<div class="state" style="margin:26px 16px;text-align:center;color:var(--ink-subtle)"><span style="font-size:34px;display:block;margin-bottom:10px">🧾</span><p>'+t('এখন কোনো চলমান সেটেলমেন্ট অনুরোধ নেই।','No settlement request in progress right now.')+'</p><a class="btn block" href="request-settlement.page.html" style="max-width:220px;margin:16px auto 0;border-radius:10px">'+t('সেটেলমেন্ট অনুরোধ','Request settlement')+'</a></div>'; document.getElementById('screen').innerHTML=h; return; }
+  h+='<div class="rowlist" style="margin:12px 16px"><div class="row"><span>'+t('পরিমাণ','Amount')+'</span><span class="u">'+bdt(s.amountBdt)+'</span></div>'+
+    '<div class="row"><span>'+t('রেফারেন্স','Reference')+'</span><span class="u">'+s.ref+'</span></div>'+
+    '<div class="row"><span>'+t('অবস্থা','Status')+'</span>'+pill(key)+'</div></div>'+timeline()+
+    '<div class="wall" style="margin:0 16px 14px;background:#faf3ec;border:1px dashed #e3d3c1;border-radius:12px;padding:12px 13px;font-size:12px;color:var(--ink-subtle);line-height:1.55">🔒 '+t('আপনি শুধু অবস্থা দেখছেন — ফিন্যান্সের অভ্যন্তরীণ রেফারেন্স, প্রমাণ বা অনুমোদন-ট্রেইল দেখানো হয় না।','You see the status only — the finance internal reference, evidence, and approval trail are not shown.')+'</div>'+
+    '<a class="btn ghost block" href="settlement-history.page.html" style="margin:0 16px 16px;border-radius:10px">'+t('সেটেলমেন্ট ইতিহাস','Settlement history')+'</a>';
+  document.getElementById('screen').innerHTML=h;
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

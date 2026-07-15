@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Sign in</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<style>
+  /* Sign-in — Variation A. Auth components (shared with signup pattern). */
+  .authtop{display:flex;align-items:center;justify-content:flex-end;padding:8px var(--gutter) 0}
+  .langtoggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+  .langtoggle button{border:none;background:transparent;font:inherit;font-size:12px;padding:7px 12px;color:var(--ink-subtle);cursor:pointer;min-height:34px}
+  .langtoggle button.on{background:var(--primary);color:#fff}
+  .langtoggle button:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+  .brandwrap{text-align:center;padding:2px 20px 4px}
+  .brandwrap p{font-size:13px;color:var(--ink-subtle);margin-top:10px;line-height:1.5}
+  .tin{width:calc(100% - 2*var(--gutter));margin:0 var(--gutter);background:var(--surface);border:1px solid var(--line);
+       border-radius:var(--r-input);padding:14px;font:inherit;font-size:15px;color:var(--ink);min-height:48px}
+  .tin::placeholder{color:#a99e96}
+  .tin:focus-visible{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px #80002022}
+  .field{margin-bottom:4px}
+  .field .err{display:none;font-size:12px;color:var(--error);margin:6px var(--gutter) 0;line-height:1.45}
+  .field.invalid .tin{border-color:var(--error);box-shadow:0 0 0 3px #b4232b1f}
+  .field.invalid .err{display:block}
+  .hint{font-size:11.5px;color:var(--ink-subtle);margin:6px var(--gutter) 0;line-height:1.45}
+  .phonerow{display:flex;gap:8px;margin:0 var(--gutter)}
+  .ccpicker{flex:0 0 auto;position:relative}
+  .ccpicker select{appearance:none;-webkit-appearance:none;background:var(--surface);border:1px solid var(--line);
+    border-radius:var(--r-input);padding:14px 30px 14px 14px;font:inherit;font-size:15px;color:var(--ink);min-height:48px;cursor:pointer}
+  .ccpicker::after{content:"▾";position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--ink-subtle);pointer-events:none}
+  .ccpicker select:focus-visible{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px #80002022}
+  .phonerow .tin{flex:1;width:auto;margin:0}
+  .forgot{text-align:right;margin:8px var(--gutter) 0}
+  .forgot a{color:var(--primary);font-size:12.5px;text-decoration:none;cursor:pointer}
+  .primarycta .btn[aria-disabled="true"]{opacity:.5;pointer-events:none}
+  .cta-spin{display:none;width:18px;height:18px;border-radius:999px;border:2px solid #ffffff66;border-top-color:#fff;vertical-align:-3px;margin-right:8px;animation:spin 1s linear infinite}
+  .busy .cta-spin{display:inline-block}
+  .banner{display:none;gap:10px;align-items:flex-start;margin:0 var(--gutter) 14px;border-radius:14px;padding:12px 13px;font-size:12.5px;line-height:1.5}
+  .banner.show{display:flex}
+  .banner .ic{flex:0 0 auto;font-size:15px}
+  .banner-error{background:#f7e6e7;color:#8a2b30;border:1px solid #eecccd}
+  .banner-ok{background:#eef4f0;color:#1E7A46;border:1px solid #cfe6da}
+  .signin-row{text-align:center;font-size:13px;color:var(--ink-subtle);margin:16px var(--gutter)}
+  .signin-row a{color:var(--primary);font-weight:600}
+  .hidden{display:none !important}
+  .otpwrap{margin:0 var(--gutter)}
+  .otpwrap input{letter-spacing:.5em;text-align:center;font-size:18px}
+  .backrow{padding:6px var(--gutter) 0}
+  .backrow a{color:var(--primary);font-size:13px;text-decoration:none;cursor:pointer}
+  @media (prefers-reduced-motion: reduce){.cta-spin,.spinner{animation:none}}
+</style>
+</head>
+<body>
+<div class="page-label">Shared · Sign in <small>Interactive · Email &amp; Phone/OTP · forgot-password · EN/বাংলা</small></div>
+
+<div class="device" id="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen">
+
+    <div class="authtop" style="justify-content:space-between">
+      <a href="../shared/g02-welcome.page.html" aria-label="Back to welcome" style="font-size:24px;color:var(--ink);text-decoration:none;line-height:1;padding:2px 6px">‹</a>
+      <div class="langtoggle" role="group" aria-label="Language">
+        <button type="button" id="lang-en" class="on" onclick="setLang('en')">English</button>
+        <button type="button" id="lang-bn" onclick="setLang('bn')">বাংলা</button>
+      </div>
+    </div>
+
+    <div class="brandwrap">
+      <img class="brandlogo sm" src="../assets/salmon-logo.png" alt="Salmon Developers"/>
+      <p id="lede" data-i18n="lede">Sign in to continue.</p>
+    </div>
+
+    <!-- ============ VIEW: MAIN (email / phone) ============ -->
+    <div id="view-main">
+      <div class="seg" role="tablist" aria-label="Sign-in method">
+        <span id="tab-email" class="on" role="tab" aria-selected="true" tabindex="0" onclick="setMethod('email')" onkeydown="tabKey(event,'email')" data-i18n="tab_email">Email</span>
+        <span id="tab-phone" role="tab" aria-selected="false" tabindex="0" onclick="setMethod('phone')" onkeydown="tabKey(event,'phone')" data-i18n="tab_phone">Phone</span>
+      </div>
+
+      <div class="banner banner-error" id="banner-cred"><span class="ic">⚠</span><span data-i18n="cred_err">Email or password is incorrect. Try again.</span></div>
+
+      <!-- EMAIL -->
+      <div id="panel-email">
+        <label class="f" for="email" data-i18n="email_label">Email address</label>
+        <div class="field" id="field-email">
+          <input class="tin" id="email" type="email" inputmode="email" autocomplete="email" data-i18n-ph="email_ph" placeholder="you@example.com"/>
+          <p class="err" id="email-err" data-i18n="email_err">That email address is missing an @ or domain.</p>
+        </div>
+        <label class="f" for="password" data-i18n="pw_label">Password</label>
+        <div class="field" id="field-password">
+          <input class="tin" id="password" type="password" autocomplete="current-password" data-i18n-ph="pw_ph" placeholder="Your password"/>
+          <p class="err" id="pw-err" data-i18n="pw_err">Enter your password.</p>
+        </div>
+        <div class="forgot"><a tabindex="0" onclick="showReset()" onkeydown="if(event.key==='Enter')showReset()" data-i18n="forgot">Forgot password?</a></div>
+      </div>
+
+      <!-- PHONE -->
+      <div id="panel-phone" class="hidden">
+        <label class="f" for="phone" data-i18n="phone_label">Mobile number</label>
+        <div class="field" id="field-phone">
+          <div class="phonerow">
+            <div class="ccpicker">
+              <label class="hidden" for="cc">Country code</label>
+              <select id="cc" onchange="onCountry()" aria-label="Country code">
+                <option value="971" data-len="9">🇦🇪 +971</option>
+                <option value="880" data-len="10">🇧🇩 +880</option>
+                <option value="44" data-len="10">🇬🇧 +44</option>
+                <option value="1" data-len="10">🇺🇸 +1</option>
+                <option value="966" data-len="9">🇸🇦 +966</option>
+              </select>
+            </div>
+            <input class="tin" id="phone" type="tel" inputmode="numeric" autocomplete="tel-national" data-i18n-ph="phone_ph" placeholder="50 123 4567"/>
+          </div>
+          <p class="hint" id="phone-hint" data-i18n="phone_hint">UAE mobile numbers have 9 digits.</p>
+          <p class="err" id="phone-err">That number doesn't look right.</p>
+        </div>
+      </div>
+
+      <div class="primarycta">
+        <a class="btn block" id="cta" href="#" role="button" onclick="return onSubmit(event)">
+          <span class="cta-spin" aria-hidden="true"></span><span id="cta-label" data-i18n="cta_email">Sign in</span>
+        </a>
+      </div>
+
+      <div class="divider"><span data-i18n="or">or</span></div>
+      <div class="oauth">
+        <button type="button" class="ob" onclick="go()"><span aria-hidden="true">G</span>&nbsp; <span data-i18n="google">Continue with Google</span></button>
+        <button type="button" class="ob" onclick="go()"><span aria-hidden="true"></span>&nbsp; <span data-i18n="apple">Continue with Apple</span></button>
+      </div>
+
+      <p class="signin-row"><span data-i18n="new">New to Salmon?</span> <a href="signup.page.html" data-i18n="create">Create account</a></p>
+      <p class="empty-note" style="margin-bottom:16px" data-i18n="secure">Tokens are stored in your device Keychain/Keystore, never in plain storage.</p>
+    </div>
+
+    <!-- ============ VIEW: OTP ============ -->
+    <div id="view-otp" class="hidden">
+      <div class="backrow"><a onclick="showMain()" tabindex="0" onkeydown="if(event.key==='Enter')showMain()">‹ <span data-i18n="back">Back</span></a></div>
+      <div class="pad"><h2 style="font-family:var(--serif);font-size:21px;margin-top:6px" data-i18n="otp_title">Enter the 6-digit code</h2>
+        <p class="hint" id="otp-sub" style="margin-left:0" data-i18n="otp_sub">We sent a code to your phone.</p></div>
+      <div class="field otpwrap" id="field-otp" style="margin-top:12px">
+        <input class="tin" id="otp" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" data-i18n-ph="otp_ph" placeholder="––––––"/>
+        <p class="err" id="otp-err" data-i18n="otp_err">Enter the 6-digit code we sent.</p>
+      </div>
+      <div class="primarycta">
+        <a class="btn block" id="cta-otp" href="#" role="button" onclick="return onVerify(event)">
+          <span class="cta-spin" aria-hidden="true"></span><span data-i18n="otp_verify">Verify &amp; sign in</span>
+        </a>
+      </div>
+      <p class="signin-row"><a id="resend" onclick="resend()" tabindex="0" data-i18n="resend">Resend code</a></p>
+    </div>
+
+    <!-- ============ VIEW: RESET ============ -->
+    <div id="view-reset" class="hidden">
+      <div class="backrow"><a onclick="showMain()" tabindex="0" onkeydown="if(event.key==='Enter')showMain()">‹ <span data-i18n="back">Back</span></a></div>
+      <div class="pad"><h2 style="font-family:var(--serif);font-size:21px;margin-top:6px" data-i18n="reset_title">Reset your password</h2>
+        <p class="hint" style="margin-left:0" data-i18n="reset_sub">We'll email you a secure reset link.</p></div>
+      <div class="banner banner-ok" id="banner-reset"><span class="ic">✓</span><span data-i18n="reset_done">Check your email for the reset link.</span></div>
+      <label class="f" for="remail" data-i18n="email_label">Email address</label>
+      <div class="field" id="field-remail">
+        <input class="tin" id="remail" type="email" inputmode="email" autocomplete="email" data-i18n-ph="email_ph" placeholder="you@example.com"/>
+        <p class="err" id="remail-err" data-i18n="email_err">That email address is missing an @ or domain.</p>
+      </div>
+      <div class="primarycta">
+        <a class="btn block" id="cta-reset" href="#" role="button" onclick="return onReset(event)">
+          <span class="cta-spin" aria-hidden="true"></span><span data-i18n="reset_cta">Send reset link</span>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const HOME = "../client/discovery.page.html";  // prototype: successful auth → client shell
+const I18N = {
+  en:{
+    lede:"Sign in to continue.",
+    tab_email:"Email", tab_phone:"Phone",
+    email_label:"Email address", email_ph:"you@example.com", email_err:"That email address is missing an @ or domain.",
+    pw_label:"Password", pw_ph:"Your password", pw_err:"Enter your password.",
+    forgot:"Forgot password?",
+    cred_err:"Email or password is incorrect. Try again.",
+    phone_label:"Mobile number", phone_ph:"50 123 4567", phone_hint:"UAE mobile numbers have 9 digits.",
+    cta_email:"Sign in", cta_phone:"Send verification code",
+    cta_email_busy:"Signing in…", cta_phone_busy:"Sending code…",
+    or:"or", google:"Continue with Google", apple:"Continue with Apple",
+    new:"New to Salmon?", create:"Create account",
+    secure:"Tokens are stored in your device Keychain/Keystore, never in plain storage.",
+    back:"Back",
+    otp_title:"Enter the 6-digit code", otp_sub:"We sent a code to {num}.", otp_ph:"––––––",
+    otp_err:"Enter the 6-digit code we sent.", otp_verify:"Verify & sign in", otp_busy:"Verifying…",
+    resend:"Resend code", resend_in:"Resend in {s}s",
+    reset_title:"Reset your password", reset_sub:"We'll email you a secure reset link.",
+    reset_cta:"Send reset link", reset_busy:"Sending…", reset_done:"Check your email for the reset link."
+  },
+  bn:{
+    lede:"চালিয়ে যেতে সাইন ইন করুন।",
+    tab_email:"ইমেইল", tab_phone:"ফোন",
+    email_label:"ইমেইল ঠিকানা", email_ph:"you@example.com", email_err:"ইমেইল ঠিকানায় @ অথবা ডোমেইন নেই।",
+    pw_label:"পাসওয়ার্ড", pw_ph:"আপনার পাসওয়ার্ড", pw_err:"আপনার পাসওয়ার্ড দিন।",
+    forgot:"পাসওয়ার্ড ভুলে গেছেন?",
+    cred_err:"ইমেইল বা পাসওয়ার্ড সঠিক নয়। আবার চেষ্টা করুন।",
+    phone_label:"মোবাইল নম্বর", phone_ph:"৫০ ১২৩ ৪৫৬৭", phone_hint:"সংযুক্ত আরব আমিরাতের মোবাইল নম্বর ৯ সংখ্যার হয়।",
+    cta_email:"সাইন ইন", cta_phone:"যাচাই কোড পাঠান",
+    cta_email_busy:"সাইন ইন হচ্ছে…", cta_phone_busy:"কোড পাঠানো হচ্ছে…",
+    or:"অথবা", google:"গুগল দিয়ে চালিয়ে যান", apple:"অ্যাপল দিয়ে চালিয়ে যান",
+    new:"স্যামন-এ নতুন?", create:"অ্যাকাউন্ট তৈরি করুন",
+    secure:"টোকেন আপনার ডিভাইসের Keychain/Keystore-এ সংরক্ষিত হয়, সাধারণ স্টোরেজে নয়।",
+    back:"ফিরে যান",
+    otp_title:"৬-সংখ্যার কোড লিখুন", otp_sub:"আমরা {num}-এ কোড পাঠিয়েছি।", otp_ph:"––––––",
+    otp_err:"পাঠানো ৬-সংখ্যার কোডটি লিখুন।", otp_verify:"যাচাই করে সাইন ইন", otp_busy:"যাচাই হচ্ছে…",
+    resend:"কোড আবার পাঠান", resend_in:"{s} সেকেন্ডে আবার",
+    reset_title:"পাসওয়ার্ড রিসেট করুন", reset_sub:"আমরা একটি নিরাপদ রিসেট লিঙ্ক ইমেইল করব।",
+    reset_cta:"রিসেট লিঙ্ক পাঠান", reset_busy:"পাঠানো হচ্ছে…", reset_done:"রিসেট লিঙ্কের জন্য আপনার ইমেইল দেখুন।"
+  }
+};
+const CC_HINT = { en:(cc,l)=>`+${cc} mobile numbers have ${l} digits.`, bn:(cc,l)=>`+${cc} মোবাইল নম্বর ${l} সংখ্যার হয়।` };
+const CC_ERR  = { en:(cc,l)=>`That number doesn't look right for +${cc} — it should have ${l} digits.`, bn:(cc,l)=>`+${cc}-এর জন্য নম্বরটি ঠিক মনে হচ্ছে না — এটি ${l} সংখ্যার হওয়া উচিত।` };
+
+let lang='en', method='email', busy=false, cooldown=0, timer=null, lastNum='';
+const $=id=>document.getElementById(id);
+function t(k){ return (I18N[lang][k] ?? I18N.en[k] ?? k); }
+function applyLang(){
+  document.documentElement.lang=lang;
+  document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=t(el.dataset.i18n));
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>el.setAttribute('placeholder',t(el.dataset.i18nPh)));
+  $('lang-en').classList.toggle('on',lang==='en'); $('lang-bn').classList.toggle('on',lang==='bn');
+  onCountry(); updateCta(); if(lastNum) $('otp-sub').textContent=t('otp_sub').replace('{num}',lastNum);
+}
+function setLang(l){ lang=l; applyLang(); }
+function setMethod(m){
+  method=m;
+  $('panel-email').classList.toggle('hidden',m!=='email');
+  $('panel-phone').classList.toggle('hidden',m!=='phone');
+  $('tab-email').classList.toggle('on',m==='email'); $('tab-phone').classList.toggle('on',m==='phone');
+  $('tab-email').setAttribute('aria-selected',m==='email'); $('tab-phone').setAttribute('aria-selected',m==='phone');
+  $('banner-cred').classList.remove('show'); updateCta();
+}
+function tabKey(e,m){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); setMethod(m); } }
+function onCountry(){ const s=$('cc'); const cc=s.value,l=s.options[s.selectedIndex].dataset.len;
+  $('phone-hint').textContent=CC_HINT[lang](cc,l); $('phone-err').textContent=CC_ERR[lang](cc,l); }
+function updateCta(){ $('cta-label').textContent = t(busy?(method==='email'?'cta_email_busy':'cta_phone_busy'):(method==='email'?'cta_email':'cta_phone')); }
+function setBusy(b){ busy=b; $('device').classList.toggle('busy',b); $('cta').setAttribute('aria-disabled',b?'true':'false'); updateCta(); }
+function go(){ window.location.href=HOME; }
+
+function onSubmit(e){
+  e.preventDefault(); if(busy) return false;
+  $('banner-cred').classList.remove('show');
+  if(method==='email'){
+    const em=$('email').value.trim(), pw=$('password').value;
+    let bad=false;
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){ $('field-email').classList.add('invalid'); bad=true; } else $('field-email').classList.remove('invalid');
+    if(!pw){ $('field-password').classList.add('invalid'); bad=true; } else $('field-password').classList.remove('invalid');
+    if(bad) return false;
+    setBusy(true); setTimeout(()=>{ setBusy(false); go(); }, 900);
+  } else {
+    const digits=($('phone').value.match(/\d/g)||[]).length;
+    const need=+$('cc').options[$('cc').selectedIndex].dataset.len;
+    if(digits!==need){ $('field-phone').classList.add('invalid'); return false; }
+    $('field-phone').classList.remove('invalid');
+    setBusy(true);
+    setTimeout(()=>{ setBusy(false); lastNum='+'+$('cc').value+' '+$('phone').value.trim(); showOtp(); }, 900);
+  }
+  return false;
+}
+function showMain(){ $('view-main').classList.remove('hidden'); $('view-otp').classList.add('hidden'); $('view-reset').classList.add('hidden'); if(timer){clearInterval(timer);timer=null;} }
+function showOtp(){ $('view-main').classList.add('hidden'); $('view-otp').classList.remove('hidden'); $('view-reset').classList.add('hidden');
+  $('otp-sub').textContent=t('otp_sub').replace('{num}',lastNum); $('otp').value=''; $('otp').focus(); startCooldown(); }
+function showReset(){ $('view-main').classList.add('hidden'); $('view-otp').classList.add('hidden'); $('view-reset').classList.remove('hidden'); $('banner-reset').classList.remove('show'); $('remail').focus(); }
+function onVerify(e){
+  e.preventDefault(); const v=($('otp').value.match(/\d/g)||[]).length;
+  if(v!==6){ $('field-otp').classList.add('invalid'); return false; }
+  $('field-otp').classList.remove('invalid'); const c=$('cta-otp'); c.setAttribute('aria-disabled','true'); $('device').classList.add('busy');
+  setTimeout(go, 800); return false;
+}
+function startCooldown(){ cooldown=30; tickResend(); if(timer)clearInterval(timer);
+  timer=setInterval(()=>{ cooldown--; if(cooldown<=0){ clearInterval(timer); timer=null; } tickResend(); },1000); }
+function tickResend(){ const r=$('resend'); if(cooldown>0){ r.textContent=t('resend_in').replace('{s}',cooldown); r.style.pointerEvents='none'; r.style.opacity='.5'; }
+  else { r.textContent=t('resend'); r.style.pointerEvents='auto'; r.style.opacity='1'; } }
+function resend(){ if(cooldown>0) return; startCooldown(); }
+function onReset(e){
+  e.preventDefault(); const em=$('remail').value.trim();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){ $('field-remail').classList.add('invalid'); return false; }
+  $('field-remail').classList.remove('invalid'); const c=$('cta-reset'); c.setAttribute('aria-disabled','true');
+  setTimeout(()=>{ $('banner-reset').classList.add('show'); }, 700); return false;
+}
+applyLang();
+</script>
+</body></html>

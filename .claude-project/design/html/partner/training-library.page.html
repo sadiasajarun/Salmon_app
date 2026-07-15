@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Training library</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-training.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}
+  .wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}.wklang button.on{background:#ffffff33}
+  .search{margin:12px 16px 6px}.search input{width:100%;box-sizing:border-box;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:10px 14px;font:inherit;font-size:14px}
+  .cat{margin:10px 16px 4px;font-size:12.5px;font-weight:800;color:var(--ink);display:flex;align-items:center;gap:8px}
+  .irow{display:flex;align-items:center;gap:11px;margin:0 16px 8px;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:11px 12px;text-decoration:none;color:inherit}
+  .irow .ic{width:34px;height:34px;border-radius:8px;background:#f0e6ea;display:flex;align-items:center;justify-content:center;font-size:16px;flex:0 0 auto}
+  .irow .tt{font-weight:700;font-size:13px;line-height:1.35} .irow .mt{font-size:11px;color:var(--ink-subtle);margin-top:2px}
+  .irow .rt{margin-left:auto;text-align:right;font-size:11px;color:var(--ink-subtle)}
+  .dl{color:#1E7A46;font-weight:700}
+</style>
+</head><body>
+<div class="page-label">P67 · Training library ⭐ <small>Content library, NOT an LMS · categories/search/view/download · NO quiz/score/certification</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<script>
+var L=window.PartnerTraining, lang='en', q='';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function s(k){ return L.strings[lang][k]||k; }
+function meta(i){ if(i.type==='video') return i.durationMin+' '+s('min')+' · '+i.sizeMb+' MB'; return i.pages+' '+s('pages')+' · '+i.sizeMb+' MB'; }
+function render(){
+  var lt='<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span>';
+  var h='<div class="wkbar"><a class="bk" href="dashboard.page.html">‹</a><h2>'+s('library')+'</h2>'+lt+'</div>'+
+    '<p class="phelp" style="margin:12px 16px 0">'+s('libSub')+'</p>'+
+    '<div class="search"><input placeholder="'+s('search')+'" value="'+q+'" oninput="setQ(this.value)"></div>';
+  L.CATS.forEach(function(c){
+    var items=L.inCat(c.key).filter(function(i){ if(!q)return true; return (t(i.titleBn,i.titleEn)).toLowerCase().indexOf(q.toLowerCase())>-1; });
+    if(!items.length) return;
+    h+='<div class="cat">'+c.icon+' '+t(c.bn,c.en)+'</div>';
+    items.forEach(function(i){
+      var dl=L.isDownloaded(i.id), vw=L.isViewed(i.id);
+      h+='<a class="irow" href="content-viewer.page.html?id='+i.id+'"><span class="ic">'+(i.type==='video'?'🎬':'📄')+'</span>'+
+        '<div><div class="tt">'+t(i.titleBn,i.titleEn)+(vw?' <span style="color:var(--ink-subtle);font-weight:500;font-size:10.5px">· '+s('viewed')+'</span>':'')+'</div><div class="mt">'+meta(i)+'</div></div>'+
+        '<span class="rt">'+(dl?'<span class="dl">✓ '+s('downloaded')+'</span>':s('view')+' ›')+'</span></a>';
+    });
+  });
+  h+='<a class="btn ghost block" href="training-downloads.page.html" style="margin:10px 16px 16px;border-radius:10px">⬇ '+s('downloads')+'</a>';
+  document.getElementById('screen').innerHTML=h;
+}
+function setQ(v){ q=v; render(); var inp=document.querySelector('.search input'); if(inp){ inp.focus(); inp.setSelectionRange(v.length,v.length); } }
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

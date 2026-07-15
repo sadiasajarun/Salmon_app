@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Submit a lead</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+</head><body>
+<div class="page-label">P27 · Submit a lead <small>Fast entry (prospect is standing there) · drafts locally, survives a 3G drop</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div id="top" style="flex:0 0 auto"></div>
+  <div class="screen" style="padding-bottom:80px" id="form"></div>
+  <div class="pbtnbar"><a class="btn ghost" href="leads.page.html" style="flex:0 0 auto">‹</a><a class="btn" id="next" href="#" onclick="cont(event)" style="flex:1">Continue</a></div>
+</div>
+<script>
+var D=window.SALMON, lang='en';
+var LD_KEY='salmon_lead_draft';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function draft(){ try{ return JSON.parse(localStorage.getItem(LD_KEY))||{}; }catch(e){ return {}; } }
+function set(k,v){ var d=draft(); d[k]=v; try{localStorage.setItem(LD_KEY,JSON.stringify(d));}catch(e){} flash(); }
+function flash(){ var s=document.getElementById('saved'); if(s){ s.style.opacity='1'; clearTimeout(window._st); window._st=setTimeout(function(){s.style.opacity='0';},1200); } }
+function bar(){ document.getElementById('top').innerHTML=
+  '<div class="wkbar"><a class="bk" href="leads.page.html">‹</a><h2>'+t('লিড জমা দিন','Submit a lead')+'</h2>'+
+  '<span class="wklang" style="display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden"><button style="border:none;background:'+(lang==='bn'?'#ffffff33':'transparent')+';color:#fdf3f1;font-size:12px;padding:5px 9px" onclick="setLang(\'bn\')">বাং</button><button style="border:none;background:'+(lang==='en'?'#ffffff33':'transparent')+';color:#fdf3f1;font-size:12px;padding:5px 9px" onclick="setLang(\'en\')">EN</button></span></div>'+
+  '<div class="steplabel">'+t('রেফারড ব্যক্তির তথ্য','The referred person’s details')+' <span id="saved" style="color:var(--success);opacity:0;transition:opacity .3s;float:right">✓ '+t('সংরক্ষিত','saved')+'</span></div>'; }
+function render(){
+  bar(); var d=draft();
+  var projOpts='<option value="">'+t('প্রকল্প নির্বাচন','Select a project')+'</option>'+D.projects.filter(function(p){return p.status!=='upcoming';}).map(function(p){ return '<option value="'+p.slug+'"'+(d.projectSlug===p.slug?' selected':'')+'>'+p.name+'</option>'; }).join('');
+  document.getElementById('form').innerHTML=
+    '<label class="pf">'+t('পুরো নাম','Full name')+' <span class="req" style="color:var(--error)">*</span></label><input class="pinp" placeholder="'+t('রেফারড ব্যক্তির নাম','Referred person’s name')+'" value="'+(d.name||'')+'" oninput="set(\'name\',this.value)">'+
+    '<label class="pf">'+t('মোবাইল নম্বর','Mobile number')+' <span class="req" style="color:var(--error)">*</span></label>'+
+    '<div style="display:flex;gap:8px;margin:0 16px"><select class="pinp psel" style="width:96px;margin:0" onchange="set(\'cc\',this.value)"><option>+880</option></select><input class="pinp" style="flex:1;margin:0;width:auto" type="tel" inputmode="numeric" placeholder="01XXXXXXXXX" value="'+(d.phone||'')+'" oninput="set(\'phone\',this.value)"></div>'+
+    '<label class="pf">'+t('প্রকল্পে আগ্রহ','Project interest')+' <span class="req" style="color:var(--error)">*</span></label><select class="pinp psel" onchange="set(\'projectSlug\',this.value)">'+projOpts+'</select>'+
+    '<label class="pf">'+t('নোট','Notes')+' <span class="opt" style="color:var(--ink-subtle);font-weight:400">'+t('(ঐচ্ছিক)','(optional)')+'</span></label><textarea class="pinp" style="height:66px;resize:none" placeholder="'+t('বাজেট, পছন্দ, সময়…','Budget, preference, timing…')+'" oninput="set(\'note\',this.value)">'+(d.note||'')+'</textarea>'+
+    '<p class="phelp">'+t('আপনার লেখা স্বয়ংক্রিয়ভাবে সংরক্ষিত হচ্ছে — সংযোগ বিচ্ছিন্ন হলেও হারাবে না। পরের ধাপে সম্মতি নিশ্চিত করতে হবে।','Your input is saved automatically — a dropped connection won’t lose it. The next step requires a consent confirmation.')+'</p>'+
+    '<p class="phelp">'+t('প্রয়োজনীয় ফিল্ডের পূর্ণ তালিকা এখনো নিশ্চিত নয় (OPEN_QUESTIONS)।','The full required field list is not yet confirmed (OPEN_QUESTIONS).')+'</p>';
+  document.getElementById('next').textContent=t('সম্মতির ধাপে যান','Continue to consent');
+}
+function cont(e){ e.preventDefault(); var d=draft();
+  if(!(d.name&&d.phone&&d.projectSlug)){ alert(t('নাম, ফোন ও প্রকল্প দিন।','Enter name, phone and project.')); return; }
+  window.location.href='lead-consent.page.html';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

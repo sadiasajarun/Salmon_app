@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Downloads</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-training.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}
+  .wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}.wklang button.on{background:#ffffff33}
+  .irow{display:flex;align-items:center;gap:11px;margin:0 16px 8px;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:11px 12px}
+  .irow .ic{width:34px;height:34px;border-radius:8px;background:#e7f1ea;color:#1E7A46;display:flex;align-items:center;justify-content:center;font-size:16px;flex:0 0 auto}
+  .irow .tt{font-weight:700;font-size:13px} .irow .mt{font-size:11px;color:var(--ink-subtle);margin-top:2px}
+  .irow a.rm{margin-left:auto;color:#a13636;font-size:12px;font-weight:700;text-decoration:none;cursor:pointer}
+  .total{margin:0 16px 10px;font-size:12px;color:var(--ink-subtle)}
+  .empty{text-align:center;color:var(--ink-subtle);padding:36px 20px}
+</style>
+</head><body>
+<div class="page-label">P69 · Downloads <small>Offline access to approved material · file sizes shown (rural mobile data)</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<script>
+var L=window.PartnerTraining, lang='en';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function s(k){ return L.strings[lang][k]||k; }
+function meta(i){ if(i.type==='video') return i.durationMin+' '+s('min')+' · '+i.sizeMb+' MB'; return i.pages+' '+s('pages')+' · '+i.sizeMb+' MB'; }
+function render(){
+  var lt='<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span>';
+  var dl=L.downloaded();
+  var total=dl.reduce(function(a,i){return a+i.sizeMb;},0);
+  var h='<div class="wkbar"><a class="bk" href="training-library.page.html">‹</a><h2>'+s('downloads')+'</h2>'+lt+'</div>'+
+    '<p class="phelp" style="margin:12px 16px 6px">'+s('dlSub')+'</p>';
+  if(!dl.length){ h+='<div class="empty"><div style="font-size:32px">⬇</div><p style="margin-top:10px">'+s('empty')+'</p><a class="btn block" href="training-library.page.html" style="margin:14px auto;border-radius:10px">'+s('library')+'</a></div>'; }
+  else{
+    h+='<div class="total">'+dl.length+' '+t('আইটেম','items')+' · '+total.toFixed(1)+' MB · ✓ '+s('offlineReady')+'</div>';
+    dl.forEach(function(i){ h+='<div class="irow"><span class="ic">'+(i.type==='video'?'🎬':'📄')+'</span>'+
+      '<div><div class="tt">'+t(i.titleBn,i.titleEn)+'</div><div class="mt">'+meta(i)+'</div></div>'+
+      '<a class="rm" onclick="rm(\''+i.id+'\')">'+s('remove')+'</a></div>'; });
+  }
+  document.getElementById('screen').innerHTML=h;
+}
+function rm(id){ L.setDownloaded(id,false); render(); }
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

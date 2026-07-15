@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Pitch</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<script src="../assets/js/currency.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}.wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}
+  .sell{margin:12px 16px;background:#e7f2ec;border:1px solid #cfe6da;border-radius:12px;padding:12px 13px}
+  .sell h3{color:#1E7A46;font-size:13px;font-weight:700} .sell li{font-size:12.5px;color:#2f6b48;margin-top:6px;line-height:1.5;list-style:none;padding-left:18px;position:relative}
+  .sell li::before{content:"✓";position:absolute;left:0;color:#1E7A46}
+  .ctabar2{position:absolute;left:0;right:0;bottom:0;background:#fffdfb;border-top:1px solid var(--line);padding:12px 16px;display:flex;gap:8px}
+  .ctabar2 .btn{margin:0;border-radius:10px;width:auto}
+  .ctabar2 .btn.ghost{flex:0 0 auto;min-width:52px;padding-left:14px;padding-right:14px}
+  .screen{padding-bottom:74px}
+</style>
+</head><body>
+<div class="page-label">P21 · Project detail (partner view) <small>Re-pitched to SELL · availability, price positioning, easy-sell points, fast paths</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen"></div>
+  <div class="ctabar2"><a class="btn ghost" href="#" onclick="pitchLead(event)" style="flex:0 0 auto">👤</a><a class="btn" id="lead" href="#" onclick="pitchLead(event)" style="flex:1">Submit a lead</a></div>
+</div>
+<script>
+var D=window.SALMON, C=window.Currency, lang='en';
+function qs(k){ return new URLSearchParams(location.search).get(k); }
+var p=D.projects.find(function(x){return x.slug===qs('slug');})||D.projects.find(function(x){return x.slug==='the-rossa';});
+function t(bn,en){ return lang==='bn'?bn:en; }
+function sellPoints(){
+  var pts=[];
+  if(p.glance){ if(p.availableUnits<=Math.ceil(p.glance.flats*0.4)) pts.push(t('মাত্র '+p.availableUnits+'/'+p.glance.flats+' ইউনিট বাকি — দ্রুত ভরে যাচ্ছে।','Only '+p.availableUnits+'/'+p.glance.flats+' units left — filling fast.')); else pts.push(t(p.availableUnits+'/'+p.glance.flats+' ইউনিট খালি।',p.availableUnits+'/'+p.glance.flats+' units available.'));
+    pts.push(t(p.glance.floors+', '+p.glance.frontRoad+' সামনের রাস্তা, '+p.glance.facing+' মুখী।',p.glance.floors+', '+p.glance.frontRoad+' front road, '+p.glance.facing+' facing.'));
+  }
+  if(p.youtube) pts.push(t('৩৬০° ট্যুর ও ভিডিও দেখিয়ে দূরের ক্রেতাকে আশ্বস্ত করুন।','Reassure a distant buyer with the 360° tour & video.'));
+  if(p.status==='completed') pts.push(t('হস্তান্তরিত — এখনই থাকার জন্য প্রস্তুত।','Handed over — ready to live in now.'));
+  return pts;
+}
+function render(){
+  var lt='<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span>';
+  var av=p.glance?(p.availableUnits+' / '+p.glance.flats+' '+t('খালি','available')):'';
+  var m=p.price?C.priceModel(p.price,'AED'):null;
+  var g=p.glance;
+  var glance=g?('<div class="glance"><div class="cell"><div class="k">'+t('ভবন','Building')+'</div><div class="v">'+g.buildingType+'</div></div>'+
+    '<div class="cell"><div class="k">'+t('তলা','Floors')+'</div><div class="v">'+g.floors+'</div></div>'+
+    '<div class="cell"><div class="k">'+t('বর্গফুট','Sqft')+'</div><div class="v">'+g.sqft.join('/')+'</div></div>'+
+    '<div class="cell"><div class="k">'+t('বেড/বাথ','Bed/Bath')+'</div><div class="v">'+g.bed+' / '+g.bath+'</div></div>'+
+    '<div class="cell"><div class="k">'+t('বারান্দা/লিফট','Balcony/Lift')+'</div><div class="v">'+g.balcony+' / '+g.lift+'</div></div>'+
+    '<div class="cell"><div class="k">'+t('সামনের রাস্তা','Front road')+'</div><div class="v">'+g.frontRoad+'</div></div></div>'):'';
+  document.getElementById('screen').innerHTML=
+    '<div class="wkbar"><a class="bk" href="projects.page.html">‹</a><h2>'+p.name+'</h2>'+lt+'</div>'+
+    '<div class="pad" style="padding-top:10px"><div class="sub">'+p.address+'</div>'+
+    (av?'<div style="margin-top:8px"><span class="st st-ongoing"><span class="gl">●</span>'+av+'</span></div>':'')+
+    (m?'<div class="price-dual" style="margin-top:10px">'+C.fmtDisplay(m.dispFrom,'AED')+'<span class="bdt">'+C.fmtBdt(m.bdtFrom)+'</span><span class="ref">'+t('বিডিটি প্রকৃত মূল্য; এইডি রেফারেন্স।','BDT is the real price; AED for reference.')+'</span></div>':'')+'</div>'+
+    '<div class="sell"><h3>'+t('কেন এটি সহজে বিক্রি হয়','Why this is an easy sell')+'</h3><ul style="margin:6px 0 0;padding:0">'+sellPoints().map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul></div>'+
+    '<div class="sectitle" style="margin-left:16px">'+t('এক নজরে','At a glance')+'</div>'+glance+
+    '<div class="qa" style="padding:0 16px 6px"><a href="inventory.page.html?slug='+p.slug+'">🏢 '+t('লাইভ ইনভেন্টরি','Live inventory')+'</a><a href="sales-kit.page.html?slug='+p.slug+'">🧰 '+t('সেলস কিট','Sales kit')+'</a></div>'+
+    '<p class="phelp" style="margin:8px 16px 16px">'+t('ক্লায়েন্ট যে ডেটা দেখে সেটিই — বিক্রেতার জন্য সাজানো।','Same data the client sees — arranged for the seller.')+'</p>';
+}
+function pitchLead(e){ e.preventDefault();
+  try{ var d=JSON.parse(localStorage.getItem('salmon_lead_draft'))||{}; d.projectSlug=p.slug; localStorage.setItem('salmon_lead_draft',JSON.stringify(d)); }catch(err){}
+  window.location.href='submit-lead.page.html';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); document.getElementById('lead').textContent=t('এই প্রকল্পে লিড দিন','Submit a lead'); }
+render(); document.getElementById('lead').textContent=t('এই প্রকল্পে লিড দিন','Submit a lead');
+</script>
+</body></html>

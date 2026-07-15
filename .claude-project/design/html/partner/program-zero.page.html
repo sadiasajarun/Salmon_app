@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Zero Investment</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-state.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>.wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}.wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}</style>
+</head><body>
+<div class="page-label">P17 · Program: Zero Investment <small>Client-approved eligibility, responsibilities, benefits, conditions — plain</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<script>
+var P=window.Partner, lang='en';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function list(title,items){ return '<div class="sectitle" style="margin-left:16px">'+title+'</div><div class="rowlist" style="margin:0 16px 12px">'+items.map(function(x){return '<div class="row"><span class="u" style="font-weight:500;font-size:13px">'+x+'</span></div>';}).join('')+'</div>'; }
+function render(){
+  var inIt=P.identity.programs.indexOf('zeroInvestment')>-1;
+  document.getElementById('screen').innerHTML=
+    '<div class="wkbar"><a class="bk" href="enrolment.page.html">‹</a><h2>'+t('জিরো ইনভেস্টমেন্ট','Zero Investment')+'</h2>'+
+    '<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span></div>'+
+    (inIt?'<div class="lock info" style="margin:12px 16px 8px">✓ '+t('আপনি এই প্রোগ্রামে আছেন','You’re enrolled in this program')+'</div>':'')+
+    '<p style="font-size:13.5px;color:var(--ink-subtle);line-height:1.6;margin:10px 16px 4px">'+t('কোনো বিনিয়োগ নয় — ক্রেতা রেফার করুন, যাচাইকৃত রূপান্তরে কমিশন পান।','No money down — refer buyers, earn commission on verified conversion.')+'</p>'+
+    list(t('যোগ্যতা','Eligibility'),[t('অনুমোদিত পার্টনার','Approved partner'),t('আপনার নির্ধারিত টেরিটরির মধ্যে','Within your assigned territory')])+
+    list(t('দায়িত্ব','Responsibilities'),[t('সম্মতিসহ সঠিক লিড জমা দেওয়া','Submit accurate leads with consent'),t('স্যামন-অনুমোদিত তথ্য দিয়ে পিচ করা','Pitch using Salmon-approved material')])+
+    list(t('সুবিধা','Benefits'),[t('যাচাইকৃত রূপান্তরে কমিশন','Commission on verified conversion'),t('সেলস কিট অ্যাক্সেস','Sales-kit access')])+
+    list(t('শর্ত','Conditions'),[t('রূপান্তর কেবল স্যামন যাচাই করে','Only Salmon verifies a conversion'),t('কমিশন হার ও শর্ত ক্লায়েন্ট-অনুমোদিত (চূড়ান্ত নয়)','Commission rate & terms are client-approved (not yet finalised)')])+
+    '<p class="phelp" style="margin:0 16px 16px">'+t('কোন ঘটনা “রূপান্তর” হিসেবে গণ্য এবং কে ঘোষণা করেন — এখনো নিশ্চিত নয় (OPEN_QUESTIONS)।','What counts as a “conversion” and who declares it is not yet confirmed (OPEN_QUESTIONS).')+'</p>';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

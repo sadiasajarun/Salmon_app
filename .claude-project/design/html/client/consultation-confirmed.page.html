@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Consultation confirmed</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/support-channel.js"></script>
+<script src="../assets/js/timezone.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .langtoggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+  .langtoggle button{border:none;background:transparent;font-size:12px;padding:6px 10px;color:var(--ink-subtle);cursor:pointer}
+  .langtoggle button.on{background:var(--primary);color:#fff}
+  .when{margin:8px var(--gutter) 12px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px;text-align:center}
+  .when .c{font-family:var(--serif);font-size:22px;font-weight:600}
+  .when .dh{font-size:13px;color:var(--ink-subtle);margin-top:4px}
+  .linkcard{margin:0 var(--gutter) 12px;background:linear-gradient(135deg,#fff,#faf0f2);border:1px solid #eccdd5;border-radius:18px;padding:16px}
+  .linkcard .prov{display:inline-flex;align-items:center;gap:8px;font-weight:700;color:var(--primary)}
+  .linkcard a.join{display:block;text-align:center;background:var(--primary);color:#fff;border-radius:12px;padding:13px;text-decoration:none;font-weight:600;margin-top:12px}
+</style>
+</head><body>
+<div class="page-label">Client · Consultation confirmed (60) <small>His tz + Dhaka · external Zoom/Meet link (app does NOT host the call) · .ics</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<script>
+var SC=window.SupportChannel, TZ=window.TZ, lang='en';
+function qs(k){ return new URLSearchParams(location.search).get(k); }
+var utc=+(qs('t')||Date.UTC(2026,6,16,12,0)); // default Thu 16 Jul 6pm Dubai (12:00 UTC)
+var PROVIDER='Zoom'; // seam: Zoom | Google Meet (undefined -> OPEN_QUESTIONS)
+var LINK='https://zoom.us/j/000000000?pwd=__PLACEHOLDER';
+function cl(){ return new Intl.DateTimeFormat('en-GB',{timeZone:TZ.getTz(),weekday:'long',day:'numeric',month:'short',hour:'numeric',minute:'2-digit',hour12:true}).format(new Date(utc)); }
+function dh(){ return new Intl.DateTimeFormat('en-GB',{timeZone:TZ.DHAKA,hour:'numeric',minute:'2-digit',hour12:true}).format(new Date(utc)); }
+function lt(){ return '<span class="langtoggle"><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button></span>'; }
+function render(){
+  var city=TZ.getTz().split('/')[1].replace('_',' ');
+  document.getElementById('screen').innerHTML=
+    '<div class="appbar"><a class="back" href="consultation-slots.page.html" style="font-size:20px;text-decoration:none;color:var(--ink)">‹</a><h2>'+(lang==='bn'?'নিশ্চিত':'Confirmed')+'</h2>'+lt()+'</div>'+
+    '<div class="rhero" style="padding-top:8px"><div class="badge-ic ok">✓</div><h2>'+(lang==='bn'?'কনসালটেশন বুক হয়েছে':'Consultation booked')+'</h2></div>'+
+    '<div class="when"><div class="c">'+cl()+'</div><div class="dh">'+(lang==='bn'?'আপনার সময় ('+city+') · ঢাকায় ':'Your time ('+city+') · '+'')+dh()+' Dhaka</div></div>'+
+    '<div class="linkcard"><span class="prov">🔗 '+PROVIDER+' '+(lang==='bn'?'মিটিং':'meeting')+'</span>'+
+      '<p class="sub" style="margin-top:6px;line-height:1.5">'+(lang==='bn'?'স্যামন অ্যাপ কলটি হোস্ট করে না — এটি শুধু একটি বাহ্যিক লিঙ্ক সংযুক্ত করে।':'The Salmon app does not host the call — it attaches an external link.')+'</p>'+
+      '<a class="join" href="'+LINK+'" target="_blank">'+(lang==='bn'?PROVIDER+'-এ যোগ দিন':'Join on '+PROVIDER)+'</a></div>'+
+    '<div class="rowlist" style="margin:0 var(--gutter) 12px"><div class="row"><span>'+(lang==='bn'?'আপনি মিলবেন':'You’ll meet')+'</span><span class="u">'+SC.rm.name+'</span></div>'+
+      '<div class="row"><span>'+(lang==='bn'?'প্রস্তুত করুন':'Prepare')+'</span><span class="sub">'+(lang==='bn'?'বুকিং রেফ, প্রশ্ন':'Booking ref, questions')+'</span></div></div>'+
+    '<a class="btn ghost block" onclick="ics(event)" href="#">'+(lang==='bn'?'ক্যালেন্ডারে যোগ করুন (.ics)':'Add to calendar (.ics)')+'</a>'+
+    '<div style="display:flex;gap:10px;margin:10px var(--gutter) 16px"><a class="btn ghost" style="flex:1" href="consultation-reschedule.page.html?t='+utc+'">'+(lang==='bn'?'রিশিডিউল':'Reschedule')+'</a>'+
+      '<a class="btn ghost" style="flex:1" href="consultation-reschedule.page.html?t='+utc+'&cancel=1">'+(lang==='bn'?'বাতিল':'Cancel')+'</a></div>';
+}
+function ics(e){ e.preventDefault();
+  var dt=new Date(utc); function z(n){return String(n).padStart(2,'0');}
+  function fmt(d){ return d.getUTCFullYear()+z(d.getUTCMonth()+1)+z(d.getUTCDate())+'T'+z(d.getUTCHours())+z(d.getUTCMinutes())+'00Z'; }
+  var end=new Date(utc+3600000);
+  var body='BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:Salmon consultation with '+SC.rm.name+'\nDTSTART:'+fmt(dt)+'\nDTEND:'+fmt(end)+'\nDESCRIPTION:'+PROVIDER+' link: '+LINK+'\nEND:VEVENT\nEND:VCALENDAR';
+  var a=document.createElement('a'); a.href='data:text/calendar;charset=utf-8,'+encodeURIComponent(body); a.download='salmon-consultation.ics'; a.click();
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

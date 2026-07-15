@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Choose your path</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/auth-router.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .glang{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+  .glang button{border:none;background:transparent;font-size:12px;padding:6px 11px;color:var(--ink-subtle);cursor:pointer}
+  .glang button.on{background:var(--primary);color:#fff}
+  /* buyer door — aspirational, editorial */
+  .door-buy{margin:6px 16px 14px;border-radius:18px;overflow:hidden;text-decoration:none;color:var(--ink);display:block;border:1px solid var(--line);box-shadow:0 8px 24px rgba(34,34,34,.07)}
+  .door-buy .media{height:156px;position:relative;background:
+    linear-gradient(180deg,rgba(20,10,8,.05) 35%,rgba(20,10,8,.58)),
+    url('https://admin.salmondevelopersbd.com/uploads/projects/banners/_bdd5ac45-79eb-40d2-8576-f1b6e88bc697.png') center/cover no-repeat,
+    linear-gradient(135deg,#b98a72,#7d5647)}
+  .door-buy .media .k{position:absolute;left:14px;bottom:12px;color:#fff;font-family:var(--serif);font-size:20px;text-shadow:0 1px 6px #0006}
+  .door-buy .b{padding:13px 15px;background:var(--surface)}
+  .door-buy .b .d{font-size:12.5px;color:var(--ink-subtle);line-height:1.5}
+  .door-buy .b .go{color:var(--primary);font-weight:700;font-size:13px;margin-top:8px;display:inline-block}
+  /* partner door — professional, dense, maroon, honest about approval */
+  .door-partner{margin:0 16px 14px;border-radius:18px;overflow:hidden;text-decoration:none;color:#fdf3f1;display:block}
+  .door-partner .top{position:relative;padding:16px 16px;background:
+    linear-gradient(135deg,rgba(128,0,32,.90),rgba(92,0,24,.95)),
+    url('https://admin.salmondevelopersbd.com/uploads/projects/banners/salmon-oasis-park_3635d2c6-8615-4fb9-8ea0-6473339d6aba.jpg') center/cover no-repeat,
+    linear-gradient(135deg,#800020,#5c0018)}
+  .door-partner .top .k{font-family:var(--serif);font-size:19px}
+  .door-partner .top .d{font-size:12.5px;opacity:.92;line-height:1.5;margin-top:5px}
+  .door-partner .foot{background:#3a1a20;color:#f3d9de;font-size:11.5px;padding:9px 16px;display:flex;align-items:center;gap:8px}
+  .door-partner .foot .dot{width:7px;height:7px;border-radius:999px;background:#e6b34a}
+</style>
+</head><body>
+<div class="page-label">G03 · Choose your path ⭐ <small>Sign-UP fork · two distinct registers · partner door signals approval up front</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen"></div>
+</div>
+<script>
+var AR=window.AuthRouter, lang='en';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function goPath(p){ AR.go(AR.routeSignUp(p).dest); }
+function render(){
+  document.getElementById('screen').innerHTML=
+    '<div class="appbar" style="padding-bottom:8px"><a class="back" href="g02-welcome.page.html" style="font-size:20px;text-decoration:none;color:var(--ink)">‹</a>'+
+    '<h2 style="font-family:var(--serif)">'+t('আপনি কীভাবে যোগ দেবেন?','Choose your path')+'</h2>'+
+    '<span class="glang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span></div>'+
+    '<p class="phelp" style="margin:0 16px 12px">'+t('একটি বেছে নিন। আপনি স্যামনের সাথে কোন সম্পর্কে যুক্ত হবেন?','Pick one. What’s your relationship with Salmon?')+'</p>'+
+    // Buyer door
+    '<a class="door-buy" onclick="goPath(\'client\');return false;" href="#"><div class="media"><span class="k">'+t('সম্পত্তি কিনুন','Buy a property')+'</span></div>'+
+    '<div class="b"><div class="d">'+t('প্রকল্প ঘুরে দেখুন, ইউনিট বুক করুন, কিস্তিতে পরিশোধ করুন — এখনই প্রবেশ করুন।','Browse projects, book a unit, pay by installments — immediate access.')+'</div>'+
+    '<span class="go">'+t('ক্রেতা হিসেবে শুরু করুন →','Start as a buyer →')+'</span></div></a>'+
+    // Partner door (honest about approval)
+    '<a class="door-partner" onclick="goPath(\'partner\');return false;" href="#"><div class="top"><div class="k">'+t('সেলস পার্টনার হন','Become a Sales Partner')+'</div>'+
+    '<div class="d">'+t('স্যামনের পার্টনার নেটওয়ার্কে যোগ দিতে আবেদন করুন — রেফার করুন, কমিশন আয় করুন।','Apply to join Salmon’s partner network — refer buyers, earn commission.')+'</div></div>'+
+    '<div class="foot"><span class="dot"></span>'+t('আবেদনের পর একজন মানুষ যাচাই করে অনুমোদন দেন — তাৎক্ষণিক প্রবেশ নয়।','Applications are reviewed and approved by a person — not instant access.')+'</div></a>'+
+    '<p style="text-align:center;font-size:13px;color:var(--ink-subtle);margin:16px">'+t('আগে থেকেই অ্যাকাউন্ট আছে? ','Already have an account? ')+'<a href="g04-signin.page.html" style="color:var(--primary);font-weight:600">'+t('সাইন ইন','Sign in')+'</a></p>';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

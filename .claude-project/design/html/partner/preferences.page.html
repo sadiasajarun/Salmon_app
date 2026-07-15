@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Preferences</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}
+  .wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}.wklang button.on{background:#ffffff33}
+  .sec{margin:14px 16px 4px;font-size:11.5px;font-weight:800;color:var(--ink-subtle);text-transform:uppercase;letter-spacing:.4px}
+  .opt{display:flex;align-items:center;gap:11px;margin:0 16px 8px;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:12px 13px;cursor:pointer}
+  .opt.on{border-color:var(--primary);background:#fbf3f5}
+  .opt .r{width:20px;height:20px;border-radius:50%;border:2px solid var(--line);flex:0 0 auto;display:flex;align-items:center;justify-content:center}
+  .opt.on .r{border-color:var(--primary)} .opt.on .r::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--primary)}
+  .opt .lb{font-weight:700;font-size:14px} .opt .sub2{font-size:11px;color:var(--ink-subtle);margin-top:2px}
+  .opt .primary{margin-left:auto;background:var(--primary);color:#fff;font-size:9.5px;font-weight:800;padding:2px 7px;border-radius:5px}
+  .row{display:flex;align-items:center;justify-content:space-between;margin:0 16px 8px;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:12px 13px}
+  .row .lb{font-size:13.5px;font-weight:600}
+  .sw{width:44px;height:26px;border-radius:999px;background:#ccc;position:relative;cursor:pointer;flex:0 0 auto}
+  .sw.on{background:var(--primary)} .sw i{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .15s} .sw.on i{left:21px}
+</style>
+</head><body>
+<div class="page-label">P75 · Preferences ⭐ <small>Bengali PRIMARY (Shahin's default, listed first) · English secondary · notification + display prefs</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<script>
+// This screen is Bengali-first: Bengali is the partner's PRIMARY language and the
+// default saved preference. English fits around it as the secondary option.
+var lang='en'; var LKEY='salmon_lang_pref';
+function langPref(){ try{ return localStorage.getItem(LKEY)||'bn'; }catch(e){ return 'bn'; } } // default BENGALI
+function t(bn,en){ return lang==='bn'?bn:en; }
+var prefs={ notifPush:true, notifLead:true, notifTask:true, notifNotice:true, largeText:false };
+function render(){
+  var lp=langPref();
+  var lt='<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span>';
+  // Bengali option FIRST (primary), English second.
+  var langOpts=
+    '<div class="opt '+(lp==='bn'?'on':'')+'" onclick="pickLang(\'bn\')"><span class="r"></span><div><div class="lb">বাংলা (Bengali)</div><div class="sub2">'+t('আপনার প্রাথমিক ভাষা','Your primary language')+'</div></div><span class="primary">'+t('প্রাথমিক','PRIMARY')+'</span></div>'+
+    '<div class="opt '+(lp==='en'?'on':'')+'" onclick="pickLang(\'en\')"><span class="r"></span><div><div class="lb">English</div><div class="sub2">'+t('মাধ্যমিক','Secondary')+'</div></div></div>';
+  function sw(key,label){ return '<div class="row"><span class="lb">'+label+'</span><span class="sw '+(prefs[key]?'on':'')+'" onclick="toggle(\''+key+'\')"><i></i></span></div>'; }
+  document.getElementById('screen').innerHTML=
+    '<div class="wkbar"><a class="bk" href="profile.page.html">‹</a><h2>'+t('পছন্দসমূহ','Preferences')+'</h2>'+lt+'</div>'+
+    '<div class="sec">'+t('ভাষা','Language')+'</div>'+langOpts+
+    '<div class="sec">'+t('বিজ্ঞপ্তি','Notifications')+'</div>'+
+    sw('notifPush', t('পুশ বিজ্ঞপ্তি','Push notifications'))+
+    sw('notifLead', t('লিড আপডেট','Lead updates'))+
+    sw('notifTask', t('কাজের রিমাইন্ডার','Task reminders'))+
+    sw('notifNotice', t('নোটিশ বোর্ড','Notice board'))+
+    '<div class="sec">'+t('প্রদর্শন','Display')+'</div>'+
+    sw('largeText', t('বড় লেখা','Larger text'))+
+    '<p class="phelp" style="margin:10px 16px 16px;font-size:11.5px">'+t('কিছু বিজ্ঞপ্তি বাধ্যতামূলক বনাম ঐচ্ছিক তা স্যামন নির্ধারণ করবে (OPEN_QUESTIONS)।','Which notifications are mandatory vs opt-out is for Salmon to define (OPEN_QUESTIONS).')+'</p>';
+}
+function pickLang(l){ try{ localStorage.setItem(LKEY,l); }catch(e){} lang=l; document.documentElement.lang=l; render(); }
+function toggle(k){ prefs[k]=!prefs[k]; render(); }
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

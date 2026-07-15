@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Notifications</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-system.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}
+  .wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}.wklang button.on{background:#ffffff33}
+  .grp{margin:12px 16px 4px;font-size:11.5px;font-weight:800;color:var(--ink-subtle);text-transform:uppercase;letter-spacing:.4px}
+  .nrow{display:flex;gap:11px;align-items:flex-start;margin:0 16px 8px;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:11px 12px;text-decoration:none;color:inherit}
+  .nrow .ic{width:30px;height:30px;border-radius:8px;background:#f0e6ea;color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:14px;flex:0 0 auto}
+  .nrow .tx{font-size:13px;line-height:1.4} .nrow .tm{font-size:11px;color:var(--ink-subtle);margin-top:3px}
+  .nofin{margin:0 16px 8px;background:#faf3ec;border:1px dashed #e3d3c1;border-radius:10px;padding:10px 12px;font-size:11.5px;color:var(--ink-subtle);line-height:1.5}
+</style>
+</head><body>
+<div class="page-label">P73 · Notification centre <small>Grouped · timezone-correct · NO financial detail in payload (locked-phone rule)</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<script>
+var Y=window.PartnerSystem, lang='en';
+var ICON={approval:'✓',lead:'👤',task:'✅',commission:'▤',settlement:'⇄',meeting:'📅',notice:'📢'};
+function t(bn,en){ return lang==='bn'?bn:en; }
+function s(k){ return Y.strings[lang][k]||k; }
+function when(iso){ try{ return new Intl.DateTimeFormat(lang==='bn'?'bn-BD':'en-GB',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit',hour12:true,timeZone:'Asia/Dhaka'}).format(new Date(iso))+' '+t('(ঢাকা)','(Dhaka)'); }catch(e){ return iso.slice(0,10); } }
+function render(){
+  var lt='<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span>';
+  var h='<div class="wkbar"><a class="bk" href="dashboard.page.html">‹</a><h2>'+s('notifications')+'</h2>'+lt+'</div>'+
+    '<div class="nofin">🔒 '+s('noFinance')+'</div>';
+  Y.GROUPS.forEach(function(g){
+    var items=Y.notifications.filter(function(n){return n.group===g;});
+    if(!items.length) return;
+    h+='<div class="grp">'+t(Y.GROUP_LABEL[g].bn,Y.GROUP_LABEL[g].en)+'</div>';
+    items.forEach(function(n){ h+='<a class="nrow" href="'+n.link+'"><span class="ic">'+(ICON[g]||'•')+'</span><div><div class="tx">'+t(n.bn,n.en)+'</div><div class="tm">'+when(n.t)+'</div></div></a>'; });
+  });
+  document.getElementById('screen').innerHTML=h;
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

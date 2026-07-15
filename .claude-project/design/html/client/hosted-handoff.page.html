@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Secure checkout</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<script src="../assets/js/currency.js"></script>
+<script src="../assets/js/payment-state.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+</head><body>
+<div class="page-label">Client · Hosted checkout handoff (41) <small>Gateway’s own page · ZERO card fields · returning here is a rumour</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:24px"></div>
+</div>
+<script>
+var D=window.SALMON, C=window.Currency, PS=window.PayState, lang='en';
+function qs(k){ return new URLSearchParams(location.search).get(k); }
+var t=PS.load(); var ch=qs('ch')||t.channel||'stripe';
+var chan=PS.CHANNELS.find(function(c){return c.key===ch;})||PS.CHANNELS[0];
+var name=chan.en.split(' (')[1]?chan.en.split(' (')[1].replace(')',''):chan.en;
+function render(){
+  var disp=C.fmtDisplay(C.toDisplay(t.amountBdt,'AED'),'AED');
+  document.getElementById('screen').innerHTML=
+    '<div class="appbar"><h2>'+(lang==='bn'?'নিরাপদ চেকআউট':'Secure checkout')+'</h2><span class="langtoggle" style="display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden"><button onclick="setLang(\'en\')" style="border:none;background:'+(lang==='en'?'var(--primary)':'transparent')+';color:'+(lang==='en'?'#fff':'var(--ink-subtle)')+';font-size:12px;padding:6px 10px">EN</button><button onclick="setLang(\'bn\')" style="border:none;background:'+(lang==='bn'?'var(--primary)':'transparent')+';color:'+(lang==='bn'?'#fff':'var(--ink-subtle)')+';font-size:12px;padding:6px 10px">বাং</button></span></div>'+
+    '<div class="webview"><div class="bar"><span class="lockico">🔒</span> secure-checkout.'+ch+'.com</div>'+
+      '<div class="body"><div style="font-size:30px;margin-bottom:10px">🔒</div>'+
+      '<b>'+(lang==='bn'?'আপনি এখন '+name+'-এর নিরাপদ পেজে আছেন।':'You’re now on '+name+'’s secure page.')+'</b><br><br>'+
+      (lang==='bn'?'স্যামন আপনার কার্ডের তথ্য কখনো দেখে না বা সংরক্ষণ করে না। এখানে কোনো কার্ড ফর্ম নেই — গেটওয়ে সবকিছু সামলায়।':'Salmon never sees or stores your card details. There is no card form here — the gateway handles everything.')+
+      '<div style="margin-top:16px;font-size:22px;font-weight:800;color:var(--primary)">'+disp+'</div><div style="font-size:12px;color:var(--ink-subtle)">'+C.fmtBdt(t.amountBdt)+' · BDT '+(lang==='bn'?'(প্রকৃত চার্জ)':'(actual charge)')+'</div></div></div>'+
+    '<p class="terms" style="text-align:center">'+(lang==='bn'?'আপনি ফিরে এলে সেটি কেবল একটি ইঙ্গিত — স্যামন যাচাইকৃত নিশ্চিতকরণের পরই বুকিং নিশ্চিত করে।':'When you return, that’s only a hint — Salmon confirms the booking only after verified notification.')+'</p>'+
+    '<a class="btn block" onclick="paid(event)" href="#">'+(lang==='bn'?'আমি পেমেন্ট সম্পন্ন করেছি':'I’ve completed payment')+'</a>'+
+    '<a class="btn ghost block" onclick="cancel(event)" href="#" style="margin-top:10px;margin-bottom:16px">'+(lang==='bn'?'বাতিল করুন':'Cancel')+'</a>';
+}
+function paid(e){ e.preventDefault();
+  if(window.NetSim&&NetSim.isOffline()){ NetSim.blockPay(lang==='bn'?'পেমেন্টের জন্য সংযোগ প্রয়োজন। কিছু চার্জ করা হয়নি।':'You need a connection to pay. Nothing has been charged.'); return; }
+  PS.dispatch({type:'GO_PENDING', channel:ch}); window.location.href='payment-pending.page.html'; }
+function cancel(e){ e.preventDefault(); PS.dispatch({type:'CANCEL_AT_GATEWAY'}); window.location.href='payment-result.page.html?type=cancelled'; }
+function setLang(l){ lang=l; render(); }
+render();
+</script>
+</body></html>

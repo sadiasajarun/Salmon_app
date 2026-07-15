@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Enquiry status</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-invest.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}
+  .wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}.wklang button.on{background:#ffffff33}
+  .stathero .ic{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 10px}
+  .steps{margin:0 16px 12px} .steps .stp{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line)}
+  .steps .stp:last-child{border-bottom:none}
+  .steps .dot{width:20px;height:20px;border-radius:50%;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;margin-top:1px}
+  .steps .now .dot{background:#f7efe0;color:#B7791F} .steps .next .dot{background:#eee;color:#999}
+  .steps .u{font-weight:700;font-size:13px} .steps .sub2{font-size:11.5px;color:var(--ink-subtle);margin-top:2px;line-height:1.5}
+</style>
+</head><body>
+<div class="page-label">P52 · Enquiry status <small>Honest waiting state · staff contact offline · nothing purchased/committed</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<script>
+var V=window.PartnerInvest, lang='en';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function s(k){ return V.strings[lang][k]||k; }
+function render(){
+  var lt='<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span>';
+  document.getElementById('screen').innerHTML=
+    '<div class="wkbar"><a class="bk" href="program-with.page.html">‹</a><h2>'+s('enquiryTitle')+'</h2>'+lt+'</div>'+
+    '<div class="stathero" style="padding-top:18px;text-align:center;padding-left:16px;padding-right:16px">'+
+      '<div class="ic" style="background:#f7efe0;color:#B7791F">◔</div>'+
+      '<h1 style="font-size:20px;margin:0">'+s('enquiryPendingTitle')+'</h1>'+
+      '<p style="color:var(--ink-subtle);font-size:13px;margin:8px 0 0;line-height:1.55">'+s('enquiryPendingSub')+'</p></div>'+
+    '<div class="sectitle" style="margin-left:16px">'+t('এরপর কী হবে','What happens next')+'</div>'+
+    '<div class="steps">'+
+      '<div class="stp"><span class="dot" style="background:#e7f1ea;color:#1E7A46">✓</span><div><div class="u">'+t('অনুসন্ধান গৃহীত','Enquiry received')+'</div><div class="sub2">'+t('আপনার অনুরোধ রেকর্ড হয়েছে।','Your request has been recorded.')+'</div></div></div>'+
+      '<div class="stp now"><span class="dot">◔</span><div><div class="u">'+t('স্যামন স্টাফ যোগাযোগ করবে','Salmon staff will contact you')+'</div><div class="sub2">'+t('অফলাইনে — ফোন বা সাক্ষাতে। অ্যাপে কিছু হয় না।','Offline — by phone or in person. Nothing happens in the app.')+'</div></div></div>'+
+      '<div class="stp next"><span class="dot">·</span><div><div class="u">'+t('ডকুমেন্টেশন ও যাচাই','Documentation & verification')+'</div><div class="sub2">'+t('সবকিছু স্যামনের আইনি ও ফিন্যান্স প্রক্রিয়ায়, অফলাইনে।','All through Salmon’s legal & finance process, offline.')+'</div></div></div>'+
+    '</div>'+
+    '<div style="margin:4px 16px 14px;font-size:11.5px"><a href="disclaimer.page.html" style="color:var(--primary);font-weight:700;text-decoration:none">'+s('readDisclaimer')+' ›</a></div>'+
+    '<a class="btn ghost block" href="program-with.page.html" style="margin:0 16px 16px;border-radius:10px">'+t('প্রোগ্রামে ফিরুন','Back to program')+'</a>';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · With Investment</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-state.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>.wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}.wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}</style>
+</head><body>
+<div class="page-label">P18 · Program: With Investment <small>Program info only · MANDATORY disclaimers · NO return figures / projections / guaranteed-return copy</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<script>
+var P=window.Partner, lang='en';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function list(title,items){ return '<div class="sectitle" style="margin-left:16px">'+title+'</div><div class="rowlist" style="margin:0 16px 12px">'+items.map(function(x){return '<div class="row"><span class="u" style="font-weight:500;font-size:13px">'+x+'</span></div>';}).join('')+'</div>'; }
+function render(){
+  document.getElementById('screen').innerHTML=
+    '<div class="wkbar"><a class="bk" href="enrolment.page.html">‹</a><h2>'+t('উইথ ইনভেস্টমেন্ট','With Investment')+'</h2>'+
+    '<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span></div>'+
+    // mandatory disclaimer first
+    '<div class="disc" style="background:#f4e6ea;border-style:solid;border-color:#e6cdd5;color:#6a4a52;margin:12px 16px">'+t('ডিসক্লেইমার: স্যামন ডেভেলপার্স কোনো গ্যারান্টর বা বিনিয়োগ উপদেষ্টা নয়। রিটার্ন নিশ্চিত নয়। সব শর্ত ও যেকোনো রিটার্ন তথ্য ক্লায়েন্ট-অনুমোদিত এবং স্যামন কর্তৃক ম্যানুয়ালি রেকর্ডকৃত।','Disclaimer: Salmon Developers is not a guarantor or investment adviser. Returns are not guaranteed. All terms and any return information are client-approved and manually recorded by Salmon.')+'</div>'+
+    '<p style="font-size:13.5px;color:var(--ink-subtle);line-height:1.6;margin:6px 16px 4px">'+t('একজন পার্টনার একটি অনুমোদিত প্রকল্পে শেয়ার কেনেন এবং উচ্চতর কমিশন টিয়ার + একটি রেকর্ডকৃত রিটার্ন সময়সূচি পান।','A partner buys a share in an approved project and receives a higher commission tier plus a recorded return schedule.')+'</p>'+
+    list(t('এই স্ক্রিন যা করে','What this screen does'),[t('প্রোগ্রামের তথ্য বর্ণনা করে','Describes the program'),t('ক্লায়েন্ট-অনুমোদিত ভাষায় শর্ত জানায়','States conditions in client-approved wording')])+
+    list(t('এই স্ক্রিন যা করে না','What this screen does NOT do'),[t('কোনো রিটার্ন সংখ্যা বা পূর্বাভাস দেখায় না','Shows no return figures or projections'),t('গ্যারান্টিযুক্ত-রিটার্ন কপি নেই','No guaranteed-return copy'),t('কোনো ক্যালকুলেটর নেই','No calculator')])+
+    '<a class="btn block" href="invest-enquiry.page.html" style="margin:6px 16px 8px;border-radius:10px">'+t('আগ্রহ প্রকাশ করুন','Express interest')+'</a>'+
+    '<a class="btn ghost block" href="invest-record.page.html" style="margin:0 16px 6px;border-radius:10px">'+t('আমার বিনিয়োগ রেকর্ড দেখুন','View my investment record')+'</a>'+
+    '<a class="btn ghost block" href="disclaimer.page.html" style="margin:0 16px 10px;border-radius:10px">'+t('সম্পূর্ণ দাবিত্যাগ পড়ুন','Read the full disclaimer')+'</a>'+
+    '<p class="phelp" style="margin:0 16px 16px">'+t('“আগ্রহ প্রকাশ” মানে যোগাযোগের অনুরোধ — কোনো ক্রয় নয়। উচ্চতর টিয়ার হার, যোগ্যতা ও রিটার্ন শর্ত আইনি অনুমোদনের অপেক্ষায় — এই মডিউল কাউন্সেলের ডেলিভারেবল ছাড়া চালু করা যাবে না (OPEN_QUESTIONS)।','“Express interest” is a request to be contacted — not a purchase. The higher-tier rate, eligibility and return terms are blocked on legal approval — this module cannot ship without counsel’s deliverables (OPEN_QUESTIONS).')+'</p>';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

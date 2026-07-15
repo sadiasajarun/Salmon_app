@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Support</title><link rel="stylesheet" href="../_shared.css"/>
+<style>
+  .newform{margin:0 var(--gutter) 12px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:none}
+  .newform.show{display:block}
+  .newform label{display:block;font-size:12px;color:var(--ink-subtle);font-weight:600;margin:8px 0 5px}
+  .newform input,.newform select,.newform textarea{width:100%;box-sizing:border-box;background:var(--canvas);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;font-size:14px}
+  .composer .box{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:0}
+  .composer .box input{width:100%;box-sizing:border-box;border:none;background:transparent;outline:none;font:inherit;font-size:13px;padding:11px 14px}
+  .composer .send{cursor:pointer}
+</style>
+</head><body>
+<div class="page-label">Shared · Support <small>Tickets to Care/Sales/Accounts/Admin · back / New / Reply now functional · no client-only nav</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" style="padding-bottom:20px">
+    <div class="appbar"><a class="back" href="#" onclick="return goBack(event)" style="font-size:20px;text-decoration:none;color:var(--ink)">‹</a><h2>Support</h2><a class="lang" href="#" onclick="return toggleNew(event)" id="newbtn">＋ New</a></div>
+
+    <div class="newform" id="newform">
+      <div style="font-family:var(--serif);font-size:15px;margin-bottom:4px">New ticket</div>
+      <label>Category</label>
+      <select id="nt-cat"><option>Customer Care</option><option>Sales</option><option>Accounts</option><option>Admin</option></select>
+      <label>Subject</label><input id="nt-sub" placeholder="Short subject">
+      <label>Description</label><textarea id="nt-desc" rows="3" placeholder="Describe the issue"></textarea>
+      <label>Attachment</label><div style="border:1px dashed var(--line);border-radius:10px;padding:12px;text-align:center;color:var(--ink-subtle);font-size:12px">＋ Attach a file (optional)</div>
+      <a class="btn block" href="#" onclick="return createTicket(event)" style="margin:12px 0 0;border-radius:10px">Create ticket</a>
+    </div>
+
+    <div class="sectitle">Your tickets</div>
+    <div class="rowlist" id="tickets">
+      <div class="row"><span><span class="u">Invoice question</span><br><span class="sub">Accounts · #TC-1042</span></span><span class="pill p-amber"><span class="dot"></span>In progress</span></div>
+      <div class="row"><span><span class="u">Site visit request</span><br><span class="sub">Sales · #TC-1039</span></span><span class="pill p-green"><span class="dot"></span>Resolved</span></div>
+      <div class="row"><span><span class="u">App login issue</span><br><span class="sub">Care · #TC-1021</span></span><span class="pill p-grey"><span class="dot"></span>Reopened</span></div>
+    </div>
+    <div class="sectitle">Thread · #TC-1042</div>
+    <div class="chat" id="thread">
+      <div class="bubble me">Could you clarify the tax line on receipt RCPT-2026-0417?</div>
+      <div class="bubble them">Thanks — Accounts is reviewing and will reply shortly. · অ্যাকাউন্টস দেখছে।</div>
+    </div>
+    <div class="composer">
+      <span class="box"><input id="reply" placeholder="Reply…" onkeydown="if(event.key==='Enter')sendReply(event)"></span>
+      <span class="send" onclick="sendReply(event)">➤</span>
+    </div>
+    <p class="empty-note" style="margin-bottom:16px">New ticket: category · subject · description · attachment.</p>
+  </div>
+</div>
+<script>
+function goBack(e){ e.preventDefault(); if(document.referrer && history.length>1){ history.back(); } else { window.location.href='../shared/profile.page.html'; } return false; }
+function toggleNew(e){ e.preventDefault(); document.getElementById('newform').classList.toggle('show'); return false; }
+function createTicket(e){ e.preventDefault();
+  var cat=document.getElementById('nt-cat').value, sub=document.getElementById('nt-sub').value.trim()||'Untitled';
+  var num='TC-'+(Math.floor(Math.random()*900)+1050);
+  var row=document.createElement('div'); row.className='row';
+  row.innerHTML='<span><span class="u">'+sub+'</span><br><span class="sub">'+cat+' · #'+num+'</span></span><span class="pill p-amber"><span class="dot"></span>Open</span>';
+  var list=document.getElementById('tickets'); list.insertBefore(row, list.firstChild);
+  document.getElementById('nt-sub').value=''; document.getElementById('nt-desc').value='';
+  document.getElementById('newform').classList.remove('show');
+  return false;
+}
+function sendReply(e){ if(e&&e.preventDefault)e.preventDefault();
+  var inp=document.getElementById('reply'); var v=(inp.value||'').trim(); if(!v) return;
+  var b=document.createElement('div'); b.className='bubble me'; b.textContent=v;
+  document.getElementById('thread').appendChild(b); inp.value=''; b.scrollIntoView({block:'nearest'});
+}
+</script>
+</body></html>

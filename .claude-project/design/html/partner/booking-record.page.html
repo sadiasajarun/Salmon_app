@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Booking record</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<script src="../assets/js/partner-sales.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+</head><body>
+<div class="page-label">P38 · Create a booking record <small>Against a VERIFIED lead + a unit · record-only, no money moves</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div id="top" style="flex:0 0 auto"></div>
+  <div class="screen" style="padding-bottom:80px" id="form"></div>
+  <div class="pbtnbar"><a class="btn ghost" href="dashboard.page.html" style="flex:0 0 auto">‹</a><a class="btn" id="next" href="#" onclick="cont(event)" style="flex:1">Continue</a></div>
+</div>
+<script>
+var D=window.SALMON, S=window.PartnerSales, lang='en'; var K='salmon_booking_draft';
+function t(bn,en){ return lang==='bn'?bn:en; }
+// verified = a lead the company already confirmed (progressed beyond a cold contact)
+var VERIFIED=['visitCompleted','converted'];
+function verifiedLeads(){ return S.leads.filter(function(l){return VERIFIED.indexOf(l.status)>-1;}); }
+function draft(){ try{ return JSON.parse(localStorage.getItem(K))||{}; }catch(e){ return {}; } }
+function set(k,v){ var d=draft(); d[k]=v; try{localStorage.setItem(K,JSON.stringify(d));}catch(e){} }
+function bar(){ document.getElementById('top').innerHTML=
+  '<div class="wkbar"><a class="bk" href="dashboard.page.html">‹</a><h2>'+t('বুকিং রেকর্ড','Booking record')+'</h2>'+
+  '<span class="wklang" style="display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden"><button style="border:none;background:'+(lang==='bn'?'#ffffff33':'transparent')+';color:#fdf3f1;font-size:12px;padding:5px 9px" onclick="setLang(\'bn\')">বাং</button><button style="border:none;background:'+(lang==='en'?'#ffffff33':'transparent')+';color:#fdf3f1;font-size:12px;padding:5px 9px" onclick="setLang(\'en\')">EN</button></span></div>'; }
+function render(){
+  bar(); var d=draft(); var vl=verifiedLeads();
+  var lead=vl.filter(function(l){return l.id===d.leadId;})[0];
+  var proj=lead?D.projects.find(function(p){return p.slug===lead.projectSlug;}):null;
+  var units=proj&&proj.units?proj.units.filter(function(u){return u.status==='available'||u.label===d.unit;}):[];
+  var h='<p class="phelp" style="margin-top:12px">'+t('আপনি শুধু কোম্পানি-যাচাইকৃত লিডের জন্য বুকিং রেকর্ড করতে পারেন — কোনো কোল্ড কন্টাক্টের জন্য নয়।','You can only record a booking for a company-verified lead — not for a cold contact.')+'</p>';
+  if(!vl.length){ h+='<div class="empty" style="margin:20px 16px;text-align:center;color:var(--ink-subtle)"><p>'+t('এখনো কোনো যাচাইকৃত লিড নেই।','No verified leads yet.')+'</p></div>'; document.getElementById('form').innerHTML=h; document.getElementById('next').style.pointerEvents='none'; document.getElementById('next').style.opacity='.45'; return; }
+  h+='<label class="pf">'+t('যাচাইকৃত লিড','Verified lead')+'</label><select class="pinp psel" onchange="pickLead(this.value)"><option value="">'+t('লিড নির্বাচন','Select a lead')+'</option>'+vl.map(function(l){return '<option value="'+l.id+'"'+(d.leadId===l.id?' selected':'')+'>'+t(l.nameBn,l.name)+' · '+l.projectName+'</option>';}).join('')+'</select>';
+  if(lead){
+    h+='<label class="pf">'+t('ইউনিট','Unit')+'</label><select class="pinp psel" onchange="pickUnit(this.value)"><option value="">'+t('ইউনিট নির্বাচন','Select a unit')+'</option>'+units.map(function(u){return '<option value="'+u.label+'"'+(d.unit===u.label?' selected':'')+'>'+u.label+' · '+u.status+'</option>';}).join('')+'</select>';
+    h+='<div class="rowlist" style="margin:12px 16px"><div class="row"><span>'+t('প্রকল্প','Project')+'</span><span class="u">'+lead.projectName+'</span></div><div class="row"><span>'+t('লিড অবস্থা','Lead status')+'</span><span class="st st-ongoing"><span class="gl">✓</span>'+t('যাচাইকৃত','verified')+'</span></div></div>';
+  }
+  h+='<p class="phelp">'+t('এখানে কোনো টাকা কাটা হয় না — আপনি স্যামনের অফলাইন প্রক্রিয়ায় ঘটে যাওয়া একটি সেল রেকর্ড করছেন।','No money is charged here — you’re recording a sale that happened through Salmon’s offline process.')+'</p>';
+  document.getElementById('form').innerHTML=h;
+  document.getElementById('next').textContent=t('চালিয়ে যান','Continue');
+  var ok=lead&&d.unit; document.getElementById('next').style.opacity=ok?'1':'.45'; document.getElementById('next').style.pointerEvents=ok?'auto':'none';
+}
+function pickLead(id){ set('leadId',id); var d=draft(); delete d.unit; localStorage.setItem(K,JSON.stringify(d)); render(); }
+function pickUnit(v){ set('unit',v); render(); }
+function cont(e){ e.preventDefault(); var d=draft(); if(!(d.leadId&&d.unit))return; window.location.href='customer-details.page.html'; }
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

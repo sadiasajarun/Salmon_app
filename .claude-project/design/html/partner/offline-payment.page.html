@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Offline payment entry</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-ops.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+</head><body>
+<div class="page-label">P40 · Offline payment entry ⭐ <small>Records money that changed hands ELSEWHERE · method = CATEGORY · NO account-number field</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div id="top" style="flex:0 0 auto"></div>
+  <div class="screen" style="padding-bottom:80px" id="form"></div>
+  <div class="pbtnbar"><a class="btn ghost" href="customer-details.page.html" style="flex:0 0 auto">‹</a><a class="btn" href="attach-evidence.page.html" style="flex:1">Continue</a></div>
+</div>
+<script>
+var O=window.PartnerOps, lang='en'; var K='salmon_booking_draft';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function draft(){ try{ return JSON.parse(localStorage.getItem(K))||{}; }catch(e){ return {}; } }
+function set(k,v){ var d=draft(); d[k]=v; try{localStorage.setItem(K,JSON.stringify(d));}catch(e){} }
+function bar(){ document.getElementById('top').innerHTML=
+  '<div class="wkbar"><a class="bk" href="customer-details.page.html">‹</a><h2>'+t('অফলাইন পেমেন্ট এন্ট্রি','Offline payment entry')+'</h2>'+
+  '<span class="wklang" style="display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden"><button style="border:none;background:'+(lang==='bn'?'#ffffff33':'transparent')+';color:#fdf3f1;font-size:12px;padding:5px 9px" onclick="setLang(\'bn\')">বাং</button><button style="border:none;background:'+(lang==='en'?'#ffffff33':'transparent')+';color:#fdf3f1;font-size:12px;padding:5px 9px" onclick="setLang(\'en\')">EN</button></span></div>'; }
+function render(){
+  bar(); var d=draft();
+  document.getElementById('form').innerHTML=
+    '<div class="lock" style="background:#f4e6ea;border-color:#e6cdd5;color:#6a4a52;margin:12px 16px">'+t('আপনি অন্য কোথাও ঘটে যাওয়া একটি পেমেন্ট রেকর্ড করছেন। অ্যাপ কোনো টাকা নেয় না, কোনো অ্যাকাউন্ট নম্বর নেয় না।','You’re recording a payment that happened elsewhere. The app takes no money and no account number.')+'</div>'+
+    '<label class="pf">'+t('বুকিং তারিখ','Booking date')+'</label><input class="pinp" type="date" value="'+(d.bookingDate||'')+'" oninput="set(\'bookingDate\',this.value)">'+
+    '<label class="pf">'+t('ইউনিট','Unit')+'</label><input class="pinp" value="'+(d.unit||'')+'" readonly>'+
+    '<label class="pf">'+t('পরিমাণ (ডাউন-পেমেন্ট / কিস্তি)','Amount (down-payment / installment)')+'</label><div style="display:flex;gap:8px;margin:0 16px"><span style="align-self:center;font-size:18px;font-weight:700;color:var(--ink-subtle)">৳</span><input class="pinp" style="flex:1;margin:0;width:auto" type="tel" inputmode="numeric" placeholder="0" value="'+(d.amount||'')+'" oninput="set(\'amount\',this.value.replace(/\\D/g,\'\'))"></div>'+
+    '<label class="pf">'+t('অফলাইন পেমেন্ট পদ্ধতি (ধরন)','Offline payment method (category)')+'</label><select class="pinp psel" onchange="set(\'method\',this.value)"><option value="">'+t('ধরন নির্বাচন','Select a category')+'</option>'+O.paymentMethods.map(function(m){return '<option value="'+m.key+'"'+(d.method===m.key?' selected':'')+'>'+t(m.bn,m.en)+'</option>';}).join('')+'</select>'+
+    '<p class="phelp">'+t('“পদ্ধতি” মানে একটি ধরন — নগদ / ব্যাংক ট্রান্সফার / চেক / MFS। এটি কোনো অ্যাকাউন্ট নম্বর নয়, এবং এর জন্য কোনো ফিল্ড নেই।','“Method” means a category — cash / bank transfer / cheque / MFS. It is NOT an account number, and there is no field for one.')+'</p>'+
+    '<label class="pf">'+t('অ-সংবেদনশীল রেফারেন্স','Non-sensitive reference')+' <span class="opt" style="color:var(--ink-subtle);font-weight:400">'+t('(যেমন: অফিস রসিদ নং)','(e.g. office receipt no.)')+'</span></label><input class="pinp" placeholder="'+t('রসিদ / স্লিপ নম্বর','receipt / slip number')+'" value="'+(d.reference||'')+'" oninput="set(\'reference\',this.value)">'+
+    '<p class="phelp">'+t('আপনি সত্যায়িত করছেন যে অফলাইনে টাকা হাতবদল হয়েছে — আপনি তা সংগ্রহ করছেন না, অ্যাপও তা স্পর্শ করছে না।','You’re attesting money changed hands offline — you’re not collecting it, and the app isn’t touching it.')+'</p>';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

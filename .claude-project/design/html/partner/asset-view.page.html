@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Asset</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<script src="../assets/js/partner-state.js"></script>
+<script src="../assets/js/partner-kit.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}.wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}
+  .preview{margin:14px 16px;height:200px;border:1px solid var(--line);border-radius:14px;background:#faf6f1;display:grid;place-items:center;color:var(--ink-subtle);font-size:14px;text-align:center;padding:0 20px}
+  .preview .big{font-size:44px;display:block;margin-bottom:8px}
+  .toast{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);background:#241c19;color:#fff;font-size:12.5px;padding:9px 14px;border-radius:999px;opacity:0;transition:opacity .25s}.toast.show{opacity:1}
+</style>
+</head><body>
+<div class="page-label">P24 · Asset viewer / download <small>View + download · file size shown (mobile data) · downloaded = available offline</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+  <div class="toast" id="toast"></div>
+</div>
+<script>
+var D=window.SALMON, P=window.Partner, K=window.PartnerKit, lang='en';
+function qs(k){ return new URLSearchParams(location.search).get(k); }
+var proj=D.projects.find(function(x){return x.slug===qs('slug');})||D.projects[0];
+var item=K.itemsFor(proj).filter(function(x){return x.id===qs('id');})[0]||K.itemsFor(proj)[0];
+function t(bn,en){ return lang==='bn'?bn:en; }
+function toast(m){ var el=document.getElementById('toast'); el.textContent=m; el.classList.add('show'); setTimeout(function(){el.classList.remove('show');},1400); }
+function render(){
+  var dl=K.isDownloaded(item.id), off=window.NetSim&&NetSim.isOffline();
+  var lt='<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span>';
+  var h='<div class="wkbar"><a class="bk" href="sales-kit.page.html?slug='+proj.slug+'">‹</a><h2>'+t(item.bn,item.en)+'</h2>'+lt+'</div>';
+  // preview or offline-block for non-downloaded
+  if(off && !dl){
+    h+='<div class="preview" style="border-color:#eecccd;background:#fdf3f3;color:#8a2b30"><span class="big">📶</span>'+t('আপনি অফলাইনে এবং এই ফাইলটি ডাউনলোড করা নেই — সংযোগ প্রয়োজন।','You’re offline and this file isn’t downloaded — a connection is needed.')+'</div>';
+  } else {
+    h+='<div class="preview"><span class="big">📄</span>'+t('প্রিভিউ','Preview')+' · '+item.type.toUpperCase()+(dl?' · <span style="color:var(--success)">'+t('অফলাইনে উপলব্ধ','available offline')+'</span>':'')+'</div>';
+  }
+  h+='<div class="rowlist" style="margin:0 16px 12px"><div class="row"><span>'+t('ধরন','Type')+'</span><span class="u">'+item.type+'</span></div>'+
+    '<div class="row"><span>'+t('ফাইল সাইজ','File size')+'</span><span class="u">'+item.size+'</span></div>'+
+    '<div class="row"><span>'+t('প্রকল্প','Project')+'</span><span class="u">'+proj.name+'</span></div></div>';
+  // download / offline toggle
+  if(dl){
+    h+='<a class="btn block" '+(item.url?('href="'+item.url+'" target="_blank"'):'href="#" onclick="return false"')+' style="margin:0 16px 0;border-radius:10px">'+t('খুলুন','Open')+'</a>'+
+      '<a class="btn ghost block" href="#" onclick="removeDl(event)" style="margin:10px 16px 8px;border-radius:10px">'+t('অফলাইন থেকে সরান','Remove from offline')+'</a>';
+  } else {
+    h+='<a class="btn block" href="#" onclick="download(event)" style="margin:0 16px 8px;border-radius:10px">'+t('ডাউনলোড ('+item.size+') — অফলাইনে রাখুন','Download ('+item.size+') for offline')+'</a>';
+  }
+  h+='<a class="btn ghost block" href="#" onclick="share(event)" style="margin:0 16px 16px;border-radius:10px">'+t('শেয়ার','Share')+'</a>'+
+    '<p class="empty-note" style="text-align:left;margin:0 16px 16px">'+t('ডাউনলোড করা উপকরণ মাঠে সিগনাল ছাড়াই দেখানো যায়।','Downloaded material can be shown in the field with no signal.')+'</p>';
+  document.getElementById('screen').innerHTML=h;
+}
+function download(e){ e.preventDefault();
+  if(window.NetSim&&NetSim.isOffline()){ toast(t('ডাউনলোডে সংযোগ প্রয়োজন।','Download needs a connection.')); return; }
+  K.setDownloaded(item.id,true); toast(t('অফলাইনে সংরক্ষিত','Saved for offline')); render();
+}
+function removeDl(e){ e.preventDefault(); K.setDownloaded(item.id,false); render(); }
+function share(e){ e.preventDefault(); if(navigator.share){ navigator.share({title:t(item.bn,item.en)}).catch(function(){}); } else toast(t('লিঙ্ক কপি হয়েছে','Link copied')); }
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+document.addEventListener('netchange', render);
+</script>
+</body></html>

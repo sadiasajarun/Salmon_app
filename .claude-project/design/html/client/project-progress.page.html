@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Construction progress</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<style>
+  .pbar-hero{background:linear-gradient(135deg,#800020,#5c0018);color:#fdf3f1;padding:16px var(--gutter) 20px}
+  .pbar-hero .bk{display:inline-flex;align-items:center;gap:6px;color:#fdf3f1;text-decoration:none;font-size:13px;opacity:.9}
+  .pbar-hero h1{font-family:var(--serif);font-size:23px;margin:10px 0 2px}
+  .pbar-hero .sub{font-size:12.5px;opacity:.9}
+  .pbig{display:flex;align-items:flex-end;gap:10px;margin-top:14px}
+  .pbig .n{font-size:40px;font-weight:800;line-height:1}
+  .pbig .l{font-size:12px;opacity:.9;padding-bottom:6px}
+  .ptrack{height:10px;background:#ffffff33;border-radius:999px;overflow:hidden;margin-top:10px}
+  .ptrack i{display:block;height:100%;background:#fff;border-radius:999px}
+  .anchor{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;color:#1E7A46;background:#e7f2ec;border-radius:999px;padding:3px 8px;margin-top:6px}
+  .tlphoto{height:150px;border-radius:16px;overflow:hidden;margin-top:8px;background:#e6dacd}
+  .estate{margin:26px var(--gutter);text-align:center;color:var(--ink-subtle);font-size:13.5px;line-height:1.6}
+  .estate .ic{font-size:34px;display:block;margin-bottom:10px}
+  .estate h3{font-family:var(--serif);color:var(--ink);font-size:19px;margin-bottom:8px}
+  .langtoggle{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}
+  .langtoggle button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 10px;cursor:pointer}
+  .langtoggle button.on{background:#ffffff33}
+</style>
+</head><body>
+<div class="page-label">Client · Construction progress (33) <small>Dated vertical timeline · real anchors flagged · hero treatment</small></div>
+
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen"><!-- injected --></div>
+  <div class="bottomnav">
+    <a class="nav on" href="../client/explore-map.page.html"><svg viewBox="0 0 24 24"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Discover</a>
+    <a class="nav" href="../client/my-bookings.page.html"><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/></svg>Bookings</a>
+    <a class="nav" href="../client/installments.page.html"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>Ledger</a>
+    <a class="nav" href="../shared/profile.page.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Profile</a>
+  </div>
+</div>
+
+<script>
+var D=window.SALMON, lang='en';
+function qs(k){ return new URLSearchParams(location.search).get(k); }
+var p = D.projects.find(function(x){return x.slug===qs('slug');}) || D.projects.find(function(x){return x.slug==='salmon-florentine';});
+function fmtDate(iso){ var d=new Date(iso+'T00:00:00Z'); var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var mb=['জানু','ফেব্রু','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগ','সেপ্ট','অক্টো','নভে','ডিসে'];
+  return (lang==='bn'?mb:m)[d.getUTCMonth()]+' '+d.getUTCDate()+', '+d.getUTCFullYear(); }
+function completion(){ // fabricated overall % keyed off newest entry / status
+  if(p.status==='completed') return 100;
+  if(p.status==='upcoming') return 0;
+  return 68;
+}
+function render(){
+  var lt='<span class="langtoggle"><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button></span>';
+  var hero='<div class="pbar-hero"><div style="display:flex;justify-content:space-between;align-items:center">'+
+    '<a class="bk" href="project-detail.page.html?slug='+p.slug+'">‹ '+(lang==='bn'?'প্রকল্প':'Project')+'</a>'+lt+'</div>'+
+    '<h1>'+D.strings[lang].progress+'</h1><div class="sub">'+p.name+' · '+(lang==='bn'?p.addressBn:p.address)+'</div>';
+  if(p.status!=='upcoming'){
+    var c=completion();
+    hero+='<div class="pbig"><span class="n">'+c+'%</span><span class="l">'+(lang==='bn'?'সম্পন্ন':'complete')+'</span></div><div class="ptrack"><i style="width:'+c+'%"></i></div>';
+  }
+  hero+='</div>';
+
+  var body;
+  if(p.status==='upcoming' || !p.progress){
+    body='<div class="estate"><span class="ic">🏗</span><h3>'+(lang==='bn'?'নির্মাণ এখনো শুরু হয়নি':'Construction hasn’t started')+'</h3><p>'+(lang==='bn'?'কাজ শুরু হলে এখানে তারিখ-ভিত্তিক অগ্রগতি দেখতে পাবেন।':'Dated progress updates will appear here once work begins.')+'</p></div>';
+  } else if(p.status==='completed'){
+    body='<div class="estate"><span class="ic">✅</span><h3>'+(lang==='bn'?'হস্তান্তর সম্পন্ন':'Handed over')+'</h3><p>'+(lang==='bn'?'এই প্রকল্পটি সম্পন্ন ও হস্তান্তরিত হয়েছে।':'This project is completed and handed over to owners.')+'</p></div>';
+  } else {
+    var photos=(p.gallery||[]).concat(p.banner?[p.banner]:[]);
+    body='<div class="timeline" style="margin-top:16px">'+p.progress.map(function(e,k){
+      var ph = (k<2 && photos[k]) ? '<div class="imgwrap tlphoto skel"><img src="'+photos[k]+'" onload="this.classList.add(\'on\');this.parentNode.classList.remove(\'skel\')" onerror="this.parentNode.classList.remove(\'skel\');this.parentNode.style.background=\'linear-gradient(135deg,#9fb0a6,#5f7468)\'"></div>' : '';
+      var anchor = e.anchor ? '<div class="anchor">✓ '+(lang==='bn'?'যাচাইকৃত মাইলফলক':'Verified milestone')+'</div>' : '';
+      return '<div class="tl"><span class="dot"></span><div class="date">'+fmtDate(e.date)+'</div>'+
+        '<h4>'+(lang==='bn'?e.captionBn:e.captionEn)+'</h4>'+anchor+ph+'</div>';
+    }).join('')+'</div>'+
+    '<p class="empty-note" style="margin:0 var(--gutter) 16px">'+(lang==='bn'?'তারিখ আপনার টাইমজোনে; ছবি নির্দেশক (স্যামন সরবরাহ করবে)।':'Dates in your timezone; photos indicative (to be supplied by Salmon).')+'</p>';
+  }
+  document.getElementById('screen').innerHTML=hero+body;
+  document.title='Salmon · '+p.name+' progress';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

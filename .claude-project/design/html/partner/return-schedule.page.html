@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Return schedule</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-invest.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}
+  .wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}.wklang button.on{background:#ffffff33}
+  /* Prominent, un-missable disclaimer strip — load-bearing legal safety */
+  .discbar{margin:12px 16px;background:#2222220d;border:1px solid var(--ink);border-radius:10px;padding:12px 13px}
+  .discbar .lbl{display:inline-block;background:var(--ink);color:#fff;font-size:10px;font-weight:800;letter-spacing:.5px;padding:2px 7px;border-radius:5px;text-transform:uppercase}
+  .discbar p{font-size:12px;color:#2f2f2f;line-height:1.55;margin:8px 0 0}
+  .discbar a{color:var(--primary);font-weight:800;text-decoration:none;display:inline-block;margin-top:7px}
+  /* Status-only record table — deliberately plain, no chart, no trend, no colour hierarchy that implies growth */
+  .rtbl{margin:0 16px 8px;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .rtbl .hd,.rtbl .rw{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:11px 13px;border-bottom:1px solid var(--line)}
+  .rtbl .hd{background:#f6f5f4;font-size:10.5px;color:var(--ink-subtle);text-transform:uppercase;letter-spacing:.4px;font-weight:700}
+  .rtbl .rw:last-child{border-bottom:none} .rtbl .rw{text-decoration:none;color:inherit}
+  .rtbl .per{font-weight:600;font-size:13px} .rtbl .dt{font-size:11px;color:var(--ink-subtle);margin-top:2px}
+  .rtbl .amt{font-variant-numeric:tabular-nums;font-weight:600;font-size:13px;text-align:right}
+  .rs{font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;white-space:nowrap}
+  .rs-paid{background:#eceeec;color:#3f4a41;border:1px solid #d5dbd6} /* neutral, NOT green */
+  .rs-pending{background:#f7efe0;color:#8a6d2f;border:1px solid #ecdcbf}
+  .rs-hold{background:#efeaea;color:#7a5a5a;border:1px solid #e0d1d1}
+</style>
+</head><body>
+<div class="page-label">P54 · Return schedule ⭐ <small>STATUS-ONLY record table · no calculator, no projection, no "next payment" countdown · disclaimer forward</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<script>
+var V=window.PartnerInvest, lang='en';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function s(k){ return V.strings[lang][k]||k; }
+function bdt(n){ if(n==null)return '—'; var x=String(Math.round(n)); var l=x.slice(-3),r=x.slice(0,-3); if(r)r=r.replace(/\B(?=(\d{2})+(?!\d))/g,','); return '৳ '+(r?r+','+l:l); }
+function dt(iso){ try{ return new Intl.DateTimeFormat(lang==='bn'?'bn-BD':'en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:'Asia/Dhaka'}).format(new Date(iso)); }catch(e){ return iso.slice(0,10); } }
+function render(){
+  var lt='<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span>';
+  var rows=V.returnSchedule.map(function(e){
+    var st=V.RETURN_STATUS[e.status];
+    return '<a class="rw" href="return-entry-detail.page.html?id='+e.id+'">'+
+      '<div><div class="per">'+t(e.periodLabelBn,e.periodLabelEn)+'</div><div class="dt">'+t('রেকর্ড','Recorded')+' · '+dt(e.recordedUtc)+'</div></div>'+
+      '<div class="amt">'+bdt(e.amountBdt)+'</div>'+
+      '<div><span class="rs '+st.cls+'">'+t(st.bn,st.en)+'</span></div></a>';
+  }).join('');
+  document.getElementById('screen').innerHTML=
+    '<div class="wkbar"><a class="bk" href="invest-record.page.html">‹</a><h2>'+s('scheduleTitle')+'</h2>'+lt+'</div>'+
+    // Disclaimer FIRST, prominent — before any figures.
+    '<div class="discbar"><span class="lbl">'+s('disclaimerTitle')+'</span>'+
+      '<p>'+s('scheduleSub')+'</p>'+
+      '<a href="disclaimer.page.html">'+s('readDisclaimer')+' ›</a></div>'+
+    '<div class="rtbl"><div class="hd"><span>'+t('এন্ট্রি','Entry')+'</span><span style="text-align:right">'+t('পরিমাণ','Amount')+'</span><span>'+t('অবস্থা','Status')+'</span></div>'+rows+'</div>'+
+    '<p class="phelp" style="margin:8px 16px 12px;font-size:11.5px;color:var(--ink-subtle);line-height:1.55">'+t('“অপেক্ষমাণ” বা “স্থগিত” মানে ভবিষ্যতের কোনো নিশ্চয়তা নয় — এগুলো স্টাফ কর্তৃক লেখা রেকর্ড মাত্র।','“Pending” or “On hold” is not a guarantee about the future — these are records typed in by staff.')+'</p>'+
+    '<a class="btn ghost block" href="disclaimer.page.html" style="margin:0 16px 16px;border-radius:10px">'+s('readDisclaimer')+'</a>';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

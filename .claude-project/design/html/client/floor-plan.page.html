@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Floor plan</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<style>
+  .fwrap{position:absolute;inset:0;background:#efe7dd;display:flex;flex-direction:column;touch-action:none;overflow:hidden}
+  .fbar{position:absolute;top:0;left:0;right:0;z-index:6;display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--canvas);border-bottom:1px solid var(--line)}
+  .fbar .x{width:38px;height:38px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:20px;display:grid;place-items:center;cursor:pointer;text-decoration:none;flex:0 0 auto}
+  .fbar .nm{flex:1;font-family:var(--serif);font-size:16px}
+  .stage{position:absolute;inset:0;top:0;display:grid;place-items:center;overflow:hidden}
+  .plan{transform-origin:center center;transition:transform .05s linear;width:300px}
+  .ctrls{position:absolute;right:12px;bottom:16px;z-index:6;display:flex;flex-direction:column;gap:8px}
+  .ctrls button{width:42px;height:42px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:18px;cursor:pointer;box-shadow:0 4px 10px #0001}
+  .ctrls button:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+  .phnote{position:absolute;left:12px;bottom:16px;z-index:6;background:#f7efe0;color:#8a6414;border:1px solid #eaddc2;border-radius:10px;padding:8px 11px;font-size:11px;max-width:200px}
+  @media (prefers-reduced-motion: reduce){.plan{transition:none}}
+</style>
+</head><body>
+<div class="page-label">Client · Floor plan (32) <small>Pinch / double-tap / wheel zoom · drag to pan · reset · placeholder schematic</small></div>
+
+<div class="device">
+  <div class="statusbar" style="position:relative;z-index:9"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" style="padding:0;position:relative;overflow:hidden">
+    <div class="fwrap">
+      <div class="fbar"><a class="x" id="exit" aria-label="Back">‹</a><span class="nm" id="nm">Floor plan</span>
+        <span class="langtoggle" style="display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)"><button id="l-en" onclick="setLang('en')" style="border:none;background:var(--primary);color:#fff;font-size:12px;padding:6px 10px;cursor:pointer">EN</button><button id="l-bn" onclick="setLang('bn')" style="border:none;background:transparent;color:var(--ink-subtle);font-size:12px;padding:6px 10px;cursor:pointer">বাং</button></span>
+      </div>
+      <div class="stage" id="stage">
+        <!-- Seam: swap this SVG for a real floor-plan image when Salmon supplies one -->
+        <svg class="plan" id="plan" viewBox="0 0 300 320" xmlns="http://www.w3.org/2000/svg">
+          <rect x="4" y="4" width="292" height="312" fill="#fff" stroke="#222" stroke-width="2"/>
+          <rect x="14" y="14" width="150" height="120" fill="#faf6f1" stroke="#800020" stroke-width="1.5"/>
+          <text x="24" y="40" font-size="11" fill="#222" font-family="Inter,sans-serif">Living / Dining</text>
+          <text x="24" y="54" font-size="9" fill="#5b5350" font-family="Inter,sans-serif">18'-6" × 13'-0"</text>
+          <rect x="174" y="14" width="112" height="80" fill="#faf6f1" stroke="#222" stroke-width="1"/>
+          <text x="184" y="38" font-size="11" fill="#222" font-family="Inter,sans-serif">Master bed</text>
+          <text x="184" y="52" font-size="9" fill="#5b5350" font-family="Inter,sans-serif">13'-0" × 12'-0"</text>
+          <rect x="174" y="104" width="112" height="60" fill="#faf6f1" stroke="#222" stroke-width="1"/>
+          <text x="184" y="128" font-size="11" fill="#222" font-family="Inter,sans-serif">Bed 2</text>
+          <rect x="14" y="144" width="90" height="80" fill="#faf6f1" stroke="#222" stroke-width="1"/>
+          <text x="24" y="168" font-size="11" fill="#222" font-family="Inter,sans-serif">Bed 3</text>
+          <rect x="114" y="144" width="50" height="80" fill="#eef4f0" stroke="#222" stroke-width="1"/>
+          <text x="120" y="188" font-size="9" fill="#222" font-family="Inter,sans-serif">Kitchen</text>
+          <!-- balcony with a dimension you can zoom into -->
+          <rect x="14" y="234" width="272" height="34" fill="#e7f2ec" stroke="#1E7A46" stroke-width="1.5"/>
+          <text x="24" y="255" font-size="10" fill="#1E7A46" font-family="Inter,sans-serif">Balcony  ·  20'-0" × 4'-6"</text>
+          <rect x="174" y="278" width="60" height="30" fill="#faf6f1" stroke="#222" stroke-width="1"/>
+          <text x="182" y="297" font-size="9" fill="#222" font-family="Inter,sans-serif">Bath</text>
+          <text x="24" y="300" font-size="9" fill="#8a7f78" font-family="Inter,sans-serif" id="planlbl">Type plan · indicative</text>
+        </svg>
+      </div>
+      <div class="ctrls">
+        <button onclick="zoom(0.3)" aria-label="Zoom in">＋</button>
+        <button onclick="zoom(-0.3)" aria-label="Zoom out">－</button>
+        <button onclick="reset()" aria-label="Reset" style="font-size:14px">⟲</button>
+      </div>
+      <div class="phnote" id="phnote">Placeholder schematic — awaiting Salmon’s floor-plan files.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+var D=window.SALMON, lang='en';
+function qs(k){ return new URLSearchParams(location.search).get(k); }
+var p = D.projects.find(function(x){return x.slug===qs('slug');}) || D.projects.find(function(x){return x.slug==='the-rossa';});
+document.getElementById('exit').href='project-detail.page.html?slug='+p.slug;
+document.getElementById('nm').textContent=p.name+' · '+D.strings[lang].floorPlans;
+
+var plan=document.getElementById('plan'), stage=document.getElementById('stage');
+var scale=1, tx=0, ty=0;
+function apply(){ plan.style.transform='translate('+tx+'px,'+ty+'px) scale('+scale+')'; }
+function reset(){ scale=1; tx=0; ty=0; apply(); }
+function zoom(d){ scale=Math.min(5,Math.max(1,scale+d)); if(scale===1){tx=ty=0;} apply(); }
+stage.addEventListener('dblclick', function(){ scale>1?reset():(scale=2.6,apply()); });
+stage.addEventListener('wheel', function(e){ e.preventDefault(); zoom(e.deltaY<0?0.25:-0.25); }, {passive:false});
+var pointers=new Map(), startDist=0, startScale=1, panStart=null;
+stage.addEventListener('pointerdown', function(e){ stage.setPointerCapture(e.pointerId); pointers.set(e.pointerId,e);
+  if(pointers.size===2){ var a=[...pointers.values()]; startDist=dist(a[0],a[1]); startScale=scale; } else { panStart={x:e.clientX-tx,y:e.clientY-ty}; } });
+stage.addEventListener('pointermove', function(e){ if(!pointers.has(e.pointerId))return; pointers.set(e.pointerId,e);
+  if(pointers.size===2){ var a=[...pointers.values()]; scale=Math.min(5,Math.max(1,startScale*(dist(a[0],a[1])/startDist))); if(scale===1){tx=ty=0;} apply(); }
+  else if(scale>1 && panStart){ tx=e.clientX-panStart.x; ty=e.clientY-panStart.y; apply(); } });
+stage.addEventListener('pointerup', function(e){ pointers.delete(e.pointerId); if(pointers.size<2)startDist=0; });
+function dist(a,b){ return Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY); }
+function setLang(l){ lang=l; document.getElementById('l-en').style.background=l==='en'?'var(--primary)':'transparent'; document.getElementById('l-en').style.color=l==='en'?'#fff':'var(--ink-subtle)';
+  document.getElementById('l-bn').style.background=l==='bn'?'var(--primary)':'transparent'; document.getElementById('l-bn').style.color=l==='bn'?'#fff':'var(--ink-subtle)';
+  document.getElementById('nm').textContent=p.name+' · '+D.strings[l].floorPlans;
+  document.getElementById('phnote').textContent=(l==='bn'?'প্লেসহোল্ডার স্কিম্যাটিক — স্যামনের ফ্লোর-প্ল্যান ফাইলের অপেক্ষায়।':'Placeholder schematic — awaiting Salmon’s floor-plan files.'); }
+</script>
+</body></html>

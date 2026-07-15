@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Investment record</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-invest.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}
+  .wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}.wklang button.on{background:#ffffff33}
+  /* Restrained record card — grey/charcoal, no green, no "profit" colour */
+  .rec{margin:12px 16px;background:var(--surface);border:1px solid #ddd8d3;border-top:3px solid var(--ink);border-radius:10px;overflow:hidden}
+  .rec .amt{padding:16px 16px 12px;border-bottom:1px solid var(--line)}
+  .rec .amt .k{font-size:11px;color:var(--ink-subtle);text-transform:uppercase;letter-spacing:.4px}
+  .rec .amt .v{font-size:26px;font-weight:800;color:var(--ink);margin-top:3px;font-variant-numeric:tabular-nums}
+  .rec .kv{display:flex;justify-content:space-between;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line);font-size:13px}
+  .rec .kv:last-child{border-bottom:none} .rec .kv .k{color:var(--ink-subtle)} .rec .kv .v{font-weight:600;text-align:right}
+  .disc{margin:0 16px 12px;background:#f6f5f4;border:1px solid #e4e1de;border-left:3px solid var(--ink);border-radius:8px;padding:12px 13px;font-size:12px;color:#3a3a3a;line-height:1.55}
+  .disc a{color:var(--primary);font-weight:700;text-decoration:none;display:inline-block;margin-top:6px}
+</style>
+</head><body>
+<div class="page-label">P53 · Investment record <small>Recorded by staff after offline docs + payment verification · app DISPLAYS only, never processed payment</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<script>
+var V=window.PartnerInvest, lang='en';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function s(k){ return V.strings[lang][k]||k; }
+function bdt(n){ if(n==null)return '—'; var x=String(Math.round(n)); var l=x.slice(-3),r=x.slice(0,-3); if(r)r=r.replace(/\B(?=(\d{2})+(?!\d))/g,','); return '৳ '+(r?r+','+l:l); }
+function dt(iso){ try{ return new Intl.DateTimeFormat(lang==='bn'?'bn-BD':'en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:'Asia/Dhaka'}).format(new Date(iso)); }catch(e){ return iso.slice(0,10); } }
+function render(){
+  var r=V.record;
+  var lt='<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span>';
+  document.getElementById('screen').innerHTML=
+    '<div class="wkbar"><a class="bk" href="program-with.page.html">‹</a><h2>'+s('recordTitle')+'</h2>'+lt+'</div>'+
+    '<div class="disc">'+s('recordNote')+'<a href="disclaimer.page.html">'+s('readDisclaimer')+' ›</a></div>'+
+    '<div class="rec">'+
+      '<div class="amt"><div class="k">'+s('amountRecorded')+'</div><div class="v">'+bdt(r.amountBdt)+'</div></div>'+
+      '<div class="kv"><span class="k">'+s('project')+'</span><span class="v">'+t(r.projectBn,r.project)+'</span></div>'+
+      '<div class="kv"><span class="k">'+s('share')+'</span><span class="v">'+r.shareRef+'</span></div>'+
+      '<div class="kv"><span class="k">'+s('reference')+'</span><span class="v">'+r.ref+'</span></div>'+
+      '<div class="kv"><span class="k">'+s('recordedOn')+'</span><span class="v">'+dt(r.recordedUtc)+'</span></div>'+
+      '<div class="kv"><span class="k">'+s('recordedBy')+'</span><span class="v">'+t(r.recordedByBn,r.recordedBy)+'</span></div>'+
+    '</div>'+
+    '<p class="phelp" style="margin:0 16px 12px;font-size:11.5px;color:var(--ink-subtle);line-height:1.55">'+s('recordSub')+'</p>'+
+    '<a class="btn block" href="return-schedule.page.html" style="margin:0 16px 8px;border-radius:10px">'+s('scheduleTitle')+' ›</a>'+
+    '<a class="btn ghost block" href="disclaimer.page.html" style="margin:0 16px 16px;border-radius:10px">'+s('readDisclaimer')+'</a>';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

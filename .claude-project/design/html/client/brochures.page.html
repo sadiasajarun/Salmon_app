@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Brochures</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<style>
+  .langtoggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+  .langtoggle button{border:none;background:transparent;font-size:12px;padding:6px 10px;color:var(--ink-subtle);cursor:pointer}
+  .langtoggle button.on{background:var(--primary);color:#fff}
+  .dlrow{display:flex;align-items:center;gap:12px;padding:14px;border-bottom:1px solid var(--line)}
+  .dlrow:last-child{border-bottom:none}
+  .dlrow .ic{width:44px;height:44px;border-radius:12px;background:#f4e6ea;color:var(--primary);display:grid;place-items:center;flex:0 0 auto;font-size:18px}
+  .dlrow .meta{flex:1}.dlrow .meta .t{font-weight:600;font-size:14px}.dlrow .meta .s{font-size:12px;color:var(--ink-subtle);margin-top:2px}
+  .dlrow .act{display:flex;gap:8px}
+  .iconbtn{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--primary);display:grid;place-items:center;cursor:pointer;text-decoration:none;font-size:15px}
+  .estate{margin:26px var(--gutter);text-align:center;color:var(--ink-subtle);font-size:13.5px;line-height:1.6}
+  .estate .ic{font-size:34px;display:block;margin-bottom:10px}
+  .toast{position:absolute;left:50%;bottom:80px;transform:translateX(-50%);background:#241c19;color:#fff;font-size:12.5px;padding:9px 14px;border-radius:999px;opacity:0;transition:opacity .25s;z-index:8}
+  .toast.show{opacity:1}
+</style>
+</head><body>
+<div class="page-label">Client · Brochures &amp; downloads (34) <small>Real PDFs · file size (mobile data) · download + share</small></div>
+
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen">
+    <div class="appbar"><a class="back" id="back" href="#" style="font-size:20px;text-decoration:none;color:var(--ink)">‹</a><h2 id="t-title">Brochures</h2>
+      <span class="langtoggle"><button id="l-en" class="on" onclick="setLang('en')">EN</button><button id="l-bn" onclick="setLang('bn')">বাং</button></span></div>
+    <div id="list"></div>
+  </div>
+  <div class="toast" id="toast">Link copied</div>
+  <div class="bottomnav">
+    <a class="nav on" href="../client/explore-map.page.html"><svg viewBox="0 0 24 24"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Discover</a>
+    <a class="nav" href="../client/my-bookings.page.html"><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/></svg>Bookings</a>
+    <a class="nav" href="../client/installments.page.html"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>Ledger</a>
+    <a class="nav" href="../shared/profile.page.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Profile</a>
+  </div>
+</div>
+
+<script>
+var D=window.SALMON, lang='en';
+function qs(k){ return new URLSearchParams(location.search).get(k); }
+var p = D.projects.find(function(x){return x.slug===qs('slug');}) || D.projects.find(function(x){return x.slug==='salmon-oasis-park';});
+document.getElementById('back').href='project-detail.page.html?slug='+p.slug;
+function s(k){ return D.strings[lang][k]||k; }
+function toast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(function(){ t.classList.remove('show'); },1400); }
+function share(url){
+  if(navigator.share){ navigator.share({title:p.name,url:url}).catch(function(){}); }
+  else if(navigator.clipboard){ navigator.clipboard.writeText(url).then(function(){ toast(lang==='bn'?'লিঙ্ক কপি হয়েছে':'Link copied'); }); }
+  else toast(lang==='bn'?'শেয়ার সমর্থিত নয়':'Share not supported');
+}
+function render(){
+  document.getElementById('t-title').textContent=s('brochure');
+  var files=[];
+  if(p.brochure) files.push({ t:p.name+' — '+s('brochure'), s:'PDF · '+(p.brochureSize||'—'), url:p.brochure });
+  var list=document.getElementById('list');
+  if(!files.length){ list.innerHTML='<div class="estate"><span class="ic">📄</span><h3 style="font-family:var(--serif);color:var(--ink);font-size:19px;margin-bottom:8px">'+(lang==='bn'?'ব্রোশিওর শীঘ্রই':'Brochure coming soon')+'</h3><p>'+(lang==='bn'?'এই প্রকল্পের ডাউনলোড শীঘ্রই যোগ করা হবে।':'Downloads for this project will be added soon.')+'</p></div>'; return; }
+  list.innerHTML='<div class="rowlist" style="margin:14px var(--gutter)">'+files.map(function(f){
+    return '<div class="dlrow"><span class="ic">📄</span><div class="meta"><div class="t">'+f.t+'</div><div class="s">'+f.s+'</div></div>'+
+      '<div class="act"><a class="iconbtn" href="'+f.url+'" target="_blank" rel="noopener" aria-label="'+s('download')+'" title="'+s('download')+'">⭳</a>'+
+      '<button class="iconbtn" onclick="share(\''+f.url+'\')" aria-label="'+s('share')+'" title="'+s('share')+'">↗</button></div></div>';
+  }).join('')+'</div>'+
+  '<p class="empty-note" style="margin:0 var(--gutter) 16px">'+(lang==='bn'?'ফাইলের আকার দেখানো হয়েছে কারণ আপনি মোবাইল ডেটায় থাকতে পারেন।':'File size is shown because you may be on mobile data.')+'</p>';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; document.getElementById('l-en').classList.toggle('on',l==='en'); document.getElementById('l-bn').classList.toggle('on',l==='bn'); render(); }
+render();
+</script>
+</body></html>

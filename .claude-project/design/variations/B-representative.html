@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Salmon — Variation B · Modern Clean</title>
+<style>
+  :root{
+    --primary:#800020; --primary-hover:#66001A; --tint:#F5E7EB; --ink:#222222; --ink-subtle:#6B7280;
+    --canvas:#FFFFFF; --alt:#F7F8FA; --line:#E7E9EE;
+    --success:#1E7A46; --warning:#B7791F; --error:#B4232B; --neutral:#6B7280;
+    --sans:"Inter","Manrope","Segoe UI",system-ui,sans-serif; --r:14px; --gutter:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#eceef2;font-family:var(--sans);color:var(--ink);padding:32px 16px;line-height:1.5}
+  .page-head{max-width:1200px;margin:0 auto 28px;text-align:center}
+  .page-head h1{font-size:28px;font-weight:700;letter-spacing:-.02em}
+  .page-head p{color:#6b7280;font-size:14px;margin-top:6px}
+  .swatches{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+  .sw{font-size:11px;color:#6b7280;display:flex;align-items:center;gap:6px}
+  .sw i{width:16px;height:16px;border-radius:5px;display:inline-block;border:1px solid #0001}
+  .grid{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:28px;justify-items:center}
+  .frame-label{font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--primary);margin-bottom:10px;text-align:center}
+  .device{width:360px;height:760px;background:var(--canvas);border-radius:38px;border:10px solid #101216;
+    box-shadow:0 22px 50px rgba(16,18,22,.26);overflow:hidden;position:relative;display:flex;flex-direction:column}
+  .statusbar{height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-size:12px;font-weight:600;flex:0 0 auto}
+  .screen{flex:1;overflow-y:auto;padding-bottom:78px}
+  .screen::-webkit-scrollbar{display:none}
+  .appbar{padding:8px var(--gutter) 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
+  .appbar h2{font-size:20px;font-weight:700;letter-spacing:-.01em}
+  .lang{font-size:11px;border:1px solid var(--line);border-radius:8px;padding:4px 9px;color:var(--ink-subtle)}
+  .pad{padding:0 var(--gutter)}
+  .seg{display:flex;background:var(--alt);border:1px solid var(--line);border-radius:12px;padding:4px;margin:12px var(--gutter)}
+  .seg span{flex:1;text-align:center;font-size:13px;padding:8px;border-radius:9px;color:var(--ink-subtle);font-weight:600}
+  .seg span.on{background:var(--primary);color:#fff}
+  .chips{display:flex;gap:8px;overflow-x:auto;padding:0 var(--gutter) 12px}
+  .chip{flex:0 0 auto;font-size:12.5px;padding:8px 13px;border-radius:999px;background:var(--canvas);border:1px solid var(--line);color:var(--ink-subtle);font-weight:600}
+  .chip.active{background:var(--tint);color:var(--primary);border-color:#e6c6d0}
+  .card{background:var(--surface,#fff);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin:0 var(--gutter) 14px}
+  .media{height:158px;background:linear-gradient(135deg,#8896a8,#4a5a70);position:relative}
+  .media.two{background:linear-gradient(135deg,#7fa08e,#4f6a5b)}
+  .pill{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:999px}
+  .pill .dot{width:7px;height:7px;border-radius:999px;background:currentColor}
+  .p-green{color:var(--success);background:#e7f2ec}.p-amber{color:var(--warning);background:#f7efe0}
+  .p-red{color:var(--error);background:#f7e6e7}.p-grey{color:var(--neutral);background:#eef0f3}
+  .p-maroon{color:var(--primary);background:var(--tint)}
+  .media .pill{position:absolute;top:12px;left:12px}.media .fav{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:999px;background:#fff;display:grid;place-items:center;font-size:15px;border:1px solid var(--line)}
+  .cbody{padding:13px 14px}
+  .cbody h3{font-size:16px;font-weight:700}
+  .cbody .loc{font-size:12.5px;color:var(--ink-subtle);margin-top:2px}
+  .facts{display:flex;gap:14px;margin-top:10px;font-size:12px;color:var(--ink-subtle)}
+  .facts b{color:var(--ink);font-weight:700}
+  .priceline{display:flex;align-items:baseline;justify-content:space-between;margin-top:12px}
+  .price{font-size:18px;font-weight:800;color:var(--primary)}
+  .price small{display:block;font-size:11px;color:var(--ink-subtle);font-weight:500}
+  .btn{display:block;text-align:center;background:var(--primary);color:#fff;font-size:15px;font-weight:700;padding:14px;border-radius:12px;border:none;width:100%}
+  .btn.ghost{background:var(--canvas);color:var(--primary);border:1.5px solid var(--primary)}
+  .btn.block{margin:4px var(--gutter) 0}
+  .terms{font-size:11.5px;color:var(--ink-subtle);margin:10px var(--gutter);line-height:1.5}
+  .lock{display:flex;align-items:center;gap:10px;background:#fbf3e4;color:#8a6414;border:1px solid #eddcbf;border-radius:12px;padding:12px 13px;margin:12px var(--gutter);font-size:13px}
+  .lock b{font-variant-numeric:tabular-nums}
+  .sectitle{font-size:14px;font-weight:700;margin:8px var(--gutter) 10px}
+  .rowlist{margin:0 var(--gutter) 14px;background:var(--canvas);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .row{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;border-bottom:1px solid var(--line);font-size:13.5px}
+  .row:last-child{border-bottom:none}.row .u{font-weight:700}
+  .bottomnav{position:absolute;bottom:0;left:0;right:0;height:66px;background:#fff;border-top:1px solid var(--line);display:flex;justify-content:space-around;align-items:center;padding-bottom:6px}
+  .nav{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;color:var(--ink-subtle);font-weight:600}
+  .nav svg{width:22px;height:22px;stroke:var(--ink-subtle);fill:none;stroke-width:1.7}
+  .nav.on{color:var(--primary)}.nav.on svg{stroke:var(--primary)}
+  .nav.on .icwrap{background:var(--tint);border-radius:999px}
+  .icwrap{padding:4px 12px}
+  .phead{padding:16px var(--gutter);background:var(--alt);border-bottom:1px solid var(--line)}
+  .phead .pid{font-size:12px;color:var(--ink-subtle)}
+  .phead h2{font-size:20px;font-weight:800;margin:2px 0 6px}
+  .phead .meta{font-size:12px;color:var(--ink-subtle);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .rank{display:inline-flex;gap:5px;align-items:center;background:var(--tint);color:var(--primary);padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700}
+  .kpis{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px var(--gutter) 4px}
+  .kpi{background:var(--canvas);border:1px solid var(--line);border-radius:12px;padding:13px}
+  .kpi .n{font-size:21px;font-weight:800}.kpi .l{font-size:11.5px;color:var(--ink-subtle);margin-top:2px}
+  .kpi .d{font-size:11px;color:var(--success);margin-top:4px;font-weight:600}
+  .bar{height:8px;background:#eceef2;border-radius:999px;overflow:hidden;margin-top:8px}.bar i{display:block;height:100%;background:var(--primary)}
+  .qa{display:flex;gap:9px;overflow-x:auto;padding:12px var(--gutter) 4px}
+  .qa a{flex:0 0 auto;font-size:12px;background:var(--tint);color:var(--primary);border-radius:10px;padding:9px 13px;font-weight:700}
+  label.f{display:block;font-size:12.5px;color:var(--ink-subtle);font-weight:600;margin:12px var(--gutter) 6px}
+  .inp{margin:0 var(--gutter);background:var(--canvas);border:1px solid var(--line);border-radius:12px;padding:12px 13px;font-size:14px;color:var(--ink-subtle)}
+  .consent{display:flex;gap:11px;align-items:flex-start;margin:16px var(--gutter);background:var(--tint);border:1px solid #e6c6d0;border-radius:12px;padding:13px}
+  .consent .box{width:22px;height:22px;border-radius:6px;background:var(--primary);color:#fff;display:grid;place-items:center;flex:0 0 auto;font-size:13px}
+  .consent p{font-size:12px;color:#6a4a52;line-height:1.5}.req{color:var(--error)}
+  .balance{margin:14px var(--gutter);background:var(--alt);border:1px solid var(--line);border-radius:14px;padding:16px}
+  .balance .l{font-size:12px;color:var(--ink-subtle);font-weight:600}.balance .n{font-size:26px;font-weight:800;color:var(--primary);margin-top:2px}
+  .balance .h{font-size:11px;color:var(--ink-subtle);margin-top:6px}
+  .disc{font-size:11px;color:var(--ink-subtle);background:var(--alt);border:1px solid var(--line);border-radius:10px;padding:11px 12px;margin:12px var(--gutter);line-height:1.5}
+  .empty-note{font-size:11px;color:#9aa1ac;text-align:center;margin:2px var(--gutter) 0}
+  .spinner{width:54px;height:54px;border-radius:999px;border:4px solid #eceef2;border-top-color:var(--primary);margin:26px auto 0;animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .waithero{text-align:center;padding:8px var(--gutter)}
+  .waithero h3{font-size:19px;font-weight:800;margin-top:18px}.waithero p{font-size:13px;color:var(--ink-subtle);margin-top:8px;line-height:1.6}
+  .steps{margin:18px var(--gutter);background:var(--canvas);border:1px solid var(--line);border-radius:12px;padding:6px 14px}
+  .step{display:flex;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .step:last-child{border-bottom:none}
+  .step .ic{width:26px;height:26px;border-radius:999px;display:grid;place-items:center;font-size:13px;flex:0 0 auto}
+  .ic-done{background:#e7f2ec;color:var(--success)}.ic-live{background:#f7efe0;color:var(--warning)}.ic-wait{background:#eef0f3;color:var(--neutral)}
+</style>
+</head>
+<body>
+  <div class="page-head">
+    <h1>Variation B — Modern Clean</h1>
+    <p>Geometric sans · white + hairline borders · segmented controls · maroon reserved for key CTAs. Brand maroon #800020 fixed.</p>
+    <div class="swatches">
+      <span class="sw"><i style="background:#800020"></i>Primary #800020</span>
+      <span class="sw"><i style="background:#222222"></i>Ink #222222</span>
+      <span class="sw"><i style="background:#F5E7EB"></i>Tint</span>
+      <span class="sw"><i style="background:#1E7A46"></i>Success</span>
+      <span class="sw"><i style="background:#B7791F"></i>Pending</span>
+      <span class="sw"><i style="background:#B4232B"></i>Error</span>
+    </div>
+  </div>
+
+  <div class="grid">
+
+    <!-- 1 DISCOVERY -->
+    <div>
+      <div class="frame-label">Client · Discovery</div>
+      <div class="device">
+        <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+        <div class="screen">
+          <div class="appbar"><h2>Discover</h2><span class="lang">বাংলা</span></div>
+          <div class="seg"><span class="on">List</span><span>Map</span></div>
+          <div class="chips"><span class="chip active">Ongoing</span><span class="chip">Apartment</span><span class="chip">Dhaka</span><span class="chip">3 Bed</span><span class="chip">Price</span></div>
+          <div class="card">
+            <div class="media"><span class="pill p-green"><span class="dot"></span>Available</span><span class="fav">♡</span></div>
+            <div class="cbody"><h3>Salmon Riverview</h3><div class="loc">Bashundhara R/A, Dhaka · Apartment</div>
+              <div class="facts"><span><b>3</b> Bed</span><span><b>1,650</b> sqft</span><span><b>12</b> units</span></div>
+              <div class="priceline"><div class="price">USD 210,000<small>Transaction: BDT — shown at checkout</small></div></div></div>
+          </div>
+          <div class="card">
+            <div class="media two"><span class="pill p-amber"><span class="dot"></span>Upcoming</span><span class="fav">♡</span></div>
+            <div class="cbody"><h3>স্যামন গ্রিন কোর্ট</h3><div class="loc">Sylhet · Land / plot share</div>
+              <div class="facts"><span><b>—</b></span><span><b>3.2</b> katha</span><span><b>Shares</b></span></div>
+              <div class="priceline"><div class="price">USD 44,500<small>Transaction: BDT</small></div></div></div>
+          </div>
+        </div>
+        <div class="bottomnav">
+          <div class="nav on"><span class="icwrap"><svg viewBox="0 0 24 24"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></span>Discover</div>
+          <div class="nav"><span class="icwrap"><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/></svg></span>Bookings</div>
+          <div class="nav"><span class="icwrap"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg></span>Ledger</div>
+          <div class="nav"><span class="icwrap"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></span>Profile</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2 PROJECT + BOOKING -->
+    <div>
+      <div class="frame-label">Client · Project + Booking</div>
+      <div class="device">
+        <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+        <div class="screen">
+          <div class="media" style="height:200px;margin:0;border-radius:0"><span class="pill p-green" style="position:absolute;top:14px;left:14px"><span class="dot"></span>Available</span>
+            <span class="pill p-maroon" style="position:absolute;top:14px;right:14px">360° tour</span></div>
+          <div class="pad" style="padding-top:14px"><h2 style="font-size:20px;font-weight:800">Salmon Riverview</h2>
+            <div class="loc" style="font-size:12.5px;color:var(--ink-subtle);margin-top:3px">Bashundhara R/A, Dhaka</div>
+            <div class="facts" style="margin-top:12px"><span><b>3</b> Bed</span><span><b>1,650</b> sqft</span><span><b>8</b> amenities</span></div></div>
+          <div class="sectitle">Live unit availability</div>
+          <div class="rowlist">
+            <div class="row"><span class="u">Unit A-7 · 3 Bed</span><span class="pill p-green"><span class="dot"></span>Available</span></div>
+            <div class="row"><span class="u">Unit A-9 · 3 Bed</span><span class="pill p-grey"><span class="dot"></span>Reserved</span></div>
+            <div class="row"><span class="u">Unit B-2 · 2 Bed</span><span class="pill p-red"><span class="dot"></span>Booked</span></div>
+          </div>
+          <div class="lock">🔒 Unit A-7 held for you — <b>09:52</b> remaining</div>
+          <div class="priceline pad"><div class="price">Token · BDT 500,000<small>Authoritative transaction currency: BDT</small></div></div>
+          <p class="terms">Booking creates a pending reservation and locks the unit for a limited window. Final confirmation comes from Salmon after verified payment. No card details are entered in the app.</p>
+          <button class="btn block">Book this unit</button>
+          <button class="btn ghost block" style="margin-top:10px;margin-bottom:14px">Download brochure</button>
+        </div>
+        <div class="bottomnav">
+          <div class="nav on"><span class="icwrap"><svg viewBox="0 0 24 24"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></span>Discover</div>
+          <div class="nav"><span class="icwrap"><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/></svg></span>Bookings</div>
+          <div class="nav"><span class="icwrap"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg></span>Ledger</div>
+          <div class="nav"><span class="icwrap"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></span>Profile</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3 PENDING PAYMENT -->
+    <div>
+      <div class="frame-label">Client · Pending payment ★</div>
+      <div class="device">
+        <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+        <div class="screen">
+          <div class="appbar"><h2>Payment</h2><span class="pill p-amber"><span class="dot"></span>Pending</span></div>
+          <div class="waithero"><div class="spinner"></div><h3>Confirming your payment…</h3>
+            <p>We’ve received your payment and are waiting for the bank to confirm it. This can take a few minutes.</p></div>
+          <div class="steps">
+            <div class="step"><span class="ic ic-done">✓</span><div>Payment submitted to gateway</div></div>
+            <div class="step"><span class="ic ic-live">◐</span><div>Waiting for verified confirmation…</div></div>
+            <div class="step"><span class="ic ic-wait">3</span><div>Booking confirmed &amp; receipt issued</div></div>
+          </div>
+          <div class="lock" style="background:#eef4f0;color:#1E7A46;border-color:#cfe6da">🔔 You can safely leave — we’ll notify you the moment it’s confirmed.</div>
+          <p class="terms">Salmon confirms payment only after the bank’s verified notification — never from this screen alone. Your unit stays locked while we wait. <b>স্ক্রিন ছেড়ে গেলেও কিছু হারাবে না।</b></p>
+          <button class="btn ghost block" style="margin-bottom:14px">Leave &amp; get notified</button>
+        </div>
+        <div class="bottomnav">
+          <div class="nav"><span class="icwrap"><svg viewBox="0 0 24 24"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></span>Discover</div>
+          <div class="nav on"><span class="icwrap"><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/></svg></span>Bookings</div>
+          <div class="nav"><span class="icwrap"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg></span>Ledger</div>
+          <div class="nav"><span class="icwrap"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></span>Profile</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4 PARTNER DASHBOARD -->
+    <div>
+      <div class="frame-label">Partner · Dashboard</div>
+      <div class="device">
+        <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+        <div class="screen">
+          <div class="phead"><div class="pid">Partner ID · SLM-DHK-00421</div><h2>Ayesha Rahman</h2>
+            <div class="meta"><span class="rank">◆ Gold</span><span>Dhaka › Gulshan › Ward-19</span></div></div>
+          <div class="kpis">
+            <div class="kpi"><div class="n">14</div><div class="l">Active leads</div><div class="d">▲ 3 this week</div></div>
+            <div class="kpi"><div class="n">3</div><div class="l">Upcoming meetings</div><div class="d" style="color:var(--neutral)">2 today</div></div>
+            <div class="kpi"><div class="n" style="color:var(--primary)">৳ 1,84,000</div><div class="l">Approved commission</div></div>
+            <div class="kpi"><div class="n" style="color:var(--warning)">৳ 42,000</div><div class="l">Pending settlement</div></div>
+          </div>
+          <div class="pad"><div class="kpi" style="margin:6px 0"><div class="l">Target vs achievement · Q3</div><div class="n" style="font-size:18px">৳ 6.2L <span style="font-size:12px;color:var(--ink-subtle);font-weight:500">/ ৳ 10L</span></div><div class="bar"><i style="width:62%"></i></div></div></div>
+          <div class="qa"><a>+ New lead</a><a>Sales kit</a><a>Request settlement</a><a>Tasks</a></div>
+        </div>
+        <div class="bottomnav">
+          <div class="nav on"><span class="icwrap"><svg viewBox="0 0 24 24"><path d="M4 13h6V4H4zM14 20h6V4h-6zM4 20h6v-5H4z"/></svg></span>Dashboard</div>
+          <div class="nav"><span class="icwrap"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></span>Leads</div>
+          <div class="nav"><span class="icwrap"><svg viewBox="0 0 24 24"><path d="M4 4h16v12H4zM8 20h8"/></svg></span>Sales kit</div>
+          <div class="nav"><span class="icwrap"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg></span>More</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5 LEADS -->
+    <div>
+      <div class="frame-label">Partner · Submit lead</div>
+      <div class="device">
+        <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+        <div class="screen">
+          <div class="appbar"><h2>New lead</h2><span class="lang">বাংলা</span></div>
+          <label class="f">Full name <span class="req">*</span></label><div class="inp">Enter referred person’s name</div>
+          <label class="f">Phone <span class="req">*</span></label><div class="inp">+880 · mobile number</div>
+          <label class="f">Project interest</label><div class="inp">Salmon Riverview ▾</div>
+          <label class="f">Notes</label><div class="inp" style="height:60px">Context for the sales team…</div>
+          <div class="consent"><span class="box">✓</span><p><b>Consent required.</b> I confirm this person has permitted me to share their contact details with Salmon Developers. <b>· সম্মতি বাধ্যতামূলক।</b></p></div>
+          <p class="empty-note">Submit stays disabled until consent is ticked.</p>
+          <button class="btn block" style="margin-top:12px;margin-bottom:14px">Submit lead</button>
+        </div>
+        <div class="bottomnav">
+          <div class="nav"><span class="icwrap"><svg viewBox="0 0 24 24"><path d="M4 13h6V4H4zM14 20h6V4h-6zM4 20h6v-5H4z"/></svg></span>Dashboard</div>
+          <div class="nav on"><span class="icwrap"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></span>Leads</div>
+          <div class="nav"><span class="icwrap"><svg viewBox="0 0 24 24"><path d="M4 4h16v12H4zM8 20h8"/></svg></span>Sales kit</div>
+          <div class="nav"><span class="icwrap"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg></span>More</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6 COMMISSION -->
+    <div>
+      <div class="frame-label">Partner · Commission &amp; Settlement</div>
+      <div class="device">
+        <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+        <div class="screen">
+          <div class="appbar"><h2>Commission</h2></div>
+          <div class="balance"><div class="l">Requestable balance (approved only)</div><div class="n">৳ 1,84,000</div><div class="h">Only <b>approved</b> commission counts. Pending items are excluded.</div></div>
+          <button class="btn block">Request settlement</button>
+          <p class="disc">The settlement form asks for <b>no bank, no bKash/Nagad, no account number</b>. Salmon’s finance team pays you outside the app and records a reference. You see the status only.</p>
+          <div class="sectitle">Ledger</div>
+          <div class="rowlist">
+            <div class="row"><span><span class="u">Riverview · A-7</span><br><span style="font-size:11px;color:var(--ink-subtle)">Zero-Investment · 12 Jul</span></span><span class="pill p-green"><span class="dot"></span>Approved</span></div>
+            <div class="row"><span><span class="u">Green Court · share</span><br><span style="font-size:11px;color:var(--ink-subtle)">With-Investment · 08 Jul</span></span><span class="pill p-amber"><span class="dot"></span>Pending</span></div>
+            <div class="row"><span><span class="u">Riverview · B-2</span><br><span style="font-size:11px;color:var(--ink-subtle)">Settlement · 02 Jul</span></span><span class="pill p-maroon"><span class="dot"></span>Requested</span></div>
+            <div class="row"><span><span class="u">Lakeside · C-1</span><br><span style="font-size:11px;color:var(--ink-subtle)">Zero-Investment · 21 Jun</span></span><span class="pill p-grey"><span class="dot"></span>Settled</span></div>
+          </div>
+        </div>
+        <div class="bottomnav">
+          <div class="nav"><span class="icwrap"><svg viewBox="0 0 24 24"><path d="M4 13h6V4H4zM14 20h6V4h-6zM4 20h6v-5H4z"/></svg></span>Dashboard</div>
+          <div class="nav"><span class="icwrap"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></span>Leads</div>
+          <div class="nav"><span class="icwrap"><svg viewBox="0 0 24 24"><path d="M4 4h16v12H4zM8 20h8"/></svg></span>Sales kit</div>
+          <div class="nav on"><span class="icwrap"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg></span>More</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

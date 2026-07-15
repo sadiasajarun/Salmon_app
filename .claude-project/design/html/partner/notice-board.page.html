@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Notice board</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-system.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}
+  .wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}.wklang button.on{background:#ffffff33}
+  .ncard{margin:0 16px 10px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:13px 14px}
+  .ncard.pin{border-left:3px solid var(--primary)}
+  .ncard .tt{font-weight:700;font-size:14px;display:flex;align-items:center;gap:7px}
+  .ncard .bd{font-size:12.5px;color:#333;line-height:1.55;margin-top:6px}
+  .ncard .ft{display:flex;justify-content:space-between;align-items:center;margin-top:9px;font-size:11px;color:var(--ink-subtle)}
+  .ncard .tgt{background:#f0e6ea;color:var(--primary);border-radius:999px;padding:3px 9px;font-weight:700;font-size:10.5px}
+  .pinbadge{background:var(--primary);color:#fff;font-size:9.5px;font-weight:800;padding:2px 7px;border-radius:5px}
+</style>
+</head><body>
+<div class="page-label">P72 · Notice board <small>Admin-published · targeted by team/territory/rank/program · renders what backend returns (not all-to-everyone)</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<script>
+var Y=window.PartnerSystem, lang='en';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function s(k){ return Y.strings[lang][k]||k; }
+function dt(iso){ try{ return new Intl.DateTimeFormat(lang==='bn'?'bn-BD':'en-GB',{day:'numeric',month:'short',timeZone:'Asia/Dhaka'}).format(new Date(iso)); }catch(e){ return iso.slice(0,10); } }
+function render(){
+  var lt='<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span>';
+  var cards=Y.notices.map(function(n){
+    return '<div class="ncard'+(n.pin?' pin':'')+'"><div class="tt">'+(n.pin?'<span class="pinbadge">'+s('pinned')+'</span> ':'')+t(n.titleBn,n.titleEn)+'</div>'+
+      '<div class="bd">'+t(n.bodyBn,n.bodyEn)+'</div>'+
+      '<div class="ft"><span class="tgt">'+s('targetedTo')+': '+t(n.targetBn,n.targetEn)+'</span><span>'+dt(n.publishedUtc)+'</span></div></div>';
+  }).join('');
+  document.getElementById('screen').innerHTML=
+    '<div class="wkbar"><a class="bk" href="dashboard.page.html">‹</a><h2>'+s('noticeBoard')+'</h2>'+lt+'</div>'+
+    '<p class="phelp" style="margin:12px 16px 8px">'+s('noticeSub')+'</p>'+cards+
+    '<p class="phelp" style="margin:4px 16px 16px;font-size:11.5px">'+t('প্রতিটি নোটিশ কেন আপনার কাছে এসেছে তা “প্রাপক” ট্যাগে দেখানো — এগুলো সবার জন্য নয়।','Each notice shows why it reached you in its “Sent to” tag — these are not blasted to everyone.')+'</p>';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

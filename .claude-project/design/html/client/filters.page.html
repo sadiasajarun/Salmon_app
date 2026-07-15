@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Filters</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<script src="../assets/js/currency.js"></script>
+<script src="../assets/js/filters.js"></script>
+<style>
+  .langtoggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+  .langtoggle button{border:none;background:transparent;font:inherit;font-size:12px;padding:6px 11px;color:var(--ink-subtle);cursor:pointer;min-height:32px}
+  .langtoggle button.on{background:var(--primary);color:#fff}
+  .grouptitle{font-size:12.5px;font-weight:700;margin:16px var(--gutter) 8px}
+  .chiprow{display:flex;flex-wrap:wrap;gap:8px;padding:0 var(--gutter)}
+  .fbtn{font-size:12.5px;padding:8px 13px;border-radius:999px;background:var(--surface);border:1px solid var(--line);color:var(--ink-subtle);cursor:pointer}
+  .fbtn.on{background:var(--primary);color:#fff;border-color:var(--primary)}
+  .fbtn:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+  .checkline{display:flex;align-items:center;gap:10px;padding:9px var(--gutter);font-size:13.5px;color:var(--ink);cursor:pointer}
+  .checkline .cb{width:20px;height:20px;border-radius:6px;border:1.5px solid #cbb9ad;flex:0 0 auto;display:grid;place-items:center;color:#fff;font-size:12px}
+  .checkline.on .cb{background:var(--primary);border-color:var(--primary)}
+  .rng{margin:6px var(--gutter)}
+  .rng input[type=range]{width:100%;accent-color:var(--primary)}
+  .rng .lab{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-subtle);margin-top:2px}
+  .switchrow{display:flex;align-items:center;justify-content:space-between;margin:14px var(--gutter) 0;font-size:14px}
+  .applybar{position:absolute;left:0;right:0;bottom:0;background:#fffdfb;border-top:1px solid var(--line);padding:12px var(--gutter);display:flex;gap:10px;align-items:center}
+  .applybar .cnt{font-size:12.5px;color:var(--ink-subtle);flex:0 0 auto}
+  .applybar .cnt b{color:var(--primary);font-size:15px}
+  .applybar .btn{flex:1;margin:0}
+</style>
+</head><body>
+<div class="page-label">Client · Filter sheet (24) <small>All BRD filters · LIVE result count · dual-currency price</small></div>
+
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" style="padding-bottom:78px">
+    <div class="sheet-grab" style="width:40px;height:4px;border-radius:999px;background:#d8ccc0;margin:10px auto 4px"></div>
+    <div class="appbar"><h2 id="t-filters">Filters</h2>
+      <div style="display:flex;gap:10px;align-items:center">
+        <div class="langtoggle"><button id="l-en" class="on" onclick="setLang('en')">EN</button><button id="l-bn" onclick="setLang('bn')">বাং</button></div>
+        <button class="clearall" style="text-decoration:underline" onclick="resetAll()" id="t-reset">Reset</button>
+      </div>
+    </div>
+
+    <div class="grouptitle" id="g-status">Project status</div>
+    <div class="chiprow" id="row-status"></div>
+
+    <div class="grouptitle" id="g-location">Location</div>
+    <div class="chiprow" id="row-areas"></div>
+
+    <div class="grouptitle" id="g-category">Property category</div>
+    <div id="row-cats"></div>
+
+    <div class="grouptitle" id="g-bed">Bedrooms</div>
+    <div class="chiprow" id="row-beds"></div>
+
+    <div class="grouptitle" id="g-area">Area size (sqft)</div>
+    <div class="rng">
+      <input type="range" id="sqft-min" min="600" max="2300" step="50" aria-label="Minimum square feet"/>
+      <input type="range" id="sqft-max" min="600" max="2300" step="50" aria-label="Maximum square feet"/>
+      <div class="lab"><span id="sqft-lab">600–2300 sqft</span></div>
+    </div>
+
+    <div class="grouptitle" id="g-price">Price range (AED display · BDT is the real price)</div>
+    <div class="rng">
+      <input type="range" id="price-max" min="150000" max="1000000" step="10000" aria-label="Maximum price in AED"/>
+      <div class="lab"><span id="price-lab">≤ AED 1,000,000</span><span id="price-bdt" style="color:var(--ink)"></span></div>
+    </div>
+
+    <div class="switchrow"><span id="g-avail">Available only</span>
+      <button id="avail" class="toggle off" role="switch" aria-checked="false" aria-label="Available only" onclick="toggleAvail()"></button>
+    </div>
+    <p class="empty-note" style="margin:14px var(--gutter)" id="note"></p>
+  </div>
+
+  <div class="applybar">
+    <span class="cnt"><b id="live-count">15</b> <span id="t-of">of 15</span></span>
+    <button class="btn" id="apply" onclick="applyAndGo()">Show projects</button>
+  </div>
+</div>
+
+<script>
+var D=window.SALMON, C=window.Currency, F=window.Filters, lang='en';
+var f=F.load();
+function s(k){ return D.strings[lang][k]||k; }
+var STATUS=['ongoing','completed','upcoming'];
+var BEDS=['2','3','4','4+'];
+
+function chip(label,on,onclick){ var b=document.createElement('button'); b.className='fbtn'+(on?' on':''); b.type='button'; b.textContent=label; b.setAttribute('aria-pressed',on); b.onclick=onclick; return b; }
+function toggleArr(arr,v){ var i=arr.indexOf(v); if(i>-1)arr.splice(i,1); else arr.push(v); }
+
+function build(){
+  // status
+  var rs=document.getElementById('row-status'); rs.innerHTML='';
+  STATUS.forEach(function(v){ rs.appendChild(chip(s(v), f.status.indexOf(v)>-1, function(){ toggleArr(f.status,v); refresh(); })); });
+  // areas
+  var ra=document.getElementById('row-areas'); ra.innerHTML='';
+  Object.keys(D.areas).forEach(function(k){ ra.appendChild(chip(D.areas[k][lang], f.areas.indexOf(k)>-1, function(){ toggleArr(f.areas,k); refresh(); })); });
+  // categories
+  var rc=document.getElementById('row-cats'); rc.innerHTML='';
+  D.categories.forEach(function(c){ var on=f.cats.indexOf(c.key)>-1; var el=document.createElement('div'); el.className='checkline'+(on?' on':''); el.tabIndex=0;
+    el.innerHTML='<span class="cb">'+(on?'✓':'')+'</span>'+c[lang]; el.onclick=function(){ toggleArr(f.cats,c.key); refresh(); };
+    el.onkeydown=function(e){ if(e.key==='Enter'||e.key===' '){e.preventDefault(); toggleArr(f.cats,c.key); refresh();} }; rc.appendChild(el); });
+  // beds
+  var rb=document.getElementById('row-beds'); rb.innerHTML='';
+  BEDS.forEach(function(v){ rb.appendChild(chip(v, f.beds.indexOf(v)>-1, function(){ toggleArr(f.beds,v); refresh(); })); });
+  // sliders
+  document.getElementById('sqft-min').value=f.sqftMin!=null?f.sqftMin:600;
+  document.getElementById('sqft-max').value=f.sqftMax!=null?f.sqftMax:2300;
+  document.getElementById('price-max').value=f.priceMaxAed!=null?f.priceMaxAed:1000000;
+  document.getElementById('avail').className='toggle'+(f.availableOnly?'':' off');
+  document.getElementById('avail').setAttribute('aria-checked',f.availableOnly);
+}
+function readSliders(){
+  var mn=+document.getElementById('sqft-min').value, mx=+document.getElementById('sqft-max').value;
+  if(mn>mx){ var t=mn; mn=mx; mx=t; }
+  f.sqftMin=(mn<=600?null:mn); f.sqftMax=(mx>=2300?null:mx);
+  // if both extremes, treat as no filter
+  var pm=+document.getElementById('price-max').value; f.priceMaxAed=(pm>=1000000?null:pm);
+  document.getElementById('sqft-lab').textContent=mn+'–'+mx+' sqft';
+  document.getElementById('price-lab').textContent='≤ AED '+pm.toLocaleString('en-US');
+  document.getElementById('price-bdt').textContent='≈ '+C.fmtBdt(C.fromDisplayToBdt(pm,'AED'));
+}
+function refresh(){ readSliders(); build(); recount(); }
+function recount(){
+  var n=F.apply(D.projects,f,C).length;
+  document.getElementById('live-count').textContent=n;
+  document.getElementById('note').textContent = n===0 ? (lang==='bn'?'কোনো প্রকল্প মিলছে না — একটি ফিল্টার শিথিল করুন।':'No projects match — relax a filter.') : '';
+}
+function toggleAvail(){ f.availableOnly=!f.availableOnly; build(); recount(); }
+function resetAll(){ f=F.def(); build(); readSliders(); recount(); }
+function applyAndGo(){ readSliders(); F.save(f); window.location.href='explore-list.page.html'; }
+['sqft-min','sqft-max','price-max'].forEach(function(id){ document.addEventListener('input',function(e){ if(e.target.id===id){ readSliders(); recount(); } }); });
+function applyLang(){ document.documentElement.lang=lang;
+  document.getElementById('l-en').classList.toggle('on',lang==='en'); document.getElementById('l-bn').classList.toggle('on',lang==='bn');
+  document.getElementById('t-filters').textContent=s('filters'); document.getElementById('t-reset').textContent=s('clearAll');
+  document.getElementById('g-status').textContent=s('status'); document.getElementById('g-location').textContent=s('location');
+  document.getElementById('g-category').textContent=s('category'); document.getElementById('g-bed').textContent=s('bedrooms');
+  document.getElementById('g-area').textContent=s('area'); document.getElementById('g-price').textContent=s('price')+' (AED · BDT)';
+  document.getElementById('g-avail').textContent=s('availOnly'); document.getElementById('apply').textContent=s('filters')+' →';
+  document.getElementById('t-of').textContent=(lang==='bn'?'/ ১৫':'of '+D.projects.length);
+  build(); readSliders(); recount();
+}
+function setLang(l){ lang=l; applyLang(); }
+applyLang();
+</script>
+</body></html>

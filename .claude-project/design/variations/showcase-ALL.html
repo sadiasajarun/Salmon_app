@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Salmon Developers — Design Variations A / B / C</title>
+<style>
+  :root{--primary:#800020;--ink:#222222;--sub:#5c636e;--line:#e2e5ea}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Inter","Segoe UI",system-ui,sans-serif;color:var(--ink);background:#f4f5f7;line-height:1.55}
+  header{background:linear-gradient(135deg,#800020,#5c0018);color:#fdf3f1;padding:40px 24px 34px;text-align:center}
+  header h1{font-size:28px;font-weight:800;letter-spacing:-.01em}
+  header p{opacity:.9;font-size:14px;margin-top:8px;max-width:680px;margin-inline:auto}
+  .wrap{max-width:980px;margin:0 auto;padding:28px 20px 60px}
+  .note{background:#fff;border:1px solid var(--line);border-left:4px solid var(--primary);border-radius:10px;padding:16px 18px;font-size:13.5px;color:var(--sub);margin-bottom:28px}
+  .note b{color:var(--ink)}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+  .v{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+  .v .top{padding:18px 18px 14px}
+  .v .tag{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--primary)}
+  .v h2{font-size:19px;font-weight:800;margin:6px 0 4px}
+  .v p{font-size:13px;color:var(--sub)}
+  .v ul{list-style:none;font-size:12.5px;color:var(--sub);margin:12px 0 0;padding:0 18px 4px}
+  .v li{padding:4px 0;display:flex;gap:8px}.v li::before{content:"—";color:var(--primary)}
+  .v a{margin:16px 18px 18px;display:block;text-align:center;background:var(--primary);color:#fff;font-weight:700;font-size:14px;padding:12px;border-radius:9px;text-decoration:none}
+  .v a.alt{background:#fff;color:var(--primary);border:1.5px solid var(--primary);margin-top:0}
+  .swatch{display:flex;gap:6px;padding:0 18px}
+  .swatch i{width:26px;height:14px;border-radius:4px;border:1px solid #0001}
+  .how{margin-top:34px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px}
+  .how h3{font-size:16px;font-weight:800;margin-bottom:10px}
+  .how ol{margin-left:18px;font-size:13.5px;color:var(--sub)}
+  .how li{margin:6px 0}
+  code{background:#f4f5f7;border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:12.5px}
+  .screens{font-size:12.5px;color:var(--sub);margin-top:6px}
+</style>
+</head>
+<body>
+  <header>
+    <h1>Salmon Developers — Mobile App Design</h1>
+    <p>Three directions for the dual-experience app (Global Client + Sales Partner). Same fixed brand — Light Maroon <b>#800020</b>, Deep Charcoal <b>#222222</b> — different rhythm, type and shape. Pick one (or a mix) to lock the design system.</p>
+  </header>
+  <div class="wrap">
+    <div class="note">
+      <b>What you're looking at.</b> Each variation shows the same 6 representative phone screens so you can compare fairly: Client Discovery · Client Project+Booking · <b>Client Pending-payment (the hardest screen)</b> · Partner Dashboard · Partner Submit-lead (with mandatory consent) · Partner Commission &amp; Settlement. Every mockup honours the HARD RULES — no card/bank/MFS fields, disclaimers visible, transaction currency shown at checkout — and includes a Bengali label to prove the layout tolerates expansion.
+    </div>
+
+    <div class="cards">
+      <div class="v">
+        <div class="top"><div class="tag">Variation A</div><h2>Editorial Warmth</h2><p>Boutique, magazine feel. Serif display headings, warm ivory canvas, soft pill buttons, airy whitespace. Leans premium for the client.</p></div>
+        <div class="swatch"><i style="background:#800020"></i><i style="background:#222222"></i><i style="background:#FAF6F1"></i><i style="background:#1E7A46"></i><i style="background:#B7791F"></i></div>
+        <ul><li>Serif display + humanist sans</li><li>Radius 24 · pill CTAs</li><li>Warm, airy, client-forward</li></ul>
+        <div class="screens" style="padding:0 18px">6 screens →</div>
+        <a href="A-representative.html">Open Variation A</a>
+      </div>
+
+      <div class="v">
+        <div class="top"><div class="tag">Variation B</div><h2>Modern Clean</h2><p>Contemporary and neutral. Geometric sans, crisp white with hairline borders, segmented controls, maroon reserved for key actions. Balanced for both roles.</p></div>
+        <div class="swatch"><i style="background:#800020"></i><i style="background:#222222"></i><i style="background:#F5E7EB"></i><i style="background:#1E7A46"></i><i style="background:#B7791F"></i></div>
+        <ul><li>Geometric sans throughout</li><li>Radius 12–14 · border-first</li><li>Neutral, balanced, versatile</li></ul>
+        <div class="screens" style="padding:0 18px">6 screens →</div>
+        <a href="B-representative.html">Open Variation B</a>
+      </div>
+
+      <div class="v">
+        <div class="top"><div class="tag">Variation C</div><h2>Structured Professional</h2><p>Enterprise, field-ready. Tighter type, soft-grey canvas, maroon app-bar on partner, boxier cards, dense KPI tiles and progress bars. Leans into the partner work-tool.</p></div>
+        <div class="swatch"><i style="background:#800020"></i><i style="background:#222222"></i><i style="background:#F4F5F7"></i><i style="background:#1E7A46"></i><i style="background:#B7791F"></i></div>
+        <ul><li>Tight sans · compact scale</li><li>Radius 8–10 · maroon headers</li><li>Dense, data-forward, partner-forward</li></ul>
+        <div class="screens" style="padding:0 18px">6 screens →</div>
+        <a href="C-representative.html">Open Variation C</a>
+      </div>
+    </div>
+
+    <div class="how">
+      <h3>How to choose</h3>
+      <ol>
+        <li>Open each variation and compare the same 6 screens side by side.</li>
+        <li>Tell me your pick — <b>A</b>, <b>B</b>, <b>C</b>, or a <b>Mix</b> (e.g. "B for client, C for partner").</li>
+        <li>I record it in <code>DESIGN_STATUS.md</code> (<code>selected_variation</code>, <code>approved: true</code>) and generate the full role-folder HTML set from the chosen system.</li>
+      </ol>
+    </div>
+  </div>
+</body>
+</html>

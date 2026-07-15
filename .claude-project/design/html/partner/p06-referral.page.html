@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="bn"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Referral</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-state.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+</head><body>
+<div class="page-label">P06 · Referral code <small>Optional · binds team + territory · live validation · then submit → the wall</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div id="top" style="flex:0 0 auto"></div>
+  <div class="screen" style="padding-bottom:80px" id="form"></div>
+  <div class="pbtnbar"><a class="btn ghost" href="p05-consent.page.html" style="flex:0 0 auto">‹</a><a class="btn" id="submit" href="#" onclick="submitApp(event)" style="flex:1">Submit</a></div>
+</div>
+<script>
+var P=window.Partner, lang='en', d=P.getDraft(), resolved=null;
+function t(bn,en){ return lang==='bn'?bn:en; }
+// demo resolver: SALMON-CUM-07 -> Team Cumilla (Rakib Hasan), Panchthubi
+function resolve(code){ code=(code||'').trim().toUpperCase(); if(code==='SALMON-CUM-07') return {teamBn:'টিম কুমিল্লা — রাকিব হাসান',teamEn:'Team Cumilla — Rakib Hasan',areaBn:'পাঁচথুবী',areaEn:'Panchthubi'}; return code?false:null; }
+function onCode(v){ P.saveDraft({referral:v}); d=P.getDraft(); resolved=resolve(v); render(); }
+function bar(){ document.getElementById('top').innerHTML=
+  '<div class="wkbar"><a class="bk" href="p05-consent.page.html">‹</a><h2>'+t('রেফারেল','Referral')+'</h2>'+
+  '<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span></div>'+
+  '<div class="stepper"><i class="st done"></i><i class="st done"></i><i class="st done"></i><i class="st done"></i><i class="st on"></i></div>'+
+  '<div class="steplabel">'+t('ধাপ ৫ / ৫ · রেফারেল কোড (ঐচ্ছিক)','Step 5 / 5 · Referral code (optional)')+'</div>'; }
+function render(){
+  bar();
+  var v=d.referral||''; resolved=resolve(v);
+  var box='';
+  if(resolved===true){}
+  if(resolved && typeof resolved==='object') box='<div class="lock info" style="margin:10px 16px 0">✓ '+t('আপনি যোগ দিচ্ছেন ','You’ll join ')+'<b>'+t(resolved.teamBn,resolved.teamEn)+'</b> · '+t(resolved.areaBn,resolved.areaEn)+'</div>';
+  else if(resolved===false) box='<div class="lock" style="background:#f7e6e7;color:#8a2b30;border-color:#eecccd;margin:10px 16px 0">'+t('কোডটি মিলছে না। খালি রাখতে পারেন।','That code doesn’t match. You can leave it blank.')+'</div>';
+  document.getElementById('form').innerHTML=
+    '<label class="pf">'+t('রেফারেল কোড','Referral code')+' <span class="opt">'+t('(ঐচ্ছিক)','(optional)')+'</span></label>'+
+    '<input class="pinp" placeholder="SALMON-CUM-07" value="'+v+'" oninput="onCode(this.value)">'+box+
+    '<p class="phelp">'+t('রেফারেল কোড আপনি কোন টিম ও টেরিটরিতে যোগ দেবেন তা নির্ধারণ করে। কোড কী বাঁধে (শুধু টিম, নাকি টিম+টেরিটরি) তা এখনো নিশ্চিত নয় (OPEN_QUESTIONS)।','The referral code determines the team and territory you join. What it binds (team only, or team + territory) is not yet confirmed (OPEN_QUESTIONS).')+'</p>'+
+    '<p class="phelp">'+t('জমা দিলে আপনার আবেদন পর্যালোচনার জন্য যাবে।','Submitting sends your application for review.')+'</p>';
+  document.getElementById('submit').textContent=t('আবেদন জমা দিন','Submit application');
+}
+function submitApp(e){ e.preventDefault();
+  if(window.NetSim&&NetSim.isOffline()){ NetSim.blockPay(t('জমা দিতে সংযোগ প্রয়োজন। আপনার লেখা সংরক্ষিত আছে।','You need a connection to submit. Your input is saved.')); return; }
+  P.setStatus('pending'); window.location.href='partner-status.page.html';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Sales kit</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<script src="../assets/js/partner-state.js"></script>
+<script src="../assets/js/partner-kit.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}.wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}
+  .kitsel{margin:10px 16px 6px}
+  .search{margin:0 16px 8px}.search input{width:100%;box-sizing:border-box;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font:inherit;font-size:14px}
+  .krow{display:flex;align-items:center;gap:12px;margin:0 16px 8px;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:11px 12px;text-decoration:none;color:var(--ink)}
+  .krow.locked{opacity:.75;background:#faf6f1}
+  .krow .ic{width:38px;height:38px;border-radius:10px;background:#f4e6ea;color:var(--primary);display:grid;place-items:center;font-size:17px;flex:0 0 auto}
+  .krow .m{flex:1}.krow .m .t{font-weight:600;font-size:13.5px}.krow .m .s{font-size:11px;color:var(--ink-subtle);margin-top:2px}
+  .krow .r{font-size:11px;font-weight:700;flex:0 0 auto}
+  .offbadge{font-size:10px;font-weight:700;color:var(--success);background:#e7f2ec;border-radius:999px;padding:2px 7px}
+  .lockbadge{font-size:10.5px;font-weight:700;color:#B7791F;background:#f7efe0;border:1px solid #eaddc2;border-radius:999px;padding:2px 8px}
+</style>
+</head><body>
+<div class="page-label">P23 · Sales kit / P25 gating <small>Categorised · searchable · per project · gated items shown LOCKED-with-reason (server-side)</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<script>
+var D=window.SALMON, P=window.Partner, K=window.PartnerKit, lang='en', cat='all', query='';
+function qs(k){ return new URLSearchParams(location.search).get(k); }
+var proj=D.projects.find(function(x){return x.slug===qs('slug');})||D.projects.filter(function(x){return x.status!=='upcoming';})[0];
+function t(bn,en){ return lang==='bn'?bn:en; }
+function catName(k){ var c=K.CATS.filter(function(x){return x.key===k;})[0]; return c?t(c.bn,c.en):k; }
+function catIcon(k){ var c=K.CATS.filter(function(x){return x.key===k;})[0]; return c?c.icon:'📄'; }
+function render(){
+  var items=K.itemsFor(proj);
+  var lt='<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span>';
+  var h='<div class="wkbar"><a class="bk" href="projects.page.html">‹</a><h2>'+t('সেলস কিট','Sales kit')+'</h2>'+lt+'</div>';
+  // project selector
+  h+='<div class="kitsel"><select class="pinp psel" style="width:100%;margin:0" onchange="setProj(this.value)">'+D.projects.filter(function(p){return p.status!=='upcoming';}).map(function(p){return '<option value="'+p.slug+'"'+(p.slug===proj.slug?' selected':'')+'>'+p.name+'</option>';}).join('')+'</select></div>';
+  // search
+  h+='<div class="search"><input id="q" placeholder="'+t('উপকরণ খুঁজুন','Search material')+'" value="'+query+'" oninput="onQ(this.value)"></div>';
+  // category chips
+  h+='<div class="chips"><span class="chip'+(cat==='all'?' active':'')+'" onclick="setCat(\'all\')">'+t('সব','All')+'</span>'+K.CATS.map(function(c){return '<span class="chip'+(cat===c.key?' active':'')+'" onclick="setCat(\''+c.key+'\')">'+c.icon+' '+t(c.bn,c.en)+'</span>';}).join('')+'</div>';
+  var rows=items.filter(function(it){ return (cat==='all'||it.cat===cat) && (!query || t(it.bn,it.en).toLowerCase().indexOf(query.toLowerCase())>-1); });
+  h+='<div class="countbar"><b>'+rows.length+'</b> '+t('আইটেম','items')+' · '+proj.name+'</div>';
+  if(!rows.length) h+='<p class="empty-note" style="margin:16px">'+t('কিছু মেলেনি','Nothing matches')+'</p>';
+  rows.forEach(function(it){
+    var ls=K.lockState(it,P);
+    var right = ls.locked ? '<span class="lockbadge">🔒 '+t(ls.bn,ls.en)+'</span>' : (K.isDownloaded(it.id)?'<span class="offbadge">✓ '+t('অফলাইন','offline')+'</span>':'<span class="r" style="color:var(--primary)">'+it.size+'</span>');
+    var href = ls.locked ? 'gated.page.html?title='+encodeURIComponent(t(it.bn,it.en))+'&reason='+encodeURIComponent(t(ls.bn,ls.en))
+                          : (it.link ? it.link : 'asset-view.page.html?slug='+proj.slug+'&id='+it.id);
+    h+='<a class="krow'+(ls.locked?' locked':'')+'" href="'+href+'"><span class="ic">'+catIcon(it.cat)+'</span><div class="m"><div class="t">'+t(it.bn,it.en)+'</div><div class="s">'+catName(it.cat)+' · '+it.size+'</div></div>'+right+'</a>';
+  });
+  h+='<p class="empty-note" style="text-align:left;margin:8px 16px 16px">'+t('অ্যাপ কেবল স্যামন যা ফেরত দেয় তা দেখায় — সব কিছু দৃশ্যমান ধরে নেয় না। গেটিং সার্ভার-সাইড; ক্লায়েন্ট-সাইড আনলক নেই।','The app shows only what Salmon returns — it never assumes everything is visible. Gating is server-side; there is no client-side unlock.')+'</p>';
+  document.getElementById('screen').innerHTML=h;
+}
+function setProj(s){ proj=D.projects.find(function(x){return x.slug===s;}); render(); }
+function setCat(c){ cat=c; render(); }
+function onQ(v){ query=v; render(); setTimeout(function(){ var el=document.getElementById('q'); if(el){el.focus(); el.setSelectionRange(v.length,v.length);} },0); }
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

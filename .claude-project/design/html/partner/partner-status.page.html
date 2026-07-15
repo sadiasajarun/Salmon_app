@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="bn"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Status</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-state.js"></script>
+<script src="../assets/js/territory.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+</head><body>
+<div class="page-label">Partner · P07–P10 status wall <small>Four resolutions of “you registered” · Bengali-first · trust-holding, not a spinner</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<div class="devbar"><h4>Dev · account status (backend-returned)</h4><div class="dchips">
+  <button onclick="setS('pending')">P07 Pending</button>
+  <button onclick="setS('approved')">P10 Approved</button>
+  <button onclick="setS('rejected')">P08 Rejected</button>
+  <button onclick="setS('suspended')">P09 Suspended</button>
+</div></div>
+<script>
+var P=window.Partner, TZ=window.Territory, lang='en';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function bar(title){ return '<div class="wkbar"><span style="flex:1"><h2 style="margin:0">'+title+'</h2></span>'+
+  '<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span></div>'; }
+function reach(){ return '<div class="reachrow"><a href="tel:'+P.identity.phone+'"><span class="ri">📞</span>'+t('হটলাইন','Hotline')+'</a>'+
+  '<a href="https://wa.me/8801700000000" target="_blank"><span class="ri">🟢</span>WhatsApp</a>'+
+  '<a href="mailto:'+P.identity.email+'"><span class="ri">✉️</span>'+t('ইমেইল','Email')+'</a></div>'; }
+
+function render(){
+  var st=P.getStatus(); var h='';
+  document.querySelectorAll('.devbar button').forEach(function(b){b.classList.toggle('on', b.textContent.toLowerCase().indexOf(st)>-1);});
+
+  if(st==='pending'){
+    h=bar(t('আবেদন জমা হয়েছে','Application submitted'))+
+      '<div class="stathero"><div class="ic" style="background:#f7efe0;color:#B7791F">⏳</div>'+
+      '<h1>'+t('আপনার আবেদন পর্যালোচনাধীন','Your application is under review')+'</h1>'+
+      '<p>'+t('স্যামন হেড অফিসের একজন কর্মকর্তা আপনার তথ্য যাচাই করছেন — এটি হারিয়ে যায়নি। আমরা গুরুত্ব সহকারে যাচাই করি বলেই কিছুটা সময় নিই।','A person at Salmon head office is verifying your details — nothing is lost. We vet carefully because we take this seriously.')+'</p>'+
+      '<div class="sla">🕒 '+t('সাধারণত ','Usually within ')+'<b>~'+P.slaHours+' '+t('ঘণ্টা','hours')+'</b><span class="pflag">SLA · '+t('চূড়ান্ত নয়','placeholder')+'</span></div></div>'+
+      '<div class="steplabel" style="padding-left:16px;font-weight:600;color:var(--ink)">'+t('অনুমোদন পেলে আপনি যা পাবেন','What you’ll receive when approved')+'</div>'+
+      '<div class="previewlist"><div class="r"><span class="ic2">🆔</span><div><b>'+t('পার্টনার আইডি','Partner ID')+'</b><div class="sub">'+t('আপনার নতুন পরিচয়','your new identity')+'</div></div></div>'+
+      '<div class="r"><span class="ic2">📍</span><div><b>'+t('টেরিটরি','Territory')+'</b><div class="sub">'+t('আপনার এলাকা','your patch')+'</div></div></div>'+
+      '<div class="r"><span class="ic2">💳</span><div><b>'+t('ডিজিটাল বিজনেস কার্ড','Digital business card')+'</b><div class="sub">'+t('শেয়ার করার জন্য','to share on WhatsApp')+'</div></div></div></div>'+
+      '<div class="steplabel" style="padding-left:16px;font-weight:600;color:var(--ink)">'+t('এখনই একজন মানুষের সাথে কথা বলুন','Reach a human right now')+'</div>'+reach()+
+      '<p class="phelp" style="text-align:center;margin-bottom:16px">'+t('সিদ্ধান্ত এলে এই স্ক্রিন নিজে থেকেই হালনাগাদ হবে এবং আপনাকে পুশ নোটিফিকেশন পাঠানো হবে।','This screen updates in place when the decision lands, and we’ll push-notify you.')+'</p>';
+  }
+  else if(st==='approved'){
+    var a=TZ.assigned;
+    h=bar(t('স্বাগতম','Welcome'))+
+      '<div class="stathero"><div class="ic" style="background:#e7f2ec;color:#1E7A46">✓</div>'+
+      '<h1>'+t('আপনি এখন স্যামন পার্টনার','You’re now a Salmon Partner')+'</h1>'+
+      '<p>'+t('স্বাগতম, '+P.identity.nameBn+'। আপনার আবেদন অনুমোদিত হয়েছে।','Welcome, '+P.identity.name+'. Your application is approved.')+'</p></div>'+
+      '<div class="pidchip"><div class="l">'+t('পার্টনার আইডি','Partner ID')+'</div><div class="id">'+P.identity.partnerId+'</div><div class="phelp" style="margin:6px 0 0;text-align:center">'+t('ফরম্যাট চূড়ান্ত নয়','ID format is a placeholder')+'</div></div>'+
+      '<div class="wkgrid"><div class="wktile"><div class="k">'+t('টেরিটরি','Territory')+'</div><div class="v" style="font-size:13.5px">'+t(a.districtBn+' · '+a.upazilaBn,a.districtEn+' · '+a.upazilaEn)+'</div></div>'+
+      '<div class="wktile"><div class="k">'+t('র‍্যাংক','Rank')+'</div><div class="v">'+t(P.RANKS.silver.bn,P.RANKS.silver.en)+'</div></div></div>'+
+      '<a class="btn block" href="business-card.page.html" style="margin:8px 16px 0;border-radius:10px">'+t('আপনার বিজনেস কার্ড দেখুন','View your business card')+'</a>'+
+      '<a class="btn ghost block" href="dashboard.page.html" style="margin:10px 16px 16px;border-radius:10px">'+t('ড্যাশবোর্ডে যান','Go to dashboard')+'</a>';
+  }
+  else if(st==='rejected'){
+    h=bar(t('আবেদনের ফলাফল','Application outcome'))+
+      '<div class="stathero"><div class="ic" style="background:#f7e6e7;color:#B4232B">✕</div>'+
+      '<h1>'+t('এই মুহূর্তে অনুমোদন দেওয়া যায়নি','Not approved at this time')+'</h1>'+
+      '<p>'+t('আপনার রেকর্ড মুছে ফেলা হয়নি — আপনি সংশোধন করে আবার আবেদন করতে পারেন।','Your record has not been deleted — you can fix the issue and reapply.')+'</p></div>'+
+      '<div class="lock" style="background:#f7e6e7;color:#8a2b30;border-color:#eecccd;margin:0 16px 14px">'+t('কারণ: ','Reason: ')+'<b>'+t(P.rejectionReason.bn,P.rejectionReason.en)+'</b></div>'+
+      '<a class="btn block" href="p02-register-identity.page.html" style="margin:0 16px;border-radius:10px">'+t('তথ্য সংশোধন করে আবার আবেদন করুন','Fix details & reapply')+'</a>'+
+      '<div class="steplabel" style="padding-left:16px;font-weight:600;color:var(--ink);margin-top:12px">'+t('সাহায্য দরকার?','Need help?')+'</div>'+reach();
+  }
+  else { // suspended
+    h=bar(t('অ্যাকাউন্ট স্থগিত','Account suspended'))+
+      '<div class="stathero"><div class="ic" style="background:#eceef1;color:#6B7280">⏸</div>'+
+      '<h1>'+t('আপনার অ্যাকাউন্ট সাময়িকভাবে স্থগিত','Your account is suspended')+'</h1>'+
+      '<p>'+t('পার্টনার ফিচারগুলো এখন উপলব্ধ নয়। নিচের কারণ ও করণীয় দেখুন।','Partner features are unavailable for now. See the reason and next steps below.')+'</p></div>'+
+      '<div class="lock" style="margin:0 16px 14px">'+t('কারণ: ','Reason: ')+'<b>'+t(P.suspensionReason.bn,P.suspensionReason.en)+'</b></div>'+
+      '<p class="phelp" style="margin:0 16px 14px">'+t('পর্যালোচনা শেষে আপনাকে জানানো হবে। প্রশ্ন থাকলে এখনই যোগাযোগ করুন।','You’ll be notified once the review completes. Contact us now if you have questions.')+'</p>'+reach();
+  }
+  h+='<p style="text-align:center;padding:8px 0 16px"><a href="../shared/g02-welcome.page.html" style="color:var(--ink-subtle);font-size:12.5px;text-decoration:underline">'+t('লগ আউট','Log out')+'</a></p>';
+  document.getElementById('screen').innerHTML=h;
+}
+function setS(s){ P.setStatus(s); render(); }
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+if(!P.getStatus()) P.setStatus('pending');
+render();
+</script>
+</body></html>

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Attach evidence</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-ops.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+</head><body>
+<div class="page-label">P41 · Attach evidence <small>Booking form · payment proof · customer docs — via the secure repository (lets finance verify later)</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div id="top" style="flex:0 0 auto"></div>
+  <div class="screen" style="padding-bottom:80px" id="form"></div>
+  <div class="pbtnbar"><a class="btn ghost" href="offline-payment.page.html" style="flex:0 0 auto">‹</a><a class="btn" id="submit" href="#" onclick="submitRec(event)" style="flex:1">Submit record</a></div>
+</div>
+<script>
+var O=window.PartnerOps, lang='en'; var K='salmon_booking_draft';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function bar(){ document.getElementById('top').innerHTML=
+  '<div class="wkbar"><a class="bk" href="offline-payment.page.html">‹</a><h2>'+t('প্রমাণ সংযুক্ত','Attach evidence')+'</h2>'+
+  '<span class="wklang" style="display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden"><button style="border:none;background:'+(lang==='bn'?'#ffffff33':'transparent')+';color:#fdf3f1;font-size:12px;padding:5px 9px" onclick="setLang(\'bn\')">বাং</button><button style="border:none;background:'+(lang==='en'?'#ffffff33':'transparent')+';color:#fdf3f1;font-size:12px;padding:5px 9px" onclick="setLang(\'en\')">EN</button></span></div>'; }
+function up(bn,en){ return '<label class="pf">'+t(bn,en)+'</label><div class="pinp" style="height:80px;display:grid;place-items:center;border-style:dashed;color:#9a8f88">＋ '+t('আপলোড','Upload')+'</div>'; }
+function render(){ bar();
+  document.getElementById('form').innerHTML=
+    up('বুকিং ফর্ম','Booking form')+ up('পেমেন্ট প্রমাণ','Payment proof')+ up('কাস্টমার ডকুমেন্ট','Customer documents')+
+    '<div class="lock info" style="margin:12px 16px">🔒 '+O.strings[lang].secureRepo+'</div>'+
+    '<p class="phelp">'+t('এই প্রমাণই ফিন্যান্সকে পরে রেকর্ডটি যাচাই করতে দেয়।','This evidence is what lets finance verify the record later.')+'</p>';
+  document.getElementById('submit').textContent=t('রেকর্ড জমা দিন','Submit record');
+}
+function submitRec(e){ e.preventDefault();
+  if(window.NetSim&&NetSim.isOffline()){ alert(t('আপনি অফলাইনে — রেকর্ডটি খসড়া হিসেবে সংরক্ষিত, সংযোগ ফিরলে জমা হবে।','You’re offline — the record is saved as a draft and submits when you reconnect.')); return; }
+  window.location.href='record-status.page.html';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

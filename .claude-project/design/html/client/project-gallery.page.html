@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Gallery</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<style>
+  .gwrap{position:absolute;inset:0;background:#111;display:flex;flex-direction:column;touch-action:none}
+  .gbar{position:absolute;top:0;left:0;right:0;z-index:6;display:flex;align-items:center;justify-content:space-between;padding:12px 14px;color:#fff;background:linear-gradient(#000000aa,transparent)}
+  .gbar .x{width:38px;height:38px;border-radius:999px;background:#00000066;border:1px solid #ffffff44;color:#fff;font-size:19px;display:grid;place-items:center;cursor:pointer;text-decoration:none}
+  .gcount{font-size:13px;font-weight:600}
+  .stage{position:absolute;inset:0;overflow:hidden;display:grid;place-items:center}
+  .stage .imgwrap{width:100%;height:100%;background:#111}
+  .stage img{max-width:100%;max-height:100%;object-fit:contain;transform-origin:center center;transition:transform .05s linear;opacity:0}
+  .stage img.on{opacity:1}
+  .stage.skel::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,#1c1c1c 30%,#262626 50%,#1c1c1c 70%);background-size:200% 100%;animation:shim 1.3s infinite}
+  .arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:6;width:42px;height:42px;border-radius:999px;background:#00000055;border:1px solid #ffffff33;color:#fff;font-size:22px;display:grid;place-items:center;cursor:pointer}
+  .arrow.l{left:10px}.arrow.r{right:10px}
+  .thumbs{position:absolute;bottom:0;left:0;right:0;z-index:6;display:flex;gap:8px;padding:12px;overflow-x:auto;background:linear-gradient(transparent,#000000cc)}
+  .thumbs .t{flex:0 0 auto;width:58px;height:44px;border-radius:8px;background:#333 center/cover;border:2px solid transparent;cursor:pointer;opacity:.6}
+  .thumbs .t.on{border-color:#fff;opacity:1}
+  .hint{position:absolute;bottom:74px;left:0;right:0;text-align:center;color:#ffffffaa;font-size:11px;z-index:6}
+  @media (prefers-reduced-motion: reduce){.stage img{transition:none}.stage.skel::after{animation:none}}
+</style>
+</head><body>
+<div class="page-label">Client · Gallery (29) <small>Full-screen · swipe · double-tap / pinch / wheel zoom · pan · swipe-down to close</small></div>
+
+<div class="device">
+  <div class="statusbar" style="position:relative;z-index:9;background:#111;color:#fff"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" style="padding:0;position:relative;overflow:hidden">
+    <div class="gwrap" id="gwrap">
+      <div class="gbar">
+        <a class="x" id="exit" aria-label="Close gallery">✕</a>
+        <span class="gcount" id="count">1 / 1</span>
+        <span style="width:38px"></span>
+      </div>
+      <div class="stage skel" id="stage"><div class="imgwrap"><img id="img" alt=""></div></div>
+      <button class="arrow l" id="prev" aria-label="Previous">‹</button>
+      <button class="arrow r" id="next" aria-label="Next">›</button>
+      <div class="hint" id="hint">Double-tap to zoom · drag to pan · swipe down to close</div>
+      <div class="thumbs" id="thumbs"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+var D=window.SALMON;
+function qs(k){ return new URLSearchParams(location.search).get(k); }
+var p = D.projects.find(function(x){return x.slug===qs('slug');}) || D.projects.find(function(x){return x.slug==='the-rossa';});
+var imgs = (p.banner?[p.banner]:[]).concat(p.gallery||[]);
+if(!imgs.length) imgs=[null];
+var i=0, scale=1, tx=0, ty=0;
+document.getElementById('exit').href='project-detail.page.html?slug='+p.slug;
+
+var stage=document.getElementById('stage'), img=document.getElementById('img');
+function apply(){ img.style.transform='translate('+tx+'px,'+ty+'px) scale('+scale+')'; }
+function reset(){ scale=1; tx=0; ty=0; apply(); }
+function show(n){
+  i=(n+imgs.length)%imgs.length; reset();
+  stage.classList.add('skel'); img.classList.remove('on');
+  if(imgs[i]){ img.src=imgs[i]; img.onload=function(){ img.classList.add('on'); stage.classList.remove('skel'); };
+    img.onerror=function(){ stage.classList.remove('skel'); stage.style.background='linear-gradient(135deg,#b98a72,#7d5647)'; }; }
+  else { stage.classList.remove('skel'); stage.style.background='linear-gradient(135deg,#b98a72,#7d5647)'; }
+  document.getElementById('count').textContent=(i+1)+' / '+imgs.length;
+  document.querySelectorAll('.thumbs .t').forEach(function(t,k){ t.classList.toggle('on',k===i); });
+}
+function buildThumbs(){
+  var tb=document.getElementById('thumbs'); tb.innerHTML='';
+  imgs.forEach(function(u,k){ var t=document.createElement('div'); t.className='t'+(k===i?' on':'');
+    if(u) t.style.backgroundImage='url('+u+')'; t.onclick=function(){ show(k); }; tb.appendChild(t); });
+  if(imgs.length<2){ document.getElementById('prev').style.display='none'; document.getElementById('next').style.display='none'; }
+}
+document.getElementById('prev').onclick=function(){ show(i-1); };
+document.getElementById('next').onclick=function(){ show(i+1); };
+
+/* ---- gestures: double-tap zoom, wheel zoom, drag pan, pinch, swipe ---- */
+var pointers=new Map(), startDist=0, startScale=1, panStart=null, downXY=null, lastTap=0;
+stage.addEventListener('dblclick', function(e){ if(scale>1){ reset(); } else { scale=2.4; apply(); } });
+stage.addEventListener('wheel', function(e){ e.preventDefault(); scale=Math.min(4,Math.max(1, scale + (e.deltaY<0?0.2:-0.2))); if(scale===1){tx=ty=0;} apply(); }, {passive:false});
+stage.addEventListener('pointerdown', function(e){ stage.setPointerCapture(e.pointerId); pointers.set(e.pointerId,e);
+  if(pointers.size===2){ var a=[...pointers.values()]; startDist=dist(a[0],a[1]); startScale=scale; }
+  else { panStart={x:e.clientX-tx,y:e.clientY-ty}; downXY={x:e.clientX,y:e.clientY,t:Date.now()}; } });
+stage.addEventListener('pointermove', function(e){ if(!pointers.has(e.pointerId))return; pointers.set(e.pointerId,e);
+  if(pointers.size===2){ var a=[...pointers.values()]; scale=Math.min(4,Math.max(1, startScale*(dist(a[0],a[1])/startDist))); if(scale===1){tx=ty=0;} apply(); }
+  else if(scale>1 && panStart){ tx=e.clientX-panStart.x; ty=e.clientY-panStart.y; apply(); } });
+stage.addEventListener('pointerup', function(e){ pointers.delete(e.pointerId);
+  if(downXY && scale<=1){ var dx=e.clientX-downXY.x, dy=e.clientY-downXY.y;
+    if(dy>90 && Math.abs(dy)>Math.abs(dx)){ window.location.href='project-detail.page.html?slug='+p.slug; return; } // swipe down = close
+    if(Math.abs(dx)>50 && Math.abs(dx)>Math.abs(dy)){ show(dx<0?i+1:i-1); } }
+  downXY=null; if(pointers.size<2)startDist=0; });
+function dist(a,b){ return Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY); }
+document.addEventListener('keydown',function(e){ if(e.key==='ArrowRight')show(i+1); if(e.key==='ArrowLeft')show(i-1); if(e.key==='Escape')window.location.href='project-detail.page.html?slug='+p.slug; });
+
+buildThumbs(); show(0);
+setTimeout(function(){ var h=document.getElementById('hint'); if(h) h.style.opacity='0'; h.style.transition='opacity .6s'; }, 3200);
+</script>
+</body></html>

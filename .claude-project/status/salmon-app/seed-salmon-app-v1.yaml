@@ -1,0 +1,220 @@
+# Seed Specification — salmon-app
+# Generated: 2026-07-14
+# Source: CLAUDE.md (provided spec, authoritative)
+# Ambiguity Score: 0.08 (spec is comprehensive; residual ambiguity = §12 intentionally-open rules)
+
+goal: >
+  Ship one Flutter mobile app (Android + iOS) for Salmon Developers, a Bangladesh real-estate
+  company, that presents two completely separate role-selected experiences from a single binary —
+  a premium property-listing + checkout experience for Global Clients, and a dense field-sales work
+  tool for Sales Partners — sharing only auth, settings, notifications, networking and storage,
+  while never holding, moving, calculating or promising money.
+
+roles:
+  - id: globalClient
+    experience: "Premium property-listing app with checkout"
+    audience: "Property buyers, any country (domestic + overseas)"
+  - id: salesPartner
+    experience: "Dense field-sales work tool"
+    audience: "Nationwide agent/referral network"
+    modifiers:
+      programs: [zeroInvestment, withInvestment]   # may hold both
+      isTeamLead: bool                              # flag, not a role
+      accountStatus: "pending -> approved gate before any partner feature"
+  # Staff roles (managers, finance, legal, admin) DO NOT log into this app — web CRM only.
+
+constraints:
+  # === §2 HARD RULES (legal / financial / security — non-negotiable) ===
+  money:
+    - "App NEVER holds funds: no wallet, stored balance, escrow, or in-app credit."
+    - "App NEVER pays anyone: no payout button anywhere."
+    - "App NEVER collects bank/MFS/IBAN/routing numbers or merchant credentials — payouts happen off-platform."
+    - "App NEVER calculates commission or investment returns: every number is human-entered/approved on the web panel; app only displays."
+    - "App NEVER displays guaranteed-return language; client-approved disclaimer text is mandatory UI."
+  cards_payments:
+    - "App NEVER builds a card form (no card number, CVV, expiry, PIN). Payment only via gateway hosted/tokenized checkout."
+    - "App NEVER confirms booking/payment from a client-side gateway callback. Truth comes only from backend after verified signed webhook; client return is a hint to start polling."
+    - "Card data, CVV, PIN, OTP, gateway credentials NEVER appear in logs, crash reports, analytics, or screenshots."
+  security:
+    - "Auth tokens in iOS Keychain / Android Keystore only — never SharedPreferences/plain file/global."
+    - "Hiding a UI element is NOT access control; every permission enforced server-side."
+    - "Protected media/documents fetched only via short-lived signed URLs; never cache unencrypted; never build a permanent public URL."
+    - "Biometric unlock is session convenience, not authentication; enabled only after a successful primary login; biometric data never leaves device."
+    - "Security baseline OWASP MASVS. TLS only. Certificate pinning preferred."
+  scope_exclusions:
+    - "No in-app video calling — attach external Zoom/Google Meet link."
+    - "No automated KYC/OCR/e-signature/sanctions/identity-matching — staff verify by hand."
+    - "No automated rank calculation — Silver/Gold/Platinum assigned manually by admin."
+    - "No self-created 360/3D assets — client supplies, we embed."
+    - "No AI features, no lead scoring, no recommendation engine."
+  # === Engineering conventions (§9/§10) ===
+  engineering:
+    - "Never use double for money — integer minor units + currency code."
+    - "Display currency and transaction currency are DIFFERENT fields; never conflate. Authoritative transaction currency shown at checkout regardless of display currency."
+    - "Store/transmit UTC ISO-8601; render in user timezone; never use device-local time for business logic."
+    - "All user-facing text via AppLocalizations (ARB); English + Bengali; Bengali expands — never fix width to English."
+    - "Every async screen handles four states: loading, empty, error, data (shared state widgets)."
+    - "Map exceptions to typed Failures in network layer; widgets render Failure, not DioException."
+    - "Enums come from domain/enums; unknown API values map to safe `unknown` fallback + log, never crash."
+    - "features/client/** and features/partner/** never import from each other; shared code lives in shared/ or core/."
+    - "UI never calls Dio. UI -> Riverpod provider -> Repository interface -> DataSource."
+  tech_stack:
+    framework: "Flutter (stable), Dart"
+    state: Riverpod
+    routing: "go_router (declarative, role-guarded)"
+    networking: "Dio + interceptors (auth, retry, error mapping)"
+    models: "freezed + json_serializable"
+    secure_storage: flutter_secure_storage
+    local_cache: "Hive or Isar (non-sensitive read-only content only)"
+    biometrics: local_auth
+    push: firebase_messaging
+    i18n: "flutter_localizations + ARB (en, bn)"
+    maps: "TBD Google Maps or Mapbox — abstract behind MapProvider"
+    payments: "Gateway hosted checkout via WebView — TBD gateways — abstract behind PaymentGateway"
+    chat: "TBD WhatsApp Business API or in-app — abstract behind SupportChannel"
+    testing: "flutter_test, mocktail, integration_test"
+  theme:
+    primary: "#800020 (Light Maroon)"
+    ink: "#222222 (Deep Charcoal)"
+    style: "Clean, minimalist, generous whitespace. Client = premium/editorial; Partner = functional/dense. Both must work in Bengali."
+
+acceptance_criteria:
+  - "At login the backend returns the role; app routes globalClient -> client shell, approved salesPartner -> partner shell, non-approved partner -> status-only screen. App never infers a role."
+  - "The pending payment state (paid, webhook not yet landed) shows a clear waiting state, lets the user leave, keeps polling in background, push-notifies on resolution, and never fakes success."
+  - "Booking creates a server-side pending booking + unit lock with a countdown; lock expiry returns the unit to available and expires the booking gracefully; duplicate booking on a unit is prevented server-side."
+  - "Every payment goes through gateway hosted checkout; no card/bank/MFS field exists anywhere in the app."
+  - "Lead submission requires a mandatory, non-skippable consent checkbox confirming the referred person permitted sharing their details."
+  - "Settlement request form contains NO bank details, NO MFS number, NO account fields; blocks amounts exceeding approved balance and duplicate active requests; partner sees status only."
+  - "Commission requestable balance counts only `approved` commission; numbers are display-only (no client-side calculation)."
+  - "With-Investment shows only a manually-recorded return schedule (paid/pending/onHold) with client-approved disclaimers; no calculator, no payout button, no guaranteed-return copy."
+  - "Language hot-switches English<->Bengali with no restart; no layout overflow in Bengali."
+  - "Every status-driven screen uses domain/enums; unknown API enum values fall back safely and are logged."
+  - "Auth tokens are stored only in Keychain/Keystore; biometric unlock only enabled post-primary-login."
+  - "Protected documents/media load only via short-lived signed URLs; never cached unencrypted."
+
+ontology_schema:
+  name: SalmonDomain
+  description: "Core entities and the status enums that are the single source of truth (§7). App must never invent, derive, or reorder a state."
+  enums:
+    PartnerAccountStatus: [pending, approved, rejected, suspended]
+    KycStatus:            [notSubmitted, pending, verified, rejected]
+    LeadStatus:           [submitted, contacted, meetingScheduled, visitCompleted, converted, closed]
+    UnitStatus:           [available, reserved, booked, sold]
+    BookingStatus:        [pending, confirmed, expired, cancelled]
+    PaymentStatus:        [initiated, pending, success, failed, cancelled, expired]
+    InstallmentStatus:    [upcoming, due, paid, overdue]
+    CommissionStatus:     [pending, approved, settlementRequested, settled]
+    SettlementStatus:     [submitted, approved, rejected, onHold, settled]
+    ReturnEntryStatus:    [paid, pending, onHold]
+    MeetingStatus:        [requested, confirmed, rescheduled, cancelled, completed]
+    TicketStatus:         [open, inProgress, resolved, reopened]
+    TaskStatus:           [assigned, inProgress, complete, overdue]
+    UserRole:             [globalClient, salesPartner]
+    PartnerProgram:       [zeroInvestment, withInvestment]
+    PartnerRank:          [silver, gold, platinum]
+  entities:
+    - name: User
+      fields: [id, role, programs, isTeamLead, kycStatus, preferences, token]
+    - name: Project
+      fields: [id, name, status, location, category, coordinates, media, amenities, brochures]
+    - name: Unit
+      fields: [id, projectId, config, price(minorUnits+currency), status, lockExpiresAt]
+    - name: Booking
+      fields: [id, unitId, userId, status, tokenAmount, lockExpiresAt, createdAt]
+    - name: Payment
+      fields: [id, bookingId/installmentId, status, transactionCurrency, amountMinorUnits, gateway]
+    - name: Installment
+      fields: [id, bookingId, dueDateUtc, status, amountMinorUnits, currency, invoiceId]
+    - name: Lead
+      fields: [id, partnerId, contact, projectInterest, notes, consentGiven, status]
+    - name: Commission
+      fields: [id, partnerId, leadId, projectId, program, amountMinorUnits, status, approvedAt]
+    - name: Settlement
+      fields: [id, partnerId, amountMinorUnits, status, financeReference(hidden-from-partner)]
+    - name: Investment
+      fields: [id, partnerId, projectShare, returnSchedule[ReturnEntry]]
+    - name: Meeting
+      fields: [id, type(virtual|site), status, externalLink|location, slotUtc]
+    - name: Task
+      fields: [id, partnerId, status, dueDateUtc, evidence]
+    - name: Ticket
+      fields: [id, category, subject, description, attachments, status, thread]
+    - name: Notice
+      fields: [id, audience(team|territory|rank|program), body, publishedAt]
+    - name: Territory
+      fields: [division, district, upazilaThana, union]
+
+feature_modules:
+  shared: [auth, profile_preferences, notifications, notices, support]
+  client: [kyc, discovery, project_detail, booking, payment, installments, consultation]
+  partner: [onboarding, dashboard, programs, leads, saleskit, bookings_record_only, commission_settlement, investment_record_only, team, meetings, tasks_targets, training]
+
+build_order:   # §11 — do not jump ahead
+  - "0: Scaffold (theme, i18n, secure storage, Dio+interceptors, error mapping, go_router role guards, shared state widgets, all §7 enums, mock data layer)"
+  - "1: Auth (4 methods, OTP, biometrics, profile, preferences, notifications)"
+  - "2: Client discovery (map, filters, project detail, gallery, 360, floor plans, progress, inventory)"
+  - "3: Client booking + payment (HIGHEST RISK — build pending state first; all failure branches)"
+  - "4: Client installments (ledger, schedule, invoices, receipts, reminders)"
+  - "5: Client chat + consultation booking"
+  - "6: Partner core (registration, approval gate, Partner ID, dashboard, sales kit)"
+  - "7: Partner leads (consent submission, tracking)"
+  - "8: Partner commission ledger + settlement request"
+  - "9: Team, tasks, targets, meetings, training, support, notices"
+  - "10: With-Investment records + return schedule (last — blocked on legal, not engineering)"
+  - "11: Hardening (OWASP MASVS, weak-network, Bengali QA, store submission)"
+
+evaluation_principles:
+  - name: hard_rule_compliance
+    description: "Zero violations of §2 (no money movement/holding/calculation/promises, no card/bank fields, no client-side confirmation, secure storage, signed URLs)."
+    weight: 0.35
+  - name: role_separation
+    description: "Correct dual-experience routing and strict client/partner module isolation."
+    weight: 0.20
+  - name: payment_booking_robustness
+    description: "Pending/lock-expiry/failed/cancelled/duplicate/app-killed branches all handled; backend-driven truth."
+    weight: 0.20
+  - name: i18n_and_states
+    description: "en/bn hot-switch without overflow; every async screen has loading/empty/error/data."
+    weight: 0.15
+  - name: enum_safety_and_money_types
+    description: "Enums from single source with safe unknown fallback; integer minor units for money; UTC in / tz out."
+    weight: 0.10
+
+exit_conditions:
+  - name: success
+    description: "PRD + design references produced and cross-checked against §2 HARD RULES; all acceptance criteria representable."
+    criteria: "evaluation_score >= 0.8 AND zero §2 violations in artifacts"
+  - name: max_iterations
+    description: "Safety valve"
+    criteria: "iterations > 10"
+
+open_questions:   # §12 — intentionally undefined by client; DO NOT hardcode. Track in OPEN_QUESTIONS.md.
+  payments:
+    - "Which gateways ship, in which countries (Stripe/PayPal/SSLCommerz/wire/local MFS)?"
+    - "Token booking amount: fixed / per-project / percentage?"
+    - "Inventory lock duration?"
+    - "Refund & cancellation policy?"
+    - "Is currency conversion informational or transactional? Exchange-rate source + rounding rule?"
+    - "Invoice numbering, tax fields, legal wording?"
+  partner_program:
+    - "Partner ID format? Required registration fields? Approval steps + approver?"
+    - "Silver/Gold/Platinum criteria?"
+    - "What event counts as a conversion, and who declares it?"
+    - "Zero-Investment commission rates?"
+    - "With-Investment higher-tier rate, eligibility, trigger?"
+    - "Legally approved return terms + disclosure wording? (blocked on legal counsel)"
+    - "Minimum settlement amount? Hold/rejection/reversal rules?"
+  client_app:
+    - "Does any action require Verified KYC?"
+    - "WhatsApp Business API vs in-app chat? Google Maps vs Mapbox? Zoom vs Google Meet?"
+    - "Consultation slot + cancellation rules?"
+  client_supplied_assets:
+    - "Project coordinates, unit configs, pricing, HD media, 360/Matterport, floor plans, construction content."
+    - "Accounts: Apple Developer, Play Console, gateway merchant, map API, CDN, chat provider, OTP provider."
+
+metadata:
+  version: "1.0"
+  ambiguity_score: 0.08
+  source: "CLAUDE.md"
+  created_at: "2026-07-14"
+  notes: "Residual ambiguity is entirely the §12 intentionally-open commercial rules. These MUST NOT be resolved by guessing; the build implements mechanisms driven by /config + mock data."

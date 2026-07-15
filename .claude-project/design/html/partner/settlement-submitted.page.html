@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Request submitted</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/settlement-state.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>.wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}.wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}</style>
+</head><body>
+<div class="page-label">P47 · Request submitted <small>Reference · honest “what happens next” · finance reviews on the web panel</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<script>
+var ST=window.Settlement, lang='en';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function bdt(n){ if(!n)return '—'; var x=String(Math.round(n)); var l=x.slice(-3),r=x.slice(0,-3); if(r)r=r.replace(/\B(?=(\d{2})+(?!\d))/g,','); return '৳ '+(r?r+','+l:l); }
+function render(){
+  var s=ST.load();
+  document.getElementById('screen').innerHTML=
+    '<div class="wkbar"><a class="bk" href="commission.page.html">‹</a><h2>'+t('অনুরোধ জমা হয়েছে','Request submitted')+'</h2>'+
+    '<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span></div>'+
+    '<div class="stathero" style="padding-top:16px"><div class="ic" style="background:#e7f2ec;color:#1E7A46">✓</div>'+
+    '<h1 style="font-size:20px">'+t('সেটেলমেন্ট অনুরোধ জমা হয়েছে','Settlement request submitted')+'</h1>'+
+    '<p>'+t(bdt(s.amountBdt)+' ছাড়ের জন্য আপনার অনুরোধ স্যামনের ফিন্যান্সে পাঠানো হয়েছে।','Your request to release '+bdt(s.amountBdt)+' has been sent to Salmon finance.')+'</p></div>'+
+    '<div class="refchip" style="margin:0 16px 12px"><div>'+t('রেফারেন্স','Reference')+'<div class="r">'+(s.ref||'ST-—')+'</div></div></div>'+
+    '<div class="sectitle" style="margin-left:16px">'+t('এরপর কী হবে','What happens next')+'</div>'+
+    '<div class="previewlist" style="margin:0 16px 12px"><div class="r"><span class="ic2">🧾</span><div>'+t('ফিন্যান্স ওয়েব প্যানেলে এটি পর্যালোচনা করবে।','Finance reviews this on the web panel.')+'</div></div>'+
+    '<div class="r"><span class="ic2">💳</span><div>'+t('অনুমোদিত হলে আপনার সম্মত পদ্ধতিতে স্যামন পরিশোধ করবে — অ্যাপের বাইরে।','If approved, Salmon pays through your agreed method — outside the app.')+'</div></div>'+
+    '<div class="r"><span class="ic2">🔔</span><div>'+t('পরিশোধ হলে আপনাকে জানানো হবে।','You’ll be notified when it settles.')+'</div></div></div>'+
+    '<p class="phelp" style="margin:0 16px 14px">'+t('প্রত্যাশিত সময় স্যামনের প্রক্রিয়া অনুযায়ী (চূড়ান্ত নয়)। অ্যাপ শুধু অনুরোধ ও অবস্থা রেকর্ড করে।','Expected timeline follows Salmon’s process (not finalised). The app only records the request and its status.')+'</p>'+
+    '<a class="btn block" href="settlement-status.page.html" style="margin:0 16px 0;border-radius:10px">'+t('অবস্থা দেখুন','Track status')+'</a>'+
+    '<a class="btn ghost block" href="commission.page.html" style="margin:10px 16px 16px;border-radius:10px">'+t('আয়ে ফিরুন','Back to earnings')+'</a>';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

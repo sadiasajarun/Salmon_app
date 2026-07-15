@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · International wire</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<script src="../assets/js/currency.js"></script>
+<script src="../assets/js/payment-state.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+</head><body>
+<div class="page-label">Client · International wire (47) <small>Instructions only · stays Pending until finance verifies · said in the largest type</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:24px"></div>
+</div>
+<script>
+var D=window.SALMON, C=window.Currency, PS=window.PayState, lang='en';
+var t=PS.load(); if(t.status===PS.S.NONE){ PS.reset(); t=PS.dispatch({type:'BOOK',slug:'the-rossa',unit:'A-7'}); PS.dispatch({type:'SELECT_CHANNEL',channel:'wire'}); t=PS.load(); }
+function render(){
+  var disp=C.fmtDisplay(C.toDisplay(t.amountBdt,'AED'),'AED');
+  document.getElementById('screen').innerHTML=
+    '<div class="appbar"><a class="back" href="payment-channel.page.html" style="font-size:20px;text-decoration:none;color:var(--ink)">‹</a><h2>'+(lang==='bn'?'আন্তর্জাতিক ওয়্যার':'International wire')+'</h2><span class="langtoggle" style="display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden"><button onclick="setLang(\'en\')" style="border:none;background:'+(lang==='en'?'var(--primary)':'transparent')+';color:'+(lang==='en'?'#fff':'var(--ink-subtle)')+';font-size:12px;padding:6px 10px">EN</button><button onclick="setLang(\'bn\')" style="border:none;background:'+(lang==='bn'?'var(--primary)':'transparent')+';color:'+(lang==='bn'?'#fff':'var(--ink-subtle)')+';font-size:12px;padding:6px 10px">বাং</button></span></div>'+
+    '<div class="wirewarn"><div class="big">'+(lang==='bn'?'জমা দিলেই বুকিং নিশ্চিত হয় না।':'Submitting does not confirm your booking.')+'</div>'+
+      '<p>'+(lang==='bn'?'একটি ওয়্যার <b>Pending</b> থাকে যতক্ষণ না স্যামনের ফিন্যান্স দল প্রাপ্তি হাতে যাচাই করে — এতে কয়েক দিন লাগতে পারে।':'A wire stays <b>Pending</b> until Salmon’s finance team manually verifies receipt — that can take days.')+'</p></div>'+
+    '<div class="amount-hero"><div class="amt" style="font-size:22px">'+disp+'<div class="bdt">'+C.fmtBdt(t.amountBdt)+' · BDT '+(lang==='bn'?'(প্রকৃত চার্জ)':'(actual amount)')+'</div></div></div>'+
+    '<div class="sectitle">'+(lang==='bn'?'স্যামনের প্রাপক তথ্য (এখানে পাঠান)':'Salmon’s beneficiary details (send to)')+'</div>'+
+    '<div class="beneficiary"><div class="b"><span>'+(lang==='bn'?'প্রাপক':'Beneficiary')+'</span><b>Salmon Developers Ltd.</b></div>'+
+      '<div class="b"><span>Bank</span><b>__PLACEHOLDER Bank</b></div>'+
+      '<div class="b"><span>SWIFT / BIC</span><b>__PLACEHOLDER</b></div>'+
+      '<div class="b"><span>'+(lang==='bn'?'অ্যাকাউন্ট':'Account')+'</span><b>__PLACEHOLDER</b></div></div>'+
+    '<div class="refchip"><div>'+(lang==='bn'?'বাধ্যতামূলক রেফারেন্স — অবশ্যই উল্লেখ করুন':'Mandatory reference — you must quote it')+'<div class="r">'+t.bookingRef+'</div></div><button onclick="copyRef(\''+t.bookingRef+'\')">'+(lang==='bn'?'কপি':'Copy')+'</button></div>'+
+    '<p class="terms">'+(lang==='bn'?'রেফারেন্স ছাড়া আমরা আপনার ট্রান্সফার আপনার বুকিংয়ের সাথে মেলাতে পারব না। প্রাপক তথ্য এখনো প্লেসহোল্ডার (OPEN_QUESTIONS)।':'Without the reference we cannot match your transfer to your booking. Beneficiary details are placeholders (OPEN_QUESTIONS).')+'</p>'+
+    '<a class="btn block" onclick="submitWire(event)" href="#">'+(lang==='bn'?'আমি ওয়্যার পাঠিয়েছি':'I’ve sent the wire')+'</a>'+
+    '<a class="btn ghost block" href="payment-channel.page.html" style="margin-top:10px;margin-bottom:16px">'+(lang==='bn'?'অন্য চ্যানেল':'Different channel')+'</a>';
+}
+function copyRef(r){ if(navigator.clipboard) navigator.clipboard.writeText(r); }
+function submitWire(e){ e.preventDefault();
+  if(window.NetSim&&NetSim.isOffline()){ NetSim.blockPay(lang==='bn'?'জমা দিতে সংযোগ প্রয়োজন। কিছু পাঠানো হয়নি।':'You need a connection to submit. Nothing has been sent.'); return; }
+  PS.dispatch({type:'GO_PENDING', channel:'wire'}); window.location.href='payment-pending.page.html'; }
+function setLang(l){ lang=l; render(); }
+render();
+</script>
+</body></html>

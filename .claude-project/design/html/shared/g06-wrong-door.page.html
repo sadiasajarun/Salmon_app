@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Already registered</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/auth-router.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .glang{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+  .glang button{border:none;background:transparent;font-size:12px;padding:6px 11px;color:var(--ink-subtle);cursor:pointer}
+  .glang button.on{background:var(--primary);color:#fff}
+</style>
+</head><body>
+<div class="page-label">G06 · Wrong-door recovery <small>Chose partner but the number is a buyer (or vice versa) · redirect, never dead-end</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<div class="devbar"><h4>Dev · wrong-door scenario</h4><div class="dchips">
+  <button class="on" onclick="setCase('client')">Applied as partner · number is a buyer</button>
+  <button onclick="setCase('partner')">Signed up as buyer · number is a partner</button>
+</div></div>
+<script>
+var AR=window.AuthRouter, lang='en', has='client';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function setCase(h){ has=h; document.querySelectorAll('.devbar button').forEach(function(b){b.classList.remove('on');}); if(event&&event.target)event.target.classList.add('on'); render(); }
+function render(){
+  var title, msg, primary, primaryHref, secondary, secondaryHref;
+  if(has==='client'){ // applied as partner, already a buyer
+    title=t('এই নম্বর ইতিমধ্যে ক্রেতা হিসেবে নিবন্ধিত','This number is already a buyer');
+    msg=t('আপনি সেলস পার্টনার হিসেবে আবেদন শুরু করেছেন, কিন্তু এই নম্বরে ইতিমধ্যে একটি ক্রেতা অ্যাকাউন্ট আছে। ক্রেতা হিসেবে সাইন ইন করুন, অথবা পার্টনার হিসেবে আবেদন করতে অন্য নম্বর ব্যবহার করুন।','You started applying as a Sales Partner, but this number already has a buyer account. Sign in as a buyer, or use a different number to apply as a partner.');
+    primary=t('ক্রেতা হিসেবে সাইন ইন','Sign in as a buyer'); primaryHref='g04-signin.page.html';
+    secondary=t('অন্য নম্বরে আবেদন','Apply with a different number'); secondaryHref='../partner/p02-register-identity.page.html';
+  } else { // signed up as buyer, already a partner
+    title=t('এই নম্বর ইতিমধ্যে পার্টনার হিসেবে নিবন্ধিত','This number is already a partner');
+    msg=t('আপনি ক্রেতা হিসেবে শুরু করেছেন, কিন্তু এই নম্বরে ইতিমধ্যে একটি পার্টনার অ্যাকাউন্ট আছে। পার্টনার হিসেবে সাইন ইন করুন, অথবা ক্রেতা অ্যাকাউন্টের জন্য অন্য নম্বর ব্যবহার করুন।','You started as a buyer, but this number already has a partner account. Sign in as a partner, or use a different number for a buyer account.');
+    primary=t('পার্টনার হিসেবে সাইন ইন','Sign in as a partner'); primaryHref='g04-signin.page.html';
+    secondary=t('অন্য নম্বরে ক্রেতা অ্যাকাউন্ট','Buyer account with a different number'); secondaryHref='../shared/signup.page.html';
+  }
+  document.getElementById('screen').innerHTML=
+    '<div class="appbar" style="padding-bottom:8px"><a class="back" href="g03-fork.page.html" style="font-size:20px;text-decoration:none;color:var(--ink)">‹</a>'+
+    '<h2 style="font-family:var(--serif)">'+t('ইতিমধ্যে নিবন্ধিত','Already registered')+'</h2>'+
+    '<span class="glang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span></div>'+
+    '<div class="rhero" style="padding-top:14px"><div class="badge-ic warn2">↩</div><h2 style="font-size:20px">'+title+'</h2><p>'+msg+'</p></div>'+
+    '<a class="btn block" href="'+primaryHref+'" style="margin:8px 16px 0;border-radius:12px">'+primary+'</a>'+
+    '<a class="btn ghost block" href="'+secondaryHref+'" style="margin:10px 16px 16px;border-radius:12px">'+secondary+'</a>';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

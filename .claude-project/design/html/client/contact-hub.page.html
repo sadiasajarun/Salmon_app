@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Contact</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/support-channel.js"></script>
+<script src="../assets/js/timezone.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .langtoggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+  .langtoggle button{border:none;background:transparent;font-size:12px;padding:6px 10px;color:var(--ink-subtle);cursor:pointer}
+  .langtoggle button.on{background:var(--primary);color:#fff}
+  .rm{display:flex;gap:14px;align-items:center;margin:8px var(--gutter) 12px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px}
+  .rm .av{width:56px;height:56px;border-radius:999px;background:linear-gradient(135deg,#800020,#5c0018);color:#fff;display:grid;place-items:center;font-weight:700;font-size:18px;flex:0 0 auto}
+  .rm .nm{font-family:var(--serif);font-size:17px}
+  .door{display:flex;gap:12px;align-items:flex-start;margin:0 var(--gutter) 12px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px;text-decoration:none;color:var(--ink)}
+  .door .ic{width:44px;height:44px;border-radius:12px;background:#f4e6ea;color:var(--primary);display:grid;place-items:center;font-size:20px;flex:0 0 auto}
+  .door .t{font-weight:700;font-size:15px}.door .d{font-size:12.5px;color:var(--ink-subtle);margin-top:3px;line-height:1.5}
+  .hours{font-size:12px;border-radius:999px;padding:4px 10px;font-weight:600}
+  .open{background:#e7f2ec;color:var(--success)} .closed{background:#f7efe0;color:#B7791F}
+  .quick{display:flex;gap:10px;margin:0 var(--gutter) 14px}
+  .quick a{flex:1;text-align:center;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 6px;text-decoration:none;color:var(--ink);font-size:12px}
+  .quick a .qi{font-size:18px;display:block;margin-bottom:4px}
+  .chan-toggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;font-size:11px}
+  .chan-toggle button{border:none;background:transparent;padding:5px 9px;cursor:pointer;color:var(--ink-subtle)}
+  .chan-toggle button.on{background:#241c19;color:#fff}
+</style>
+</head><body>
+<div class="page-label">Client · Contact hub (57) <small>RM + working hours in HIS timezone · two doors · SupportChannel seam</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen"></div>
+  <div class="bottomnav">
+    <a class="nav" href="../client/explore-map.page.html"><svg viewBox="0 0 24 24"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Discover</a>
+    <a class="nav" href="../client/my-bookings.page.html"><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/></svg>Bookings</a>
+    <a class="nav" href="../client/installments.page.html"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>Ledger</a>
+    <a class="nav on" href="../shared/profile.page.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Profile</a>
+  </div>
+</div>
+<div class="devbar"><h4>Dev · support channel</h4><div class="dchips" id="chansel"></div></div>
+<script>
+var SC=window.SupportChannel, TZ=window.TZ, lang='en';
+function nowClientHourDoW(){
+  // demo "now": Friday 23:00 Dubai (a hard case — office closed, replies next working day)
+  var utc=Date.UTC(2026,6,17,19,0,0); // 17 Jul 2026 (Fri) 19:00 UTC = 23:00 Dubai
+  var tz=TZ.getTz();
+  var p={}; new Intl.DateTimeFormat('en-GB',{timeZone:tz,weekday:'short',hour:'2-digit',hour12:false}).formatToParts(new Date(utc)).forEach(function(x){p[x.type]=x.value;});
+  var dh={}; new Intl.DateTimeFormat('en-GB',{timeZone:TZ.DHAKA,weekday:'short',hour:'2-digit',hour12:false}).formatToParts(new Date(utc)).forEach(function(x){dh[x.type]=x.value;});
+  return {clientWd:p.weekday, clientH:+p.hour, dhakaWd:dh.weekday, dhakaH:+dh.hour, utc:utc};
+}
+function officeOpenNow(n){ var hrs=SC.hoursDhaka[{Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6}[n.dhakaWd]]; return hrs && n.dhakaH>=hrs[0] && n.dhakaH<hrs[1]; }
+function nextReplyLabel(n){
+  // if closed, next working morning (Dhaka 9am, Sat–Thu; Fri 10am) rendered in client tz
+  var order=['Sat','Sun','Mon','Tue','Wed','Thu','Fri']; // BD week
+  // simplest: next day 9am Dhaka (10am if that day is Fri)
+  var base=n.utc; for(var i=1;i<=3;i++){ var probe=base+i*86400000; var wd=new Intl.DateTimeFormat('en-GB',{timeZone:TZ.DHAKA,weekday:'short'}).format(new Date(probe)); var openH=(wd==='Fri')?10:9;
+    // construct that Dhaka day 9/10am -> utc
+    var dp={}; new Intl.DateTimeFormat('en-GB',{timeZone:TZ.DHAKA,day:'2-digit',month:'short'}).formatToParts(new Date(probe)).forEach(function(x){dp[x.type]=x.value;});
+    var mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].indexOf(dp.month);
+    var utc=Date.UTC(2026,mo,+dp.day,openH-6,0,0);
+    return new Intl.DateTimeFormat('en-GB',{timeZone:TZ.getTz(),weekday:'long',hour:'numeric',minute:'2-digit',hour12:true}).format(new Date(utc));
+  }
+  return '';
+}
+function render(){
+  var n=nowClientHourDoW(), open=officeOpenNow(n);
+  var lt='<span class="langtoggle"><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button></span>';
+  var tzcity=TZ.getTz().split('/')[1].replace('_',' ');
+  var h='<div class="appbar"><h2>'+(lang==='bn'?'যোগাযোগ':'Contact')+'</h2>'+lt+'</div>';
+  h+='<div class="rm"><div class="av">'+SC.rm.initials+'</div><div style="flex:1"><div class="nm">'+SC.rm.name+'</div><div class="sub">'+(lang==='bn'?'সম্পর্ক ব্যবস্থাপক':SC.rm.role)+'</div>'+
+     '<div style="margin-top:8px"><span class="hours '+(open?'open':'closed')+'">'+(open?(lang==='bn'?'এখন উপলব্ধ':'Available now'):(lang==='bn'?'অফিস বন্ধ':'Office closed'))+'</span></div></div></div>';
+  if(!open) h+='<p class="empty-note" style="text-align:left;margin:0 var(--gutter) 12px">'+(lang==='bn'?'এখন '+tzcity+' সময় শুক্রবার রাত — স্যামনের অফিস ঢাকা সময়ে বন্ধ। উত্তর পাবেন ':'It’s Friday night in '+tzcity+' — Salmon’s office is closed (Dhaka time). You’ll get a reply around ')+'<b>'+nextReplyLabel(n)+'</b> ('+tzcity+').</p>';
+  h+='<div class="sectitle">'+(lang==='bn'?'দুটি পথ':'Two ways to reach us')+'</div>';
+  h+='<a class="door" href="chat-thread.page.html"><span class="ic">💬</span><div><div class="t">'+(lang==='bn'?'আমার ম্যানেজারকে বার্তা দিন':'Message my relationship manager')+'</div><div class="d">'+(lang==='bn'?'দ্রুত প্রশ্নের জন্য — তাৎক্ষণিক, অনানুষ্ঠানিক।':'For quick questions — immediate, informal.')+'</div></div></a>';
+  h+='<a class="door" href="consultation-slots.page.html"><span class="ic">📅</span><div><div class="t">'+(lang==='bn'?'গাইডেড কনসালটেশন বুক করুন':'Book a guided consultation')+'</div><div class="d">'+(lang==='bn'?'বড় আলোচনার জন্য — নির্ধারিত, স্ক্রিন-শেয়ার সহ।':'For the big conversation — scheduled, screen-shared.')+'</div></div></a>';
+  h+='<div class="sectitle">'+(lang==='bn'?'আরও':'Also')+'</div>';
+  h+='<div class="quick"><a href="tel:'+SC.rm.hotline+'"><span class="qi">📞</span>'+(lang==='bn'?'হটলাইন':'Hotline')+'</a>'+
+     '<a href="https://wa.me/'+SC.rm.whatsapp.replace(/\D/g,'')+'" target="_blank"><span class="qi">🟢</span>WhatsApp</a>'+
+     '<a href="mailto:'+SC.rm.email+'"><span class="qi">✉️</span>'+(lang==='bn'?'ইমেইল':'Email')+'</a></div>';
+  // open ticket status
+  h+='<a class="door" href="chat-thread.page.html" style="padding:12px 14px"><span class="ic" style="background:#f7efe0;color:#B7791F">🎫</span><div><div class="t" style="font-size:14px">'+(lang==='bn'?'খোলা টিকিট':'Open ticket')+' #'+SC.ticket.ref+'</div><div class="d">'+SC.ticket.subject+' · '+(lang==='bn'?'চলমান':'In progress')+'</div></div></a>';
+  document.getElementById('screen').innerHTML=h;
+  // channel + tz dev selectors
+  var cs=document.getElementById('chansel');
+  cs.innerHTML='<button class="'+(SC.get()==='inapp'?'on':'')+'" onclick="setChan(\'inapp\')">In-app chat</button><button class="'+(SC.get()==='whatsapp'?'on':'')+'" onclick="setChan(\'whatsapp\')">WhatsApp</button>'+
+    '<span style="width:8px"></span>'+TZ.CLIENT_TZS.map(function(t){return '<button class="'+(TZ.getTz()===t.id?'on':'')+'" onclick="setClientTz(\''+t.id+'\')">'+t.label+'</button>';}).join('');
+}
+function setChan(c){ SC.set(c); render(); }
+function setClientTz(t){ TZ.setTz(t); render(); }
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

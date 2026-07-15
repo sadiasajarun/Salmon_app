@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · My bookings</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<script src="../assets/js/currency.js"></script>
+<script src="../assets/js/ledger.js"></script>
+<style>
+  .langtoggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+  .langtoggle button{border:none;background:transparent;font-size:12px;padding:6px 10px;color:var(--ink-subtle);cursor:pointer}
+  .langtoggle button.on{background:var(--primary);color:#fff}
+  .bkcard{margin:0 var(--gutter) 14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden;text-decoration:none;color:var(--ink);display:block;box-shadow:0 8px 24px rgba(34,34,34,.06)}
+  .bkcard .body{padding:14px 16px}
+  .bkcard h3{font-family:var(--serif);font-size:18px}
+</style>
+</head><body>
+<div class="page-label">Client · My bookings (49) <small>All bookings + their real status</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen"></div>
+  <div class="bottomnav">
+    <a class="nav" href="../client/explore-map.page.html"><svg viewBox="0 0 24 24"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Discover</a>
+    <a class="nav on" href="../client/my-bookings.page.html"><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/></svg>Bookings</a>
+    <a class="nav" href="../client/installments.page.html"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>Ledger</a>
+    <a class="nav" href="../shared/profile.page.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Profile</a>
+  </div>
+</div>
+<script>
+var D=window.SALMON, C=window.Currency, L=window.LEDGER, lang='en';
+function s(k){ return L.strings[lang][k]||k; }
+function pill(st){ if(st==='confirmed')return '<span class="st st-ongoing"><span class="gl">●</span>'+s('confirmed')+'</span>'; if(st==='wire_pending')return '<span class="st st-upcoming"><span class="gl">▲</span>'+s('wirePending')+'</span>'; return '<span class="st st-completed"><span class="gl">■</span>'+st+'</span>'; }
+function render(){
+  var lt='<span class="langtoggle"><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button></span>';
+  var h='<div class="appbar"><h2>'+s('myBookings')+'</h2>'+lt+'</div>';
+  L.bookings.forEach(function(b){
+    var p=D.projects.find(function(x){return x.slug===b.slug;});
+    var img=p.banner?'<div class="imgwrap" style="height:150px"><img src="'+p.banner+'" onload="this.classList.add(\'on\');this.parentNode.classList.remove(\'skel\')" onerror="this.parentNode.style.background=\'linear-gradient(135deg,#b98a72,#7d5647)\'"></div>':'';
+    h+='<a class="bkcard" href="booking-detail.page.html?ref='+b.ref+'">'+img+'<div class="body"><div style="display:flex;justify-content:space-between;align-items:flex-start"><h3>'+p.name+'</h3>'+pill(b.status)+'</div>'+
+      '<div class="sub" style="margin-top:2px">'+(lang==='bn'?'ইউনিট':'Unit')+' '+b.unit+' · '+b.ref+'</div>'+
+      '<div style="margin-top:10px" class="price-dual">'+C.fmtDisplay(C.toDisplay(b.totalBdt,'AED'),'AED')+'<span class="bdt">'+C.fmtBdt(b.totalBdt)+'</span></div></div></a>';
+  });
+  document.getElementById('screen').innerHTML=h;
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

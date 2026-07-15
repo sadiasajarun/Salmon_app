@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Awaiting a slot</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/network-sim.js"></script>
+</head><body>
+<div class="page-label">P35 · Awaiting a slot <small>Request is in · scheduler is working on it · honest & calm, not a dead spinner</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<script>
+var lang='en';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function render(){
+  document.getElementById('screen').innerHTML=
+    '<div class="wkbar"><a class="bk" href="calendar.page.html">‹</a><h2>'+t('স্লটের অপেক্ষায়','Awaiting a slot')+'</h2>'+
+    '<span class="wklang" style="display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden"><button style="border:none;background:'+(lang==='bn'?'#ffffff33':'transparent')+';color:#fdf3f1;font-size:12px;padding:5px 9px" onclick="setLang(\'bn\')">বাং</button><button style="border:none;background:'+(lang==='en'?'#ffffff33':'transparent')+';color:#fdf3f1;font-size:12px;padding:5px 9px" onclick="setLang(\'en\')">EN</button></span></div>'+
+    '<div class="stathero" style="padding-top:20px"><div class="ic" style="background:#f7efe0;color:#B7791F">📅</div>'+
+    '<h1 style="font-size:20px">'+t('আপনার অনুরোধ পাঠানো হয়েছে','Your request is in')+'</h1>'+
+    '<p>'+t('শিডিউলার একটি সময় নিশ্চিত করছেন। নিশ্চিত হলে এই অনুরোধটি হালনাগাদ হবে এবং আপনাকে জানানো হবে।','The scheduler is confirming a time. This request updates when it’s confirmed, and you’ll be notified.')+'</p>'+
+    '<div class="sla">🕒 '+t('সাধারণত ১ কর্মদিবসের মধ্যে','Usually within 1 working day')+'<span class="pflag">'+t('চূড়ান্ত নয়','placeholder')+'</span></div></div>'+
+    '<div class="previewlist" style="margin:16px"><div class="r"><span class="ic2">✓</span><div>'+t('অনুরোধ গৃহীত হয়েছে','Request received')+'</div></div>'+
+    '<div class="r"><span class="ic2">◐</span><div>'+t('শিডিউলার সময় মেলাচ্ছেন…','Scheduler is matching a time…')+'</div></div>'+
+    '<div class="r"><span class="ic2">3</span><div>'+t('নিশ্চিত হলে মিটিং লিঙ্ক সংযুক্ত হবে','A meeting link is attached once confirmed')+'</div></div></div>'+
+    '<a class="btn ghost block" href="calendar.page.html" style="margin:0 16px 8px;border-radius:10px">'+t('ক্যালেন্ডারে দেখুন','View in calendar')+'</a>'+
+    '<a class="btn ghost block" href="meeting-confirmed.page.html?id=MT-501" style="margin:0 16px 16px;border-radius:10px">'+t('(ডেমো) নিশ্চিত মিটিং দেখুন','(demo) see a confirmed meeting')+'</a>';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

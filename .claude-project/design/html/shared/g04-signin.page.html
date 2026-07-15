@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Sign in</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/auth-accounts.js"></script>
+<script src="../assets/js/auth-router.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .glang{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+  .glang button{border:none;background:transparent;font-size:12px;padding:6px 11px;color:var(--ink-subtle);cursor:pointer}
+  .glang button.on{background:var(--primary);color:#fff}
+  .tin{width:calc(100% - 32px);margin:0 16px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:13px 14px;font:inherit;font-size:15px;min-height:48px;box-sizing:border-box}
+  .tin:focus-visible{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px #80002022}
+  .banner{display:none;margin:0 16px 12px;border-radius:12px;padding:11px 13px;font-size:12.5px;line-height:1.5}
+  .banner.show{display:block}
+  .banner-info{background:#f7efe0;color:#8a6414;border:1px solid #eaddc2}
+  .oauth{display:flex;flex-direction:column;gap:10px;margin:0 16px}
+  .oauth .ob{display:flex;align-items:center;justify-content:center;gap:10px;border:1px solid var(--line);background:#fff;border-radius:12px;padding:13px;font-size:14px;font-weight:600;cursor:pointer}
+  .divider{display:flex;align-items:center;gap:12px;color:var(--ink-subtle);font-size:12px;margin:16px}
+  .divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line)}
+</style>
+</head><body>
+<div class="page-label">G04 · Unified sign-in <small>One credential · backend returns role + status · app routes silently (via auth-router)</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<div class="devbar"><h4>Dev · which account authenticates (backend returns role)</h4><div class="dchips" id="accsel"></div></div>
+<script>
+var AC=window.AuthAccounts, AR=window.AuthRouter, lang='en';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function render(){
+  document.getElementById('screen').innerHTML=
+    '<div class="appbar" style="padding-bottom:8px"><a class="back" href="g02-welcome.page.html" style="font-size:20px;text-decoration:none;color:var(--ink)">‹</a>'+
+    '<h2 style="font-family:var(--serif)">'+t('সাইন ইন','Sign in')+'</h2>'+
+    '<span class="glang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span></div>'+
+    '<p class="phelp" style="margin:0 16px 12px">'+t('আপনি ক্রেতা না পার্টনার — আমরা এটি জিজ্ঞেস করব না। লগইনের পর ব্যাকএন্ড রোল জানায়, অ্যাপ নিজেই রুট করে।','We won’t ask if you’re a buyer or a partner. After login the backend returns your role and the app routes automatically.')+'</p>'+
+    '<div class="banner banner-info" id="banner"></div>'+
+    '<label class="pf" style="margin-left:16px">'+t('ইমেইল বা ফোন','Email or phone')+'</label>'+
+    '<input class="tin" id="ident" placeholder="'+t('you@example.com অথবা +8801…','you@example.com or +8801…')+'" autocomplete="username">'+
+    '<label class="pf" style="margin-left:16px">'+t('পাসওয়ার্ড','Password')+'</label>'+
+    '<input class="tin" id="pw" type="password" placeholder="••••••••" autocomplete="current-password">'+
+    '<a class="btn block" onclick="signin(event)" href="#" style="margin:14px 16px 0;border-radius:12px">'+t('সাইন ইন','Sign in')+'</a>'+
+    '<p class="phelp" style="margin:9px 16px 0">'+t('আপনি ক্রেতা না পার্টনার — তা আপনার ইমেইল/ফোনের পেছনের অ্যাকাউন্ট ঠিক করে; অ্যাপ নিজেই রুট করে।','Your email/phone identifies the account, and its role (buyer or partner) decides where you go — automatically.')+
+    '<br>'+t('ডেমো: ','Demo: ')+'<b>rezaul@example.com</b> ('+t('ক্রেতা','buyer')+') · <b>+8801712345678</b> ('+t('পার্টনার','partner')+') · <b>shahin@example.com</b> ('+t('উভয়','both')+')</p>'+
+    '<div class="divider">'+t('অথবা','or')+'</div>'+
+    '<div class="oauth"><button class="ob" onclick="oauth()">G&nbsp; '+t('গুগল দিয়ে চালিয়ে যান','Continue with Google')+'</button>'+
+    '<button class="ob" onclick="oauth()"> '+t('অ্যাপল দিয়ে চালিয়ে যান','Continue with Apple')+'</button></div>'+
+    '<p style="text-align:center;font-size:13px;color:var(--ink-subtle);margin:16px">'+t('নতুন? ','New here? ')+'<a href="g03-fork.page.html" style="color:var(--primary);font-weight:600">'+t('অ্যাকাউন্ট তৈরি করুন','Create an account')+'</a></p>';
+  var sel=document.getElementById('accsel'); sel.innerHTML=AC.list.map(function(a){return '<button onclick="auth(\''+a.identifier+'\')">'+t(a.bn,a.en)+'</button>';}).join('')+'<button onclick="auth(\'nobody@example.com\')">'+t('অ্যাকাউন্ট নেই','No account')+'</button>';
+}
+function banner(msg){ var b=document.getElementById('banner'); b.textContent=msg; b.classList.add('show'); }
+function signin(e){ e.preventDefault();
+  if(window.NetSim&&NetSim.isOffline()){ NetSim.blockPay(t('সাইন ইন করতে সংযোগ প্রয়োজন।','You need a connection to sign in.')); return; }
+  var id=document.getElementById('ident').value.trim(); auth(id||'rezaul@example.com');
+}
+function oauth(){ auth('rezaul@example.com'); } // identity provider authenticates; backend returns role
+function auth(identifier){
+  if(window.NetSim&&NetSim.isOffline()){ NetSim.blockPay(t('সাইন ইন করতে সংযোগ প্রয়োজন।','You need a connection to sign in.')); return; }
+  var acc=AC.find(identifier);
+  var r=AR.routeSignIn(acc);
+  if(r.decision==='no-account'){ banner(t('এই তথ্যে কোনো অ্যাকাউন্ট নেই। নতুন অ্যাকাউন্ট তৈরি করুন।','No account found for that. Create a new account instead.')); return; }
+  AR.go(r.dest);
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

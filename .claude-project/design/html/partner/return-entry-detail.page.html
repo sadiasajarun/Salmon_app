@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Return entry</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-invest.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}
+  .wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}.wklang button.on{background:#ffffff33}
+  .rec{margin:12px 16px;background:var(--surface);border:1px solid #ddd8d3;border-top:3px solid var(--ink);border-radius:10px;overflow:hidden}
+  .rec .kv{display:flex;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);font-size:13px}
+  .rec .kv:last-child{border-bottom:none} .rec .kv .k{color:var(--ink-subtle)} .rec .kv .v{font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+  .rs{font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px}
+  .rs-paid{background:#eceeec;color:#3f4a41;border:1px solid #d5dbd6}
+  .rs-pending{background:#f7efe0;color:#8a6d2f;border:1px solid #ecdcbf}
+  .rs-hold{background:#efeaea;color:#7a5a5a;border:1px solid #e0d1d1}
+  .fact{margin:0 16px 12px;background:#f6f5f4;border:1px solid #e4e1de;border-left:3px solid var(--ink);border-radius:8px;padding:12px 13px;font-size:12px;color:#3a3a3a;line-height:1.55}
+</style>
+</head><body>
+<div class="page-label">P55 · Return entry detail <small>Date · amount · status · recorded by staff · a FACT on record, not a promise · no "due" countdown</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<script>
+var V=window.PartnerInvest, lang='en';
+function qs(k){ return new URLSearchParams(location.search).get(k); }
+function t(bn,en){ return lang==='bn'?bn:en; }
+function s(k){ return V.strings[lang][k]||k; }
+function bdt(n){ if(n==null)return '—'; var x=String(Math.round(n)); var l=x.slice(-3),r=x.slice(0,-3); if(r)r=r.replace(/\B(?=(\d{2})+(?!\d))/g,','); return '৳ '+(r?r+','+l:l); }
+function dt(iso){ try{ return new Intl.DateTimeFormat(lang==='bn'?'bn-BD':'en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:'Asia/Dhaka'}).format(new Date(iso)); }catch(e){ return iso.slice(0,10); } }
+function render(){
+  var e=V.entry(qs('id'))||V.returnSchedule[3];
+  var st=V.RETURN_STATUS[e.status];
+  var meaning = e.status==='pending'?s('pendingMeans') : e.status==='onHold'?s('onHoldMeans') : '';
+  var lt='<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span>';
+  document.getElementById('screen').innerHTML=
+    '<div class="wkbar"><a class="bk" href="return-schedule.page.html">‹</a><h2>'+s('entryTitle')+'</h2>'+lt+'</div>'+
+    '<div class="rec">'+
+      '<div class="kv"><span class="k">'+t('এন্ট্রি','Entry')+'</span><span class="v">'+t(e.periodLabelBn,e.periodLabelEn)+'</span></div>'+
+      '<div class="kv"><span class="k">'+t('রেকর্ডকৃত পরিমাণ','Recorded amount')+'</span><span class="v">'+bdt(e.amountBdt)+'</span></div>'+
+      '<div class="kv"><span class="k">'+t('অবস্থা','Status')+'</span><span class="v"><span class="rs '+st.cls+'">'+t(st.bn,st.en)+'</span></span></div>'+
+      '<div class="kv"><span class="k">'+t('রেকর্ডের তারিখ','Recorded on')+'</span><span class="v">'+dt(e.recordedUtc)+'</span></div>'+
+      '<div class="kv"><span class="k">'+s('recordedBy')+'</span><span class="v">'+t('স্যামন স্টাফ','Salmon staff')+'</span></div>'+
+    '</div>'+
+    '<div class="fact">'+s('entryFactLine')+(meaning?'<br><br>'+meaning:'')+'</div>'+
+    '<a class="btn ghost block" href="disclaimer.page.html" style="margin:0 16px 8px;border-radius:10px">'+s('readDisclaimer')+'</a>'+
+    '<a class="btn ghost block" href="return-schedule.page.html" style="margin:0 16px 16px;border-radius:10px">'+t('সূচিতে ফিরুন','Back to schedule')+'</a>';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

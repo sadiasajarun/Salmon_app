@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Notifications</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/timezone.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .langtoggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+  .langtoggle button{border:none;background:transparent;font-size:12px;padding:6px 10px;color:var(--ink-subtle);cursor:pointer}
+  .langtoggle button.on{background:var(--primary);color:#fff}
+  .gtitle{font-size:12px;font-weight:700;color:var(--ink-subtle);margin:14px var(--gutter) 8px;text-transform:uppercase;letter-spacing:.04em}
+  .empty{margin:26px var(--gutter);text-align:center;color:var(--ink-subtle);font-size:13.5px;line-height:1.6}
+  .empty .ic{font-size:34px;display:block;margin-bottom:10px}
+</style>
+</head><body>
+<div class="page-label">Client · Notification centre (63/64) <small>Grouped &amp; filterable · timezone-aware · NO financial detail in payload (deep link, don’t disclose)</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen"></div>
+  <div class="bottomnav">
+    <a class="nav" href="../client/explore-map.page.html"><svg viewBox="0 0 24 24"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Discover</a>
+    <a class="nav" href="../client/my-bookings.page.html"><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/></svg>Bookings</a>
+    <a class="nav" href="../client/installments.page.html"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>Ledger</a>
+    <a class="nav on" href="../shared/profile.page.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Profile</a>
+  </div>
+</div>
+<div class="devbar"><h4>Dev · notification state</h4><div class="dchips">
+  <button class="on" onclick="setState('data')">Data</button>
+  <button onclick="setState('empty')">Empty</button>
+</div></div>
+<script>
+var TZ=window.TZ, lang='en', state='data';
+// group -> items. NB: payloads carry NO amounts/balances/references — deep link only.
+var GROUPS=[
+  { key:'installments', en:'Installments', bn:'কিস্তি', items:[
+    { en:'An installment is due soon', bn:'একটি কিস্তি শীঘ্রই দেয়', t:Date.UTC(2026,6,14,5,0), link:'installments.page.html' },
+    { en:'An installment is overdue', bn:'একটি কিস্তি বকেয়া', t:Date.UTC(2026,6,10,5,0), link:'installment-schedule.page.html', warn:true } ] },
+  { key:'payments', en:'Payments', bn:'পেমেন্ট', items:[
+    { en:'A pending payment has resolved — open to see the outcome', bn:'একটি অপেক্ষমাণ পেমেন্টের সমাধান হয়েছে — ফলাফল দেখুন', t:Date.UTC(2026,6,13,20,0), link:'payment-result.page.html?type=success' },
+    { en:'A receipt is available', bn:'একটি রসিদ উপলব্ধ', t:Date.UTC(2026,6,13,20,5), link:'invoices.page.html' } ] },
+  { key:'consultations', en:'Consultations', bn:'কনসালটেশন', items:[
+    { en:'Your consultation is confirmed', bn:'আপনার কনসালটেশন নিশ্চিত', t:Date.UTC(2026,6,12,9,0), link:'consultation-confirmed.page.html' },
+    { en:'Consultation reminder — tap to join', bn:'কনসালটেশন রিমাইন্ডার — যোগ দিতে ট্যাপ করুন', t:Date.UTC(2026,6,16,11,0), link:'consultation-reminder.page.html' } ] },
+  { key:'projects', en:'Project updates', bn:'প্রকল্প হালনাগাদ', items:[
+    { en:'New construction progress on a project you bought into', bn:'আপনার কেনা প্রকল্পে নতুন নির্মাণ অগ্রগতি', t:Date.UTC(2026,6,11,6,0), link:'project-progress.page.html?slug=salmon-florentine' } ] },
+  { key:'support', en:'Support', bn:'সহায়তা', items:[
+    { en:'Your support ticket was updated', bn:'আপনার সহায়তা টিকিট হালনাগাদ হয়েছে', t:Date.UTC(2026,6,13,12,0), link:'chat-thread.page.html' } ] },
+  { key:'kyc', en:'Account', bn:'অ্যাকাউন্ট', items:[
+    { en:'Your KYC status changed', bn:'আপনার KYC অবস্থা পরিবর্তিত হয়েছে', t:Date.UTC(2026,6,9,7,0), link:'kyc.page.html' } ] }
+];
+function ago(utc){ return new Intl.DateTimeFormat('en-GB',{timeZone:TZ.getTz(),day:'numeric',month:'short',hour:'numeric',minute:'2-digit',hour12:true}).format(new Date(utc)); }
+function lt(){ return '<span class="langtoggle"><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button></span>'; }
+function render(){
+  var h='<div class="appbar"><h2>'+(lang==='bn'?'বিজ্ঞপ্তি':'Notifications')+'</h2>'+lt()+'</div>';
+  if(state==='empty'){
+    h+='<div class="empty"><span class="ic">🔔</span><h3 style="font-family:var(--serif);color:var(--ink);font-size:19px;margin-bottom:8px">'+(lang==='bn'?'সব দেখা হয়েছে':'You’re all caught up')+'</h3><p>'+(lang==='bn'?'নতুন কিছু এলে এখানে দেখতে পাবেন।':'New updates will appear here.')+'</p></div>';
+    document.getElementById('screen').innerHTML=h; return;
+  }
+  GROUPS.forEach(function(g){
+    h+='<div class="gtitle">'+(lang==='bn'?g.bn:g.en)+'</div><div class="rowlist" style="margin:0 var(--gutter) 6px">';
+    g.items.forEach(function(it){
+      h+='<a class="lrow" style="text-decoration:none;color:inherit" href="'+it.link+'"><span class="ic"'+(it.warn?' style="background:#f7e6e7;color:#B4232B"':'')+'>'+(it.warn?'!':'•')+'</span><div class="tx"><h4>'+(lang==='bn'?it.bn:it.en)+'</h4><p>'+ago(it.t)+' ('+TZ.getTz().split('/')[1]+')</p></div></a>';
+    });
+    h+='</div>';
+  });
+  h+='<p class="empty-note" style="text-align:left;margin:8px var(--gutter) 16px">'+(lang==='bn'?'বিজ্ঞপ্তিতে কোনো ব্যালেন্স, পরিমাণ বা রেফারেন্স নেই — শুধু ডিপ লিঙ্ক। সময় আপনার টাইমজোনে।':'No balance, amount or reference in any notification — deep link only. Times in your timezone.')+'</p>';
+  document.getElementById('screen').innerHTML=h;
+}
+function setState(st){ state=st; document.querySelectorAll('.devbar button').forEach(function(b){b.classList.remove('on');}); if(event&&event.target)event.target.classList.add('on'); render(); }
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

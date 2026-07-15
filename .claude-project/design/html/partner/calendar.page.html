@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Calendar</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-ops.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>.wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}.wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}
+  .mrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 16px 8px;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:12px;text-decoration:none;color:var(--ink)}
+  .mrow .ttl{font-weight:600;font-size:13.5px} .mrow .sub2{font-size:11.5px;color:var(--ink-subtle);margin-top:2px}
+  .mrow .kindic{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;flex:0 0 auto;font-size:15px;background:#f4e6ea;color:var(--primary)}
+  .recur{margin:0 16px 8px;background:#eef4f0;border:1px solid #cfe6da;border-radius:11px;padding:12px}
+  .recur .ttl{font-weight:700;font-size:13.5px;color:#1E7A46}
+</style>
+</head><body>
+<div class="page-label">P37 · Calendar <small>Meetings & visits in one view · recurring head-office meeting with attendance · all statuses</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen"></div>
+  <div class="bottomnav">
+    <a class="nav" href="../partner/dashboard.page.html"><svg viewBox="0 0 24 24"><path d="M4 13h6V4H4zM14 20h6V4h-6zM4 20h6v-5H4z"/></svg>Dashboard</a>
+    <a class="nav" href="../partner/leads.page.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Leads</a>
+    <a class="nav" href="../partner/commission.page.html"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>Commission</a>
+    <a class="nav" href="../partner/partner-identity.page.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.4"/><path d="M12 2v3M12 19v3M4.5 4.5l2 2M17.5 17.5l2 2M2 12h3M19 12h3M4.5 19.5l2-2M17.5 6.5l2-2"/></svg>Account</a>
+  </div>
+</div>
+<script>
+var O=window.PartnerOps, lang='en';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function when(iso){ if(!iso)return t('অপেক্ষমাণ','pending'); try{ return new Intl.DateTimeFormat(lang==='bn'?'bn-BD':'en-GB',{weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit',hour12:true,timeZone:'Asia/Dhaka'}).format(new Date(iso)); }catch(e){return iso;} }
+function pill(st){ var o=O.MSTATUS[st]; return '<span class="st '+o.cls+'"><span class="gl">'+o.gl+'</span>'+t(o.bn,o.en)+'</span>'; }
+function render(){
+  var lt='<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span>';
+  var h='<div class="wkbar"><a class="bk" href="dashboard.page.html">‹</a><h2>'+O.strings[lang].calendar+'</h2>'+lt+'</div>';
+  h+='<div class="qa" style="padding:12px 16px 6px"><a href="request-meeting.page.html">📅 '+t('মিটিং অনুরোধ','Request meeting')+'</a><a href="request-visit.page.html">📍 '+t('সাইট ভিজিট','Site visit')+'</a></div>';
+  // recurring head-office highlighted
+  var rec=O.meetings.filter(function(m){return m.status==='recurring';})[0];
+  if(rec){ h+='<div class="recur"><div class="ttl">↻ '+t(rec.titleBn,rec.title)+'</div><div class="sub" style="margin-top:4px">'+t(rec.cadenceBn,rec.cadenceEn)+' · '+when(rec.whenUtc)+' · '+t('উপস্থিতি: ','Attendance: ')+'<b>'+t('নিশ্চিত','confirmed')+'</b></div>'+
+    '<a class="join" href="'+(rec.link||'#')+'" target="_blank" style="display:inline-block;color:var(--primary);font-weight:600;font-size:12.5px;margin-top:6px">'+t('লিঙ্কে যোগ দিন ›','Join link ›')+'</a></div>'; }
+  h+='<div class="sectitle" style="margin-left:16px">'+t('মিটিং ও ভিজিট','Meetings & visits')+'</div>';
+  O.meetings.filter(function(m){return m.status!=='recurring';}).forEach(function(m){
+    var link=m.status==='confirmed'?'meeting-confirmed.page.html?id='+m.id:(m.status==='requested'?'awaiting-slot.page.html':'#');
+    h+='<a class="mrow" href="'+link+'"><span class="kindic">'+(m.kind==='visit'?'📍':'🎥')+'</span><div style="flex:1"><div class="ttl">'+t(m.titleBn,m.title)+'</div><div class="sub2">'+when(m.whenUtc)+'</div></div>'+pill(m.status)+'</a>';
+  });
+  h+='<div style="height:16px"></div>';
+  document.getElementById('screen').innerHTML=h;
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

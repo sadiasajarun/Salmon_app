@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Locked</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-state.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>.wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}.wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}</style>
+</head><body>
+<div class="page-label">P25 · Locked / gated content ⭐ <small>Locked-with-reason · enforced server-side · NO client-side unlock</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<script>
+var P=window.Partner, lang='en';
+function qs(k){ return new URLSearchParams(location.search).get(k); }
+var title=qs('title')||'Premium material', reason=qs('reason')||'Available to Gold partners';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function render(){
+  document.getElementById('screen').innerHTML=
+    '<div class="wkbar"><a class="bk" href="sales-kit.page.html">‹</a><h2>'+t('লকড কনটেন্ট','Locked content')+'</h2>'+
+    '<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span></div>'+
+    '<div class="stathero" style="padding-top:20px"><div class="ic" style="background:#f7efe0;color:#B7791F">🔒</div>'+
+    '<h1 style="font-size:20px">'+title+'</h1>'+
+    '<p>'+t('এই উপকরণটি আপনার জন্য এখনো উপলব্ধ নয়।','This material isn’t available to you yet.')+'</p></div>'+
+    '<div class="lock" style="background:#f7efe0;color:#8a6414;border-color:#eaddc2;margin:0 16px 14px">'+t('কারণ: ','Reason: ')+'<b>'+reason+'</b></div>'+
+    '<p class="phelp" style="margin:0 16px 14px">'+t('অ্যাক্সেস স্যামন সার্ভার-সাইড নিয়ন্ত্রণ করে (প্রোগ্রাম / র‍্যাংক / টিম / টেরিটরি অনুযায়ী)। র‍্যাংক অ্যাডমিন ম্যানুয়ালি নির্ধারণ করেন — অ্যাপে আনলক করার কোনো উপায় নেই।','Access is controlled by Salmon server-side (by program / rank / team / territory). Rank is assigned manually by an admin — there is no way to unlock this in the app.')+'</p>'+
+    '<a class="btn ghost block" href="sales-kit.page.html" style="margin:0 16px 8px;border-radius:10px">'+t('সেলস কিটে ফিরুন','Back to sales kit')+'</a>'+
+    '<a class="btn ghost block" href="partner-rank.page.html" style="margin:0 16px 16px;border-radius:10px">'+t('র‍্যাংক সম্পর্কে','About ranks')+'</a>'+
+    '<p class="empty-note" style="text-align:left;margin:0 16px">'+t('কোন কনটেন্ট গেটেড ও কোন নিয়মে — এখনো নিশ্চিত নয় (OPEN_QUESTIONS)।','Which content is gated and by what rule is not yet confirmed (OPEN_QUESTIONS).')+'</p>';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

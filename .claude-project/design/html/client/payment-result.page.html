@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Payment result</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<script src="../assets/js/currency.js"></script>
+<script src="../assets/js/payment-state.js"></script>
+<style>
+  .langtoggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+  .langtoggle button{border:none;background:transparent;font-size:12px;padding:6px 10px;color:var(--ink-subtle);cursor:pointer}
+  .langtoggle button.on{background:var(--primary);color:#fff}
+</style>
+</head><body>
+<div class="page-label">Client · Payment resolutions (43–46) <small>success · failed · cancelled · expired — each states the unit’s fate honestly</small></div>
+
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:24px"></div>
+  <div class="bottomnav">
+    <a class="nav" href="../client/explore-map.page.html"><svg viewBox="0 0 24 24"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Discover</a>
+    <a class="nav on" href="../client/my-bookings.page.html"><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/></svg>Bookings</a>
+    <a class="nav" href="../client/installments.page.html"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>Ledger</a>
+    <a class="nav" href="../shared/profile.page.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Profile</a>
+  </div>
+</div>
+
+<div class="devbar"><h4>Dev · preview resolutions</h4><div class="dchips">
+  <button onclick="show('success')">Success (43)</button>
+  <button onclick="show('failed')">Failed (44)</button>
+  <button onclick="show('cancelled')">Cancelled (45)</button>
+  <button onclick="show('expired')">Expired (46)</button>
+</div></div>
+
+<script>
+var D=window.SALMON, C=window.Currency, PS=window.PayState, lang='en';
+function qs(k){ return new URLSearchParams(location.search).get(k); }
+var t=PS.load(); if(t.status===PS.S.NONE){ t={bookingRef:PS.genRef(), unit:'A-7', slug:'the-rossa', amountBdt:PS.CONFIG.tokenBookingBdt}; }
+var proj=D.projects.find(function(x){return x.slug===(t.slug||'the-rossa');});
+function lt(){ return '<span class="langtoggle"><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button></span>'; }
+function head(title){ return '<div class="appbar"><h2>'+title+'</h2>'+lt()+'</div>'; }
+function unitLine(){ return proj.name+' · '+(lang==='bn'?'ইউনিট':'Unit')+' '+(t.unit||'A-7'); }
+
+function show(type){
+  document.querySelectorAll('.devbar button').forEach(function(b){b.classList.remove('on');}); if(event&&event.target)event.target.classList.add('on');
+  var el=document.getElementById('screen'), h='';
+  var isInst = PS.load().kind==='installment';
+  if(type==='success'){
+    PS.dispatch({type:'WEBHOOK_VERIFIED'});
+    if(isInst){
+      h=head(lang==='bn'?'রেকর্ড হয়েছে':'Recorded')+
+        '<div class="rhero"><div class="badge-ic ok">✓</div><h2>'+(lang==='bn'?'কিস্তি রেকর্ড হয়েছে':'Installment recorded')+'</h2>'+
+        '<p>'+(lang==='bn'?'স্যামন যাচাইকৃত নিশ্চিতকরণ পাওয়ার পর আপনার কিস্তি লেজারে যোগ হয়েছে।':'Recorded in your ledger after Salmon verified the payment.')+'</p></div>'+
+        '<div class="honest"><div class="h did"><span class="ic">✓</span><div class="tx"><b>'+(lang==='bn'?'কিস্তি ':'Installment ')+(t.seq||'')+'</b><span>'+(t.bookingRef||'')+' · '+C.fmtBdt(t.amountBdt||0)+'</span></div></div></div>'+
+        '<a class="btn block" href="installments.page.html">'+(lang==='bn'?'ট্র্যাকারে ফিরুন':'Back to tracker')+'</a>'+
+        '<a class="btn ghost block" href="invoices.page.html" style="margin-top:10px">'+(lang==='bn'?'রসিদ দেখুন':'View receipt')+'</a>';
+    } else {
+      h=head(lang==='bn'?'নিশ্চিত':'Confirmed')+
+        '<div class="rhero"><div class="badge-ic ok">✓</div><h2>'+(lang==='bn'?'বুকিং নিশ্চিত হয়েছে':'Booking confirmed')+'</h2>'+
+        '<p>'+(lang==='bn'?'স্যামন ব্যাংকের যাচাইকৃত নিশ্চিতকরণ পাওয়ার পর এটি নিশ্চিত করা হয়েছে। ইউনিটটি এখন আপনার।':'Confirmed after Salmon verified the bank’s notification. The unit is now yours.')+'</p></div>'+
+        '<div class="honest"><div class="h did"><span class="ic">✓</span><div class="tx"><b>'+unitLine()+'</b><span>'+t.bookingRef+' · '+C.fmtBdt(t.amountBdt)+' '+(lang==='bn'?'টোকেন প্রদত্ত':'token paid')+'</span></div></div></div>'+
+        '<a class="btn block" href="booking-detail.page.html">'+(lang==='bn'?'বুকিং দেখুন':'View booking')+'</a>'+
+        '<a class="btn ghost block" href="installments.page.html" style="margin-top:10px">'+(lang==='bn'?'কিস্তির সময়সূচি দেখুন':'View installment schedule')+'</a>';
+    }
+  }
+  else if(type==='failed'){
+    h=head(lang==='bn'?'ব্যর্থ':'Failed')+
+      '<div class="rhero"><div class="badge-ic bad">✕</div><h2>'+(lang==='bn'?'পেমেন্ট ব্যর্থ হয়েছে':'Payment failed')+'</h2>'+
+      '<p>'+(lang==='bn'?'গেটওয়ে পেমেন্টটি প্রত্যাখ্যান করেছে। কোনো টাকা কাটা হয়নি।':'The gateway declined the payment. No money was taken.')+'</p></div>'+
+      '<div class="honest"><div class="h did"><span class="ic">🔒</span><div class="tx"><b>'+(lang==='bn'?'আপনার ইউনিট এখনো সংরক্ষিত':'Your unit is still held')+'</b><span>'+unitLine()+' — '+(lang==='bn'?'হোল্ড এখনো চলছে':'the hold is still running')+'</span></div></div></div>'+
+      '<a class="btn block" href="payment-channel.page.html">'+(lang==='bn'?'আবার চেষ্টা করুন':'Try again')+'</a>'+
+      '<a class="btn ghost block" href="payment-channel.page.html" style="margin-top:10px">'+(lang==='bn'?'অন্য চ্যানেল বেছে নিন':'Choose a different channel')+'</a>';
+  }
+  else if(type==='cancelled'){
+    h=head(lang==='bn'?'বাতিল':'Cancelled')+
+      '<div class="rhero"><div class="badge-ic neu">↩</div><h2>'+(lang==='bn'?'চেকআউট বাতিল':'Checkout cancelled')+'</h2>'+
+      '<p>'+(lang==='bn'?'আপনি গেটওয়েতে ফিরে এসেছেন। কোনো টাকা কাটা হয়নি।':'You backed out at the gateway. Nothing was charged.')+'</p></div>'+
+      '<div class="honest"><div class="h did"><span class="ic">🔒</span><div class="tx"><b>'+(lang==='bn'?'হোল্ড এখনো চলছে':'Your hold is still running')+'</b><span>'+unitLine()+'</span></div></div></div>'+
+      '<a class="btn block" href="payment-channel.page.html">'+(lang==='bn'?'পেমেন্ট আবার শুরু করুন':'Resume payment')+'</a>';
+  }
+  else if(type==='expired'){
+    // honesty: the unit was released; it may have been taken. Offer alternatives.
+    var alts=D.projects.filter(function(p){return p.status==='ongoing'&&p.area==='basundhara'&&p.slug!==proj.slug&&p.availableUnits>0;}).slice(0,2);
+    h=head(lang==='bn'?'মেয়াদ শেষ':'Expired')+
+      '<div class="rhero"><div class="badge-ic warn2">⏳</div><h2>'+(lang==='bn'?'হোল্ডের মেয়াদ শেষ হয়েছে':'The hold expired')+'</h2>'+
+      '<p>'+(lang==='bn'?'পেমেন্ট সম্পন্ন হওয়ার আগেই সংরক্ষণ সময় শেষ হয়েছে, তাই '+unitLine()+' মুক্ত করে দেওয়া হয়েছে। এটি অন্য কেউ নিতে পারেন — আমরা ভান করব না যে এটি এখনো আপনার।':'The reservation window ran out before payment completed, so '+unitLine()+' was released. Someone else may have taken it — we won’t pretend it’s still yours.')+'</p></div>'+
+      '<a class="btn block" href="unit-list.page.html?slug='+proj.slug+'">'+(lang==='bn'?'উপলব্ধতা পরীক্ষা করুন':'Check availability')+'</a>'+
+      (alts.length?'<div class="sectitle">'+(lang==='bn'?'কাছাকাছি বিকল্প':'Nearby alternatives')+'</div><div class="rowlist" style="margin-bottom:16px">'+alts.map(function(a){return '<a class="row" style="text-decoration:none;color:inherit" href="project-detail.page.html?slug='+a.slug+'"><span class="u">'+a.name+'</span><span class="sub">'+a.availableUnits+' '+(lang==='bn'?'খালি':'available')+' ›</span></a>';}).join('')+'</div>':'');
+  }
+  el.innerHTML=h;
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; var on=document.querySelector('.devbar button.on'); show(on?on.textContent.toLowerCase().split(' ')[0]:(qs('type')||'success')); }
+show(qs('type')||'success');
+</script>
+</body></html>

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Quick actions</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-sales.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .wklang{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+  .wklang button{border:none;background:transparent;font-size:12px;padding:6px 10px;color:var(--ink-subtle);cursor:pointer}.wklang button.on{background:var(--primary);color:#fff}
+  .qgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 16px}
+  .qgrid a{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 12px;text-decoration:none;color:var(--ink);text-align:center}
+  .qgrid a .qi{font-size:26px;display:block;margin-bottom:8px}
+  .qgrid a .qt{font-size:13px;font-weight:600}
+</style>
+</head><body>
+<div class="page-label">P16 · Quick actions <small>His five real jobs, one tap each — muscle memory</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen"></div>
+</div>
+<script>
+var S=window.PartnerSales, lang='en';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function render(){
+  document.getElementById('screen').innerHTML=
+    '<div class="wkbar"><a class="bk" href="dashboard.page.html">‹</a><h2>'+t('দ্রুত কাজ','Quick actions')+'</h2>'+
+    '<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span></div>'+
+    '<div class="qgrid">'+S.quickActions.map(function(q){ return '<a href="'+q.link+'"><span class="qi">'+q.icon+'</span><span class="qt">'+t(q.bn,q.en)+'</span></a>'; }).join('')+'</div>'+
+    '<p class="phelp">'+t('আপনার সবচেয়ে বেশি ব্যবহৃত কাজগুলো এখানে — এক ট্যাপে।','Your most-used jobs, one tap each.')+'</p>'+
+    '<div class="sectitle" style="margin-left:16px">'+t('আরও সরঞ্জাম','More tools')+'</div>'+
+    '<div class="qgrid">'+[
+      ['tasks.page.html','🗓',t('কাজ','Tasks')],
+      ['targets.page.html','🎯',t('লক্ষ্য','Targets')],
+      ['training-library.page.html','📚',t('প্রশিক্ষণ','Training')],
+      ['notice-board.page.html','📢',t('নোটিশ বোর্ড','Notice board')],
+      ['notifications.page.html','🔔',t('বিজ্ঞপ্তি','Notifications')],
+      ['profile.page.html','👤',t('প্রোফাইল','Profile')],
+      ['offline.page.html','📴',t('অফলাইন','Offline')]
+    ].map(function(q){ return '<a href="'+q[0]+'"><span class="qi">'+q[1]+'</span><span class="qt">'+q[2]+'</span></a>'; }).join('')+'</div>';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

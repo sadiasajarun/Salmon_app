@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Leads</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-sales.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>
+  .wklang{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+  .wklang button{border:none;background:transparent;font-size:12px;padding:6px 10px;color:var(--ink-subtle);cursor:pointer}
+  .wklang button.on{background:var(--primary);color:#fff}
+  .lrow2{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 16px 8px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 13px;text-decoration:none;color:var(--ink)}
+  .lrow2 .nm{font-weight:700;font-size:14px} .lrow2 .sub2{font-size:11.5px;color:var(--ink-subtle);margin-top:2px}
+  .fab{position:absolute;right:16px;bottom:80px;background:var(--primary);color:#fff;border-radius:999px;padding:13px 18px;font-weight:700;font-size:14px;text-decoration:none;box-shadow:0 8px 20px #80002055;display:flex;gap:6px;align-items:center}
+  .empty{margin:26px 16px;text-align:center;color:var(--ink-subtle);font-size:13.5px;line-height:1.6}
+  .empty .ic{font-size:40px;display:block;margin-bottom:10px}
+  .skelrow{margin:0 16px 8px;height:60px;border-radius:12px}
+</style>
+</head><body>
+<div class="page-label">P26 · Leads list / P32 empty <small>His pipeline · filter by status · scannable · states via dev bar</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen"></div>
+  <a class="fab" href="submit-lead.page.html" id="fab">＋ <span id="fablabel">New lead</span></a>
+  <div class="bottomnav">
+    <a class="nav" href="../partner/dashboard.page.html"><svg viewBox="0 0 24 24"><path d="M4 13h6V4H4zM14 20h6V4h-6zM4 20h6v-5H4z"/></svg>Dashboard</a>
+    <a class="nav on" href="../partner/leads.page.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Leads</a>
+    <a class="nav" href="../partner/commission.page.html"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>Commission</a>
+    <a class="nav" href="../partner/partner-identity.page.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.4"/><path d="M12 2v3M12 19v3M4.5 4.5l2 2M17.5 17.5l2 2M2 12h3M19 12h3M4.5 19.5l2-2M17.5 6.5l2-2"/></svg>Account</a>
+  </div>
+</div>
+<div class="devbar"><h4>Dev · state</h4><div class="dchips">
+  <button class="on" onclick="setState('data')">Data</button>
+  <button onclick="setState('empty')">Empty (P32)</button>
+  <button onclick="setState('loading')">Loading</button>
+  <button onclick="setState('error')">Error</button>
+</div></div>
+<script>
+var S=window.PartnerSales, lang='en', state='data', filter='all';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function pill(st){ var o=S.STATUS[st]; return '<span class="st '+o.cls+'"><span class="gl">'+o.gl+'</span>'+t(o.bn,o.en)+'</span>'; }
+function d(iso){ try{ return new Intl.DateTimeFormat(lang==='bn'?'bn-BD':'en-GB',{day:'numeric',month:'short',timeZone:'Asia/Dhaka'}).format(new Date(iso)); }catch(e){return iso.slice(0,10);} }
+function render(){
+  var lt='<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span>';
+  var h='<div class="appbar"><h2>'+t('আমার পাইপলাইন','My pipeline')+'</h2>'+lt+'</div>';
+  document.getElementById('fablabel').textContent=t('নতুন লিড','New lead');
+  if(state==='loading'){ h+=Array(4).fill('<div class="skelrow imgwrap skel"></div>').join(''); document.getElementById('screen').innerHTML=h; document.getElementById('fab').style.display='none'; return; }
+  if(state==='error'){ h+='<div class="empty"><span class="ic">⚠</span><h3 style="font-family:var(--serif);color:var(--ink);font-size:18px;margin-bottom:6px">'+t('লোড হয়নি','Couldn’t load')+'</h3><p>'+t('সংযোগ দেখে আবার চেষ্টা করুন।','Check your connection and retry.')+'</p><button class="btn" style="max-width:180px;margin:14px auto 0" onclick="setState(\'data\')">'+t('আবার','Retry')+'</button></div>'; document.getElementById('screen').innerHTML=h; document.getElementById('fab').style.display='none'; return; }
+  document.getElementById('fab').style.display='flex';
+  if(state==='empty'){
+    h+='<div class="empty"><span class="ic">🌱</span><h3 style="font-family:var(--serif);color:var(--ink);font-size:19px;margin-bottom:8px">'+S.strings[lang].emptyTitle+'</h3><p>'+S.strings[lang].emptySub+'</p>'+
+      '<a class="btn block" href="submit-lead.page.html" style="max-width:240px;margin:16px auto 0;border-radius:10px">'+S.strings[lang].submitFirst+'</a>'+
+      '<a class="btn ghost block" href="sales-kit.page.html" style="max-width:240px;margin:10px auto 0;border-radius:10px">'+S.strings[lang].getKit+'</a></div>';
+    document.getElementById('screen').innerHTML=h; return;
+  }
+  h+='<div class="chips"><span class="chip'+(filter==='all'?' active':'')+'" onclick="setFilter(\'all\')">'+t('সব','All')+'</span>'+
+    S.STATUS_ORDER.map(function(k){ return '<span class="chip'+(filter===k?' active':'')+'" onclick="setFilter(\''+k+'\')">'+t(S.STATUS[k].bn,S.STATUS[k].en)+'</span>'; }).join('')+'</div>';
+  var rows=S.leads.filter(function(l){ return filter==='all'||l.status===filter; }).sort(function(a,b){return a.lastMoveUtc<b.lastMoveUtc?1:-1;});
+  h+='<div class="countbar">'+t('মোট ','Total ')+'<b>'+rows.length+'</b> '+t('লিড','leads')+'</div>';
+  rows.forEach(function(l){
+    h+='<a class="lrow2" href="lead-detail.page.html?id='+l.id+'"><div><div class="nm">'+t(l.nameBn,l.name)+'</div><div class="sub2">'+l.projectName+' · '+t('সর্বশেষ ','moved ')+d(l.lastMoveUtc)+'</div></div>'+pill(l.status)+'</a>';
+  });
+  h+='<div style="height:120px"></div>';
+  document.getElementById('screen').innerHTML=h;
+}
+function setFilter(f){ filter=f; render(); }
+function setState(st){ state=st; document.querySelectorAll('.devbar button').forEach(function(b){b.classList.remove('on');}); if(event&&event.target)event.target.classList.add('on'); render(); }
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

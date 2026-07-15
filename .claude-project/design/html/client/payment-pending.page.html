@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon · Payment pending</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<script src="../assets/js/currency.js"></script>
+<script src="../assets/js/payment-state.js"></script>
+<style>
+  .langtoggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+  .langtoggle button{border:none;background:transparent;font-size:12px;padding:6px 10px;color:var(--ink-subtle);cursor:pointer}
+  .langtoggle button.on{background:var(--primary);color:#fff}
+  .waithero{text-align:center;padding:6px var(--gutter)}
+  .waithero h3{font-family:var(--serif);font-size:20px;color:var(--ink);margin-top:16px}
+  .waithero p{font-size:13px;color:var(--ink-subtle);margin-top:8px;line-height:1.6}
+  .obanner{margin:12px var(--gutter);background:#f7efe0;border:1px solid #eaddc2;color:#8a6414;border-radius:12px;padding:11px 13px;font-size:12.5px;display:none}
+  .obanner.show{display:block}
+</style>
+</head><body>
+<div class="page-label">Client · Payment pending (42) ⭐ <small>Gateway said done · backend has NOT confirmed · never implies success</small></div>
+
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen"><!-- injected --></div>
+  <div class="bottomnav">
+    <a class="nav" href="../client/explore-map.page.html"><svg viewBox="0 0 24 24"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Discover</a>
+    <a class="nav on" href="../client/my-bookings.page.html"><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/></svg>Bookings</a>
+    <a class="nav" href="../client/installments.page.html"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>Ledger</a>
+    <a class="nav" href="../shared/profile.page.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Profile</a>
+  </div>
+</div>
+
+<div class="devbar" role="group" aria-label="Developer state preview">
+  <h4>Dev · preview states (screen 42)</h4>
+  <div class="dchips">
+    <button class="on" onclick="demo('pending')">Pending</button>
+    <button onclick="demo('wire')">Wire pending</button>
+    <button onclick="demo('expired')">Lock expired while paying</button>
+    <button onclick="demo('unknown')">Unknown</button>
+    <button onclick="demo('offline')">Offline</button>
+    <button onclick="go('payment-result.page.html?type=success')">→ Confirmed (43)</button>
+    <button onclick="go('payment-result.page.html?type=failed')">→ Failed (44)</button>
+  </div>
+</div>
+
+<script>
+var D=window.SALMON, C=window.Currency, PS=window.PayState, lang='en', offline=false, timer=null;
+function s(k){ return D.strings[lang][k]||k; }
+function go(u){ window.location.href=u; }
+
+// Ensure there is a pending transaction to show (seed a demo if opened cold).
+function seedIfNeeded(){
+  var t=PS.load();
+  if(!PS.inFlight(t.status) && t.status!=='UNKNOWN' && t.status!=='EXPIRED_WHILE_PAYING'){
+    PS.reset();
+    PS.dispatch({type:'BOOK', slug:'the-rossa', unit:'A-7'});
+    PS.dispatch({type:'SELECT_CHANNEL', channel:'stripe'});
+    PS.dispatch({type:'GO_PENDING', channel:'stripe'});
+  }
+}
+function demo(which){
+  document.querySelectorAll('.devbar button').forEach(function(b){b.classList.remove('on');}); if(event&&event.target)event.target.classList.add('on');
+  offline=false;
+  if(which==='pending'){ PS.reset(); PS.dispatch({type:'BOOK',slug:'the-rossa',unit:'A-7'}); PS.dispatch({type:'SELECT_CHANNEL',channel:'stripe'}); PS.dispatch({type:'GO_PENDING',channel:'stripe'}); }
+  else if(which==='wire'){ PS.reset(); PS.dispatch({type:'BOOK',slug:'the-rossa',unit:'A-7'}); PS.dispatch({type:'SELECT_CHANNEL',channel:'wire'}); PS.dispatch({type:'GO_PENDING',channel:'wire'}); }
+  else if(which==='expired'){ PS.reset(); PS.dispatch({type:'BOOK',slug:'the-rossa',unit:'A-7'}); PS.dispatch({type:'SELECT_CHANNEL',channel:'stripe'}); PS.dispatch({type:'GO_PENDING',channel:'stripe'}); var t=PS.load(); t.lockExpiresAt=Date.now()-1000; PS.save(t); PS.tickExpiry(); }
+  else if(which==='unknown'){ PS.dispatch({type:'RESULT_UNKNOWN'}); }
+  else if(which==='offline'){ offline=true; }
+  render();
+}
+
+function refChip(t){
+  return '<div class="refchip"><div>'+(lang==='bn'?'বুকিং রেফারেন্স':'Booking reference')+'<div class="r">'+t.bookingRef+'</div></div>'+
+    '<button onclick="copyRef(\''+t.bookingRef+'\')">'+(lang==='bn'?'কপি':'Copy')+'</button></div>';
+}
+function copyRef(r){ if(navigator.clipboard) navigator.clipboard.writeText(r); }
+
+function amountLine(t){
+  var disp=C.fmtDisplay(C.toDisplay(t.amountBdt,'AED'),'AED');
+  return '<div class="amount-hero"><div class="amt" style="font-size:20px">'+disp+'<div class="bdt">'+C.fmtBdt(t.amountBdt)+'</div></div></div>'+
+    '<div class="txncur">'+(lang==='bn'?'আপনাকে চার্জ করা হয়েছে <b>বিডিটি</b>-তে (প্রকৃত লেনদেন মুদ্রা)। এইডি শুধু রেফারেন্স।':'You were charged in <b>BDT</b> — the authoritative transaction currency. AED is for reference only.')+'</div>';
+}
+
+function render(){
+  var t=PS.tickExpiry(); // auto-expire if lock lapsed
+  var lt='<span class="langtoggle"><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button></span>';
+  var head='<div class="appbar"><h2>'+(lang==='bn'?'পেমেন্ট':'Payment')+'</h2><div style="display:flex;gap:10px;align-items:center">';
+
+  if(t.status===PS.S.SUCCESS){ go('payment-result.page.html?type=success'); return; }
+
+  var html='';
+  if(t.status===PS.S.UNKNOWN){
+    html=head+'<span class="st st-completed"><span class="gl">■</span>'+(lang==='bn'?'অজানা':'Unknown')+'</span>'+lt+'</div></div>'+
+      '<div class="waithero"><div class="badge-ic neu" style="width:70px;height:70px;font-size:32px">？</div>'+
+      '<h3>'+(lang==='bn'?'আমরা এখনো নিশ্চিত নই':'We genuinely don’t know yet')+'</h3>'+
+      '<p>'+(lang==='bn'?'আপনার পেমেন্টের অবস্থা আমরা এখনো নিশ্চিত করতে পারিনি। আমরা এটিকে সফল বলে ধরে নেব না। একজন মানুষ এটি দেখছে এবং সমাধান হলে আপনাকে জানানো হবে।':'We can’t yet confirm the status of your payment. We will not assume it succeeded. A person is checking, and you’ll be notified the moment it resolves.')+'</p></div>'+
+      refChip(t)+
+      '<p class="terms" style="text-align:center">'+(lang==='bn'?'সহায়তায় এই রেফারেন্সটি উল্লেখ করুন।':'Quote this reference to support.')+'</p>'+
+      '<a class="btn ghost block" href="explore-list.page.html" style="margin-bottom:16px">'+(lang==='bn'?'ছেড়ে যান — সমাধান হলে জানানো হবে':'Leave — we’ll notify you')+'</a>';
+    document.getElementById('screen').innerHTML=html; return;
+  }
+
+  if(t.status===PS.S.EXPIRED_WHILE_PAYING){
+    html=head+'<span class="st st-upcoming"><span class="gl">▲</span>'+(lang==='bn'?'হোল্ড শেষ':'Hold lapsed')+'</span>'+lt+'</div></div>'+
+      '<div class="waithero"><div class="badge-ic warn2" style="width:70px;height:70px;font-size:32px">⏳</div>'+
+      '<h3>'+(lang==='bn'?'পেমেন্ট যাচাই চলছে — কিন্তু হোল্ড শেষ':'Payment still being verified — but the hold lapsed')+'</h3>'+
+      '<p>'+(lang==='bn'?'আপনার টাকা যাচাই হচ্ছে। ইউনিট '+t.unit+'-এর সংরক্ষণ সময় শেষ হয়ে গেছে।':'Your money is being verified. Meanwhile the '+t.unit+' hold window ran out.')+'</p></div>'+
+      '<div class="honest"><div class="h did"><span class="ic">✓</span><div class="tx"><b>'+(lang==='bn'?'আপনার পেমেন্ট জমা হয়েছে':'Your payment was submitted')+'</b><span>'+t.bookingRef+'</span></div></div>'+
+      '<div class="h didnt"><span class="ic">!</span><div class="tx"><b>'+(lang==='bn'?'ইউনিট হোল্ড শেষ হয়েছে':'The unit hold has expired')+'</b><span>'+(lang==='bn'?'ইউনিটটি এখনো নিশ্চিত হয়নি':'the unit is not yet confirmed to you')+'</span></div></div></div>'+
+      '<p class="disc">'+(lang==='bn'?'পেমেন্ট নিশ্চিত হলে স্যামন আপনার ইউনিট পুনরায় সংরক্ষণ করবে, অথবা যদি তা আর সম্ভব না হয় তবে রিফান্ড করবে। এই নীতি এখনো চূড়ান্ত নয় (OPEN_QUESTIONS)।':'If the payment confirms, Salmon will re-secure your unit — or refund you if that’s no longer possible. This policy is not yet finalised (see OPEN_QUESTIONS).')+'</p>'+
+      refChip(t)+
+      '<a class="btn ghost block" href="explore-list.page.html" style="margin-bottom:16px">'+(lang==='bn'?'ছেড়ে যান — জানানো হবে':'Leave — we’ll notify you')+'</a>';
+    document.getElementById('screen').innerHTML=html; return;
+  }
+
+  // PAYMENT_PENDING or WIRE_PENDING
+  var isWire = t.status===PS.S.WIRE_PENDING;
+  var isInst = t.kind==='installment';
+  var leaveHref = isInst?'installments.page.html':'explore-list.page.html';
+  var left=PS.msLeft(), mm=Math.floor(left/60000), ss=Math.floor((left%60000)/1000);
+  var pct = t.lockExpiresAt ? Math.max(0,Math.min(100, left/(PS.CONFIG.lockMinutes*60000)*100)) : 0;
+  var warn = left>0 && left < 5*60000;
+  html=head+'<span class="st st-upcoming"><span class="gl">▲</span>'+(lang==='bn'?'যাচাই চলছে':'Pending')+'</span>'+lt+'</div></div>'+
+    '<div class="obanner'+(offline?' show':'')+'">'+(lang==='bn'?'আপনি অফলাইনে — অনলাইনে ফিরলে আমরা অবস্থা হালনাগাদ করব। আপনার লেনদেন হারাবে না।':'You’re offline — we’ll refresh the status when you reconnect. Your transaction is not lost.')+'</div>'+
+    '<div class="waithero"><div class="spinner"></div>'+
+    '<h3>'+(isWire?(lang==='bn'?'ওয়্যার যাচাইয়ের অপেক্ষায়':'Awaiting wire verification'):(isInst?(lang==='bn'?'আপনার কিস্তি পেমেন্ট নিশ্চিত করা হচ্ছে':'We’re confirming your installment payment'):(lang==='bn'?'আপনার পেমেন্ট নিশ্চিত করা হচ্ছে':'We’re confirming your payment')))+'</h3>'+
+    '<p>'+(isWire?(lang==='bn'?'ফিন্যান্স দল আপনার ট্রান্সফার হাতে যাচাই করবে — কয়েক দিন লাগতে পারে।':'Our finance team verifies your transfer by hand — this can take days.'):(lang==='bn'?'গেটওয়ে সম্পন্ন বলেছে, কিন্তু স্যামন শুধু ব্যাংকের যাচাইকৃত নিশ্চিতকরণের পরই নিশ্চিত করে — এই স্ক্রিন থেকে নয়।':'The gateway said it’s done, but Salmon confirms only after the bank’s verified notification — never from this screen.'))+'</p></div>'+
+    amountLine(t)+
+    '<div class="honest"><div class="h did"><span class="ic">✓</span><div class="tx"><b>'+(lang==='bn'?'টাকা আপনার অ্যাকাউন্ট থেকে গেছে':'Money left your account')+'</b><span>'+(isWire?(lang==='bn'?'ওয়্যার জমা দেওয়া হয়েছে':'wire submitted'):(lang==='bn'?'গেটওয়েতে পেমেন্ট জমা হয়েছে':'submitted to the gateway'))+'</span></div></div>'+
+    '<div class="h didnt"><span class="ic">…</span><div class="tx"><b>'+(isInst?(lang==='bn'?'এখনো আপনার লেজারে যোগ হয়নি':'Not yet recorded in your ledger'):(lang==='bn'?'বুকিং এখনো নিশ্চিত হয়নি':'The booking is not yet confirmed'))+'</b><span>'+(lang==='bn'?'স্যামনের যাচাইকৃত নিশ্চিতকরণের অপেক্ষায়':'awaiting Salmon’s verified confirmation')+'</span></div></div></div>'+
+    refChip(t)+
+    (t.lockExpiresAt ? '<div class="countdown'+(warn?' warn':'')+'"><div class="lbl">'+(lang==='bn'?'ইউনিট '+t.unit+' আপনার জন্য সংরক্ষিত':'Unit '+t.unit+' held for you')+'</div><div class="clock">'+String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'</div><div class="track"><i style="width:'+pct+'%"></i></div></div>' : '')+
+    '<div class="lock info">🔔 '+(lang==='bn'?'আপনি নিরাপদে এই স্ক্রিন ছেড়ে যেতে পারেন — সমাধান হলে পুশ নোটিফিকেশন পাবেন।':'You can safely leave this screen — we’ll push-notify you the moment it resolves.')+'</div>'+
+    '<a class="btn ghost block" href="'+leaveHref+'" style="margin-bottom:16px">'+(lang==='bn'?'ছেড়ে যান — জানানো হবে':'Leave & get notified')+'</a>';
+  document.getElementById('screen').innerHTML=html;
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+seedIfNeeded(); render();
+timer=setInterval(function(){ var t=PS.load(); if(t.status===PS.S.PAYMENT_PENDING||t.status===PS.S.WIRE_PENDING){ render(); } }, 1000);
+</script>
+</body></html>

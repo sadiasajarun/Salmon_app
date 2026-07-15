@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Settlement history</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-ledger.js"></script>
+<script src="../assets/js/settlement-state.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+<style>.wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}.wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}
+  .hrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 16px 8px;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:12px}
+  .hrow .amt{font-weight:800;font-size:15px} .hrow .sub2{font-size:11.5px;color:var(--ink-subtle);margin-top:2px}
+</style>
+</head><body>
+<div class="page-label">P49 · Settlement history <small>Chronological · amount, date, status, partner-appropriate reference — nothing internal</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<script>
+var L=window.PartnerLedger, ST=window.Settlement, lang='en';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function bdt(n){ var x=String(Math.round(n)); var l=x.slice(-3),r=x.slice(0,-3); if(r)r=r.replace(/\B(?=(\d{2})+(?!\d))/g,','); return '৳ '+(r?r+','+l:l); }
+function fmt(iso){ try{ return new Intl.DateTimeFormat(lang==='bn'?'bn-BD':'en-GB',{day:'numeric',month:'short',year:'numeric'}).format(new Date(iso)); }catch(e){return iso.slice(0,10);} }
+function pill(k){ var o=L.SETTLE_STATUS[k]; return '<span class="st '+o.cls+'"><span class="gl">'+o.gl+'</span>'+t(o.bn,o.en)+'</span>'; }
+function render(){
+  var lt='<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span>';
+  // include current settlement if it reached a terminal state
+  var rows=L.settlementHistory.slice();
+  var cur=ST.load(); if(cur.status==='SETTLED'||cur.status==='REJECTED'){ rows.unshift({ref:cur.ref,amountBdt:cur.amountBdt,dateUtc:'2026-07-15T00:00:00Z',status:cur.status==='SETTLED'?'settled':'rejected'}); }
+  var h='<div class="wkbar"><a class="bk" href="commission.page.html">‹</a><h2>'+L.strings[lang].settlementHistory+'</h2>'+lt+'</div>';
+  if(!rows.length){ h+='<p class="empty-note" style="margin:26px 16px">'+t('এখনো কোনো সেটেলমেন্ট নেই।','No settlements yet.')+'</p>'; }
+  rows.forEach(function(r){ h+='<div class="hrow"><div><div class="amt" style="color:'+(r.status==='settled'?'var(--success)':r.status==='rejected'?'#B4232B':'var(--ink)')+'">'+bdt(r.amountBdt)+'</div><div class="sub2">'+fmt(r.dateUtc)+' · '+r.ref+'</div></div>'+pill(r.status)+'</div>'; });
+  h+='<p class="empty-note" style="text-align:left;margin:8px 16px 16px">'+t('এই রেফারেন্সগুলো আপনার নিজের রেকর্ডের জন্য — কোনো অভ্যন্তরীণ ফিন্যান্স রেফারেন্স নয়।','These references are for your own records — not any internal finance reference.')+'</p>';
+  document.getElementById('screen').innerHTML=h;
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Customer details</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-ops.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+</head><body>
+<div class="page-label">P39 · Customer details <small>NID / photo / nominee via the SECURE repository — protected, signed access, never cached in the clear</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div id="top" style="flex:0 0 auto"></div>
+  <div class="screen" style="padding-bottom:80px" id="form"></div>
+  <div class="pbtnbar"><a class="btn ghost" href="booking-record.page.html" style="flex:0 0 auto">‹</a><a class="btn" href="offline-payment.page.html" style="flex:1">Continue</a></div>
+</div>
+<script>
+var O=window.PartnerOps, lang='en'; var K='salmon_booking_draft';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function set(k,v){ try{ var d=JSON.parse(localStorage.getItem(K))||{}; d[k]=v; localStorage.setItem(K,JSON.stringify(d)); }catch(e){} }
+function bar(){ document.getElementById('top').innerHTML=
+  '<div class="wkbar"><a class="bk" href="booking-record.page.html">‹</a><h2>'+t('কাস্টমার তথ্য','Customer details')+'</h2>'+
+  '<span class="wklang" style="display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden"><button style="border:none;background:'+(lang==='bn'?'#ffffff33':'transparent')+';color:#fdf3f1;font-size:12px;padding:5px 9px" onclick="setLang(\'bn\')">বাং</button><button style="border:none;background:'+(lang==='en'?'#ffffff33':'transparent')+';color:#fdf3f1;font-size:12px;padding:5px 9px" onclick="setLang(\'en\')">EN</button></span></div>'; }
+function up(labelBn,labelEn,hintBn,hintEn){ return '<label class="pf">'+t(labelBn,labelEn)+'</label><div class="pinp" style="height:88px;display:grid;place-items:center;border-style:dashed;color:#9a8f88;text-align:center">＋ '+t('আপলোড','Upload')+'<br><span class="sub">'+t(hintBn,hintEn)+'</span></div>'; }
+function render(){
+  bar();
+  document.getElementById('form').innerHTML=
+    up('কাস্টমার এনআইডি','Customer NID','ছবি/স্ক্যান','image/scan')+
+    up('কাস্টমার ছবি','Customer photo','পরিষ্কার ছবি','clear photo')+
+    '<label class="pf">'+t('নমিনির নাম','Nominee name')+'</label><input class="pinp" placeholder="'+t('নমিনির পুরো নাম','Nominee full name')+'" oninput="set(\'nominee\',this.value)">'+
+    '<label class="pf">'+t('নমিনির সম্পর্ক','Nominee relation')+'</label><input class="pinp" placeholder="'+t('যেমন: স্ত্রী, সন্তান','e.g. spouse, child')+'" oninput="set(\'nomineeRel\',this.value)">'+
+    up('নমিনি এনআইডি','Nominee NID','ঐচ্ছিক','optional')+
+    '<div class="lock info" style="margin:12px 16px">🔒 '+O.strings[lang].secureRepo+'</div>'+
+    '<p class="phelp">'+t('ক্লায়েন্ট KYC-এর মতো একই নিয়ম — সুরক্ষিত ফাইল, সাইনড অ্যাক্সেস।','Same discipline as client KYC — protected files, signed access.')+'</p>';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

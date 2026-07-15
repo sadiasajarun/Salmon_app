@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="bn"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Identity</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/partner-state.js"></script>
+<script src="../assets/js/territory.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+</head><body>
+<div class="page-label">P11 · Partner identity <small>His credential page — Partner ID, territory, rank, programs, join date</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div class="screen" id="screen" style="padding-bottom:20px"></div>
+</div>
+<script>
+var P=window.Partner, TZ=window.Territory, lang='en';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function fmtDate(iso){ try{ return new Intl.DateTimeFormat(lang==='bn'?'bn-BD':'en-GB',{day:'numeric',month:'short',year:'numeric'}).format(new Date(iso)); }catch(e){ return iso; } }
+function render(){
+  var I=P.identity, a=TZ.assigned, r=P.RANKS[I.rank];
+  var progs=I.programs.map(function(k){ return t(P.PROGRAMS[k].bn,P.PROGRAMS[k].en); }).join(', ');
+  document.getElementById('screen').innerHTML=
+    '<div class="wkbar"><a class="bk" href="dashboard.page.html">‹</a><h2>'+t('আমার পরিচয়','My identity')+'</h2>'+
+    '<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span></div>'+
+    '<div class="pidchip"><div class="l">'+t('পার্টনার আইডি','Partner ID')+'</div><div class="id">'+I.partnerId+'</div>'+
+      '<div style="font-family:var(--serif);font-size:16px;margin-top:8px">'+t(I.nameBn,I.name)+'</div><div class="sub">'+t(I.titleBn,I.title)+'</div></div>'+
+    '<div class="wkgrid"><a class="wktile" href="partner-territory.page.html" style="text-decoration:none;color:inherit"><div class="k">'+t('টেরিটরি','Territory')+' ›</div><div class="v" style="font-size:13px">'+t(a.districtBn+' · '+a.upazilaBn,a.districtEn+' · '+a.upazilaEn)+'</div></a>'+
+    '<a class="wktile" href="partner-rank.page.html" style="text-decoration:none;color:inherit"><div class="k">'+t('র‍্যাংক','Rank')+' ›</div><div class="v">'+t(r.bn,r.en)+'</div></a>'+
+    '<div class="wktile"><div class="k">'+t('সক্রিয় প্রোগ্রাম','Active programs')+'</div><div class="v" style="font-size:13px">'+progs+'</div></div>'+
+    '<div class="wktile"><div class="k">'+t('যোগদানের তারিখ','Join date')+'</div><div class="v" style="font-size:14px">'+fmtDate(I.joinDate)+'</div></div></div>'+
+    '<a class="btn block" href="business-card.page.html" style="margin:8px 16px 0;border-radius:10px">'+t('ডিজিটাল বিজনেস কার্ড','Digital business card')+'</a>'+
+    '<a class="btn ghost block" href="dashboard.page.html" style="margin:10px 16px 6px;border-radius:10px">'+t('ড্যাশবোর্ড','Dashboard')+'</a>'+
+    '<p style="text-align:center;padding:8px 0 16px"><a href="../shared/g02-welcome.page.html" style="color:var(--ink-subtle);font-size:13px;text-decoration:underline">'+t('লগ আউট','Log out')+'</a></p>';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>

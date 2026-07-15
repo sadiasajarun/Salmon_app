@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Salmon Partner · Request site visit</title>
+<link rel="stylesheet" href="../_shared.css"/>
+<script src="../assets/js/mock-data.js"></script>
+<script src="../assets/js/partner-sales.js"></script>
+<script src="../assets/js/network-sim.js"></script>
+</head><body>
+<div class="page-label">P34 · Request a site visit <small>Physical visit to a project/plot, linked to a project or a lead · request-then-confirm</small></div>
+<div class="device">
+  <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
+  <div id="top" style="flex:0 0 auto"></div>
+  <div class="screen" style="padding-bottom:80px" id="form"></div>
+  <div class="pbtnbar"><a class="btn ghost" href="calendar.page.html" style="flex:0 0 auto">‹</a><a class="btn" id="submit" href="#" onclick="submitReq(event)" style="flex:1">Request</a></div>
+</div>
+<script>
+var D=window.SALMON, S=window.PartnerSales, lang='en'; var K='salmon_visit_draft';
+function t(bn,en){ return lang==='bn'?bn:en; }
+function draft(){ try{ return JSON.parse(localStorage.getItem(K))||{kind:'visit'}; }catch(e){ return {kind:'visit'}; } }
+function set(k,v){ var d=draft(); d[k]=v; d.kind='visit'; try{localStorage.setItem(K,JSON.stringify(d));}catch(e){} }
+function bar(){ document.getElementById('top').innerHTML=
+  '<div class="wkbar"><a class="bk" href="calendar.page.html">‹</a><h2>'+t('সাইট ভিজিট অনুরোধ','Request a site visit')+'</h2>'+
+  '<span class="wklang" style="display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden"><button style="border:none;background:'+(lang==='bn'?'#ffffff33':'transparent')+';color:#fdf3f1;font-size:12px;padding:5px 9px" onclick="setLang(\'bn\')">বাং</button><button style="border:none;background:'+(lang==='en'?'#ffffff33':'transparent')+';color:#fdf3f1;font-size:12px;padding:5px 9px" onclick="setLang(\'en\')">EN</button></span></div>'; }
+function render(){
+  bar(); var d=draft();
+  var projOpts=D.projects.filter(function(p){return p.status!=='upcoming';}).map(function(p){return '<option value="'+p.slug+'"'+(d.projectSlug===p.slug?' selected':'')+'>'+p.name+'</option>';}).join('');
+  var leadOpts='<option value="">'+t('কোনো লিড নয়','No lead')+'</option>'+S.leads.map(function(l){return '<option value="'+l.id+'"'+(d.leadId===l.id?' selected':'')+'>'+t(l.nameBn,l.name)+' ('+l.id+')</option>';}).join('');
+  document.getElementById('form').innerHTML=
+    '<label class="pf">'+t('প্রকল্প','Project')+'</label><select class="pinp psel" onchange="set(\'projectSlug\',this.value)">'+projOpts+'</select>'+
+    '<label class="pf">'+t('সম্পর্কিত লিড','Related lead')+' <span class="opt" style="color:var(--ink-subtle);font-weight:400">'+t('(ঐচ্ছিক)','(optional)')+'</span></label><select class="pinp psel" onchange="set(\'leadId\',this.value)">'+leadOpts+'</select>'+
+    '<label class="pf">'+t('পছন্দের তারিখ ও সময়','Preferred date & time')+'</label><input class="pinp" type="datetime-local" value="'+(d.pref1||'')+'" oninput="set(\'pref1\',this.value)">'+
+    '<label class="pf">'+t('নোট','Notes')+' <span class="opt" style="color:var(--ink-subtle);font-weight:400">'+t('(যেমন: দ্বিধাগ্রস্ত ক্রেতা আনছি)','(e.g. bringing a hesitant buyer)')+'</span></label><textarea class="pinp" style="height:56px;resize:none" oninput="set(\'note\',this.value)">'+(d.note||'')+'</textarea>'+
+    '<p class="phelp">'+t('আপনি হয়তো একজন দ্বিধাগ্রস্ত ক্রেতাকে জমিতে দাঁড় করাতে আনছেন। শিডিউলার সময় নিশ্চিত করবেন।','You might be bringing a hesitant buyer to stand on the land. The scheduler confirms the time.')+'</p>';
+  document.getElementById('submit').textContent=t('অনুরোধ পাঠান','Send request');
+}
+function submitReq(e){ e.preventDefault();
+  if(window.NetSim&&NetSim.isOffline()){ alert(t('আপনি অফলাইনে — অনুরোধটি খসড়া হিসেবে সংরক্ষিত, সংযোগ ফিরলে পাঠানো হবে।','You’re offline — the request is saved as a draft and will be sent when you reconnect.')); return; }
+  window.location.href='awaiting-slot.page.html';
+}
+function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+render();
+</script>
+</body></html>
