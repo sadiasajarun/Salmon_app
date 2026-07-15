@@ -46,3 +46,6 @@ connection never loses input; submission is guarded by the network simulator and
   to reach a person now, and a preview of the identity that's coming.
 - **The business card (P12) is a real credential** — branded, print-clean, shareable as an image,
   legible at thumbnail size in a WhatsApp chat.
+
+## Dashboard hierarchy (P15 redesign)
+- **Three tiers, one hero.** Tier 1 = approved commission (largest number, the ONLY body maroon, the one primary "Request settlement" button); Tier 2 = leads as a single "N active · M moved today" row (per-status detail lives on the Leads screen — no horizontal scroller); Tier 3 = Today + Target merged on a **lighter recessed surface** so it visibly recedes. Quick actions are a fixed 2×2 grid (no horizontal scroll). One card style (.5px border, 12px radius), one 8/12/16 spacing scale. Pending settlement is supporting text, never a card. No rank progress bar, no forecast, no on-device maths. This screen sets the density standard for the whole partner app.

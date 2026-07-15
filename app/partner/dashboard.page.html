@@ -8,30 +8,88 @@
 <script src="../assets/js/partner-sales.js"></script>
 <script src="../assets/js/network-sim.js"></script>
 <style>
-  .idstrip .pid{font-size:11.5px;opacity:.85}
-  .idstrip h2{font-family:var(--serif);font-size:20px;margin:2px 0 5px}
-  .idstrip .meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:11.5px;opacity:.92}
-  .idstrip .acct{position:absolute;top:12px;right:12px;display:flex;gap:8px;align-items:center}
-  .idstrip .acct a{color:#fdf3f1;text-decoration:none}
-  .idstrip{position:relative}
-  .money{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 16px 4px}
-  .money .m{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:11px 12px}
-  .money .m .l{font-size:11px;color:var(--ink-subtle)} .money .m .v{font-size:18px;font-weight:800;margin-top:2px}
-  .leadstat{display:flex;gap:6px;padding:6px 16px 2px;overflow-x:auto}
-  .leadstat .c{flex:0 0 auto;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;text-align:center;min-width:66px}
-  .leadstat .c .n{font-size:17px;font-weight:800} .leadstat .c .k{font-size:10px;color:var(--ink-subtle);margin-top:2px}
-  .qa2{display:flex;gap:8px;overflow-x:auto;padding:10px 16px 4px}
-  .qa2 a{flex:0 0 auto;background:#f4e6ea;color:var(--primary);border-radius:999px;padding:9px 13px;font-size:12px;font-weight:600;text-decoration:none;display:flex;align-items:center;gap:6px}
-  .disp{font-size:10.5px;color:var(--ink-subtle);margin:6px 16px 0;line-height:1.4}
-  .wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden}
-  .wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:5px 9px;cursor:pointer}
+  /* ============================================================================
+   * P15 dashboard — THREE TIERS, ONE HERO.
+   *  Tier 1 hero (approved commission) = the only big number + the only body maroon.
+   *  Tier 2 pipeline = one full-width row (no per-status cards, no h-scroll).
+   *  Tier 3 = Today+Target merged on a recessed lighter surface.
+   *  Actions = fixed 2×2 grid (no h-scroll). Footer = quiet notices row.
+   *  One card style (.5px border, 12px radius), one spacing scale (8/12/16).
+   * ==========================================================================*/
+  :root{ --gap:12px; --recess:#efe9e2; --recess-line:#e4dcd2; }
+  .screen{ background:#f7f2ec; }
+  .wrap{ padding:14px 16px 16px; display:flex; flex-direction:column; gap:var(--gap); }
+
+  /* thin, quiet identity header — maroon lives HERE only */
+  .phead2{ background:linear-gradient(135deg,#800020,#5c0018); color:#fdf3f1; padding:11px 16px 13px; position:relative; }
+  .phead2 .top{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .phead2 .pid{ font-size:11px; opacity:.85; letter-spacing:.02em; }
+  .phead2 .acts{ display:flex; align-items:center; gap:8px; }
+  .phead2 .acts a{ color:#fdf3f1; text-decoration:none; }
+  .phead2 h2{ font-family:var(--serif); font-size:19px; margin:3px 0 5px; font-weight:600; }
+  .phead2 .meta{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; font-size:11.5px; opacity:.92; }
+  .phead2 .rankchip{ display:inline-flex; align-items:center; gap:4px; }
+  .wklang{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;overflow:hidden;flex:0 0 auto}
+  .wklang button{border:none;background:transparent;color:#fdf3f1;font-size:12px;padding:4px 9px;cursor:pointer}
   .wklang button.on{background:#ffffff33}
+
+  /* one card style */
+  .card{ background:#fff; border:.5px solid var(--line); border-radius:12px; padding:16px; }
+
+  /* TIER 1 — hero */
+  .hero .lbl{ font-size:11.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-subtle); }
+  .hero .num{ font-size:34px; line-height:1.05; font-weight:800; color:var(--primary); margin:7px 0 4px; letter-spacing:-.01em; word-break:break-word; }
+  .hero .pend{ font-size:13px; color:var(--ink-subtle); }
+  .hero .cta{ display:block; width:auto; text-align:center; margin:14px 0 0; padding:14px; border-radius:10px; background:var(--primary); color:#fff; font-weight:700; font-size:15px; text-decoration:none; border:none; }
+  .hero .cta.off{ background:#d9cfd2; color:#8a7a80; pointer-events:none; }
+  .hero .offreason{ font-size:11.5px; color:#a13636; margin:8px 0 0; }
+  .hero.emptyh .num{ font-size:19px; color:var(--ink); font-family:var(--serif); font-weight:600; }
+  .hero.emptyh .subm{ font-size:12.5px; color:var(--ink-subtle); margin-top:6px; line-height:1.5; }
+
+  /* stale banner (offline) */
+  .stale{ display:flex; align-items:center; gap:8px; background:#f6ecd9; border:.5px solid #e7d3a8; color:#8a6d2f; font-size:12px; border-radius:10px; padding:9px 12px; }
+
+  /* TIER 2 — pipeline (one row) */
+  .pipe{ display:flex; align-items:center; justify-content:space-between; gap:10px; text-decoration:none; color:inherit; }
+  .pipe .t{ font-size:15px; font-weight:700; color:var(--ink); }
+  .pipe .s{ font-size:12.5px; color:var(--ink-subtle); margin-top:2px; }
+  .pipe .chev{ color:var(--ink-subtle); font-size:22px; line-height:1; flex:0 0 auto; }
+
+  /* TIER 3 — recessed merged band */
+  .band{ background:var(--recess); border:.5px solid var(--recess-line); border-radius:12px; padding:14px 16px; box-shadow:inset 0 1px 2px rgba(34,17,10,.05); }
+  .band .row{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+  .band .k{ font-size:11px; color:var(--ink-subtle); }
+  .band .v{ font-size:14px; font-weight:700; color:var(--ink); margin-top:2px; }
+  .band .tgt{ text-align:right; }
+  .band .bar{ height:8px; border-radius:999px; background:#ded5c9; overflow:hidden; margin-top:11px; }
+  .band .bar i{ display:block; height:100%; background:var(--ink); }  /* charcoal, NOT maroon */
+  .band .fig{ font-size:11.5px; color:var(--ink-subtle); margin-top:7px; }
+  .band .note{ font-size:10.5px; color:var(--ink-subtle); margin-top:6px; line-height:1.4; }
+
+  /* Quick actions — fixed 2×2 grid, no h-scroll, no maroon */
+  .qgrid{ display:grid; grid-template-columns:1fr 1fr; gap:var(--gap); }
+  .qgrid a{ background:#fff; border:.5px solid var(--line); border-radius:12px; padding:14px 12px; text-decoration:none; color:var(--ink); display:flex; align-items:center; gap:10px; font-size:13.5px; font-weight:600; }
+  .qgrid a .qi{ width:30px; height:30px; border-radius:8px; background:#f4eef0; color:var(--primary); display:grid; place-items:center; font-size:15px; flex:0 0 auto; }
+
+  /* quiet footer */
+  .foot{ display:flex; align-items:center; justify-content:space-between; gap:8px; background:#fff; border:.5px solid var(--line); border-radius:12px; padding:12px 14px; text-decoration:none; color:var(--ink-subtle); font-size:13px; }
+  .foot .chev{ font-size:20px; line-height:1; }
+
+  /* dev state switcher (clearly marked) */
+  .devbar2{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; background:#efeae4; border:.5px dashed #cfc6ba; border-radius:10px; padding:7px 10px; }
+  .devbar2 .lbl{ font-size:10px; font-weight:800; letter-spacing:.06em; color:#9a9186; text-transform:uppercase; }
+  .devbar2 button{ border:.5px solid #cfc6ba; background:#fff; color:#555; border-radius:999px; padding:4px 9px; font-size:11px; cursor:pointer; }
+  .devbar2 button.on{ background:var(--ink); color:#fff; border-color:var(--ink); }
+
+  /* skeletons */
+  .sk{ background:linear-gradient(90deg,#efe9e2,#f6f2ec,#efe9e2); background-size:200% 100%; animation:sh 1.2s infinite; border-radius:8px; }
+  @keyframes sh{ 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 </style>
 </head><body>
-<div class="page-label">P15 · Partner dashboard ⭐ <small>Dense work tool · identity/leads/money/target/today/signals · figures are display-only</small></div>
+<div class="page-label">P15 · Partner dashboard ⭐ (redesigned) <small>Three tiers · one hero (approved commission) · zero h-scrollers · one body maroon</small></div>
 <div class="device">
   <div class="statusbar"><span>9:41</span><span>Salmon</span><span>●●● ▮</span></div>
-  <div class="screen" id="screen"></div>
+  <div class="screen"><div id="head"></div><div class="wrap" id="wrap"></div></div>
   <div class="bottomnav">
     <a class="nav on" href="../partner/dashboard.page.html"><svg viewBox="0 0 24 24"><path d="M4 13h6V4H4zM14 20h6V4h-6zM4 20h6v-5H4z"/></svg>Dashboard</a>
     <a class="nav" href="../partner/leads.page.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Leads</a>
@@ -40,49 +98,101 @@
   </div>
 </div>
 <script>
-var P=window.Partner, TZ=window.Territory, S=window.PartnerSales, lang='en';
+var P=window.Partner, TZ=window.Territory, S=window.PartnerSales, NS=window.NetSim;
+var lang='en', state='data';
 function t(bn,en){ return lang==='bn'?bn:en; }
 function s(k){ return S.strings[lang][k]||k; }
-function bdt(n){ var x=String(Math.round(n)); var l=x.slice(-3),r=x.slice(0,-3); if(r)r=r.replace(/\B(?=(\d{2})+(?!\d))/g,','); return '৳ '+(r?r+','+l:l); }
-function ago(iso){ try{ return new Intl.DateTimeFormat(lang==='bn'?'bn-BD':'en-GB',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit',hour12:true,timeZone:'Asia/Dhaka'}).format(new Date(iso)); }catch(e){return iso.slice(0,10);} }
-function render(){
-  var I=P.identity, a=TZ.assigned, d=S.dashboard, c=S.counts();
+function bdt(n){ var x=String(Math.round(n||0)); var l=x.slice(-3),r=x.slice(0,-3); if(r)r=r.replace(/\B(?=(\d{2})+(?!\d))/g,','); return '৳ '+(r?r+','+l:l); }
+function when(iso){ try{ return new Intl.DateTimeFormat(lang==='bn'?'bn-BD':'en-GB',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit',hour12:true,timeZone:'Asia/Dhaka'}).format(new Date(iso)); }catch(e){ return iso.slice(0,10); } }
+
+function header(){
+  var I=P.identity, a=TZ.assigned;
   var progs=I.programs.map(function(k){ return t(P.PROGRAMS[k].bn,P.PROGRAMS[k].en); }).join(', ');
-  var active=c.submitted+c.contacted+c.meetingScheduled+c.visitCompleted;
-  var pct=Math.round(d.achievedBdt/d.targetBdt*100);
   var lt='<span class="wklang"><button class="'+(lang==='bn'?'on':'')+'" onclick="setLang(\'bn\')">বাং</button><button class="'+(lang==='en'?'on':'')+'" onclick="setLang(\'en\')">EN</button></span>';
-  var h=
-    '<div class="phead idstrip"><div class="acct"><a href="partner-identity.page.html" aria-label="Account" style="font-size:18px">⚙</a>'+lt+'</div>'+
-    '<div class="pid">'+t('পার্টনার আইডি','Partner ID')+' · '+I.partnerId+'</div>'+
+  document.getElementById('head').innerHTML=
+    '<div class="phead2"><div class="top"><span class="pid">'+t('পার্টনার আইডি','Partner ID')+' · '+I.partnerId+'</span>'+
+      '<span class="acts"><a href="partner-identity.page.html" aria-label="Account" style="font-size:16px">⚙</a>'+lt+'</span></div>'+
     '<h2>'+t(I.nameBn,I.name)+'</h2>'+
-    '<div class="meta"><span class="rank">◆ '+t(P.RANKS[I.rank].bn,P.RANKS[I.rank].en)+'</span><span>'+t(a.districtBn+' › '+a.upazilaBn,a.districtEn+' › '+a.upazilaEn)+'</span><span>· '+progs+'</span></div></div>';
-  // leads by status
-  h+='<div class="sectitle" style="margin:12px 16px 2px">'+s('leads')+'</div>'+
-    '<div class="leadstat">'+S.STATUS_ORDER.map(function(k){ return '<div class="c"><div class="n"'+(k==='converted'?' style="color:var(--success)"':'')+'>'+c[k]+'</div><div class="k">'+t(S.STATUS[k].bn,S.STATUS[k].en)+'</div></div>'; }).join('')+'</div>';
-  // money (display values)
-  h+='<div class="money"><div class="m"><div class="l">'+s('approvedCommission')+'</div><div class="v" style="color:var(--primary)">'+bdt(d.approvedCommissionBdt)+'</div></div>'+
-    '<div class="m"><div class="l">'+s('pendingSettlement')+'</div><div class="v" style="color:#B7791F">'+bdt(d.pendingSettlementBdt)+'</div></div></div>'+
-    '<div class="disp">'+s('displayNote')+'</div>';
-  // target (display, no projection)
-  h+='<div class="pad" style="margin-top:8px"><div class="wktile"><div class="k">'+s('target')+' · '+t(d.periodBn,d.periodEn)+'</div>'+
-    '<div class="v" style="font-size:16px">'+bdt(d.achievedBdt)+' <span style="font-size:12px;color:var(--ink-subtle);font-weight:500">/ '+bdt(d.targetBdt)+'</span> · '+pct+'%</div>'+
-    '<div class="bar"><i style="width:'+pct+'%"></i></div></div></div>';
-  // today
-  h+='<div class="wkgrid"><div class="wktile"><div class="k">'+s('today')+'</div><div class="v">'+d.meetingsToday+' <span style="font-size:12px;font-weight:500;color:var(--ink-subtle)">'+s('meetings')+'</span></div></div>'+
-    '<div class="wktile"><div class="k">'+t('কাজ','Tasks')+'</div><div class="v">'+d.openTasks+' <span style="font-size:12px;font-weight:500;color:var(--ink-subtle)">'+s('tasks')+'</span></div></div></div>';
-  // quick actions
-  h+='<div class="sectitle" style="margin:6px 16px 0">'+s('quickActions')+'</div>'+
-    '<div class="qa2">'+S.quickActions.map(function(q){ return '<a href="'+q.link+'">'+q.icon+' '+t(q.bn,q.en)+'</a>'; }).join('')+'</div>';
-  // signals
-  h+='<div class="sectitle" style="margin:10px 16px 0">'+s('signals')+'</div><div class="rowlist" style="margin:0 16px 12px">'+
-    S.signals.map(function(g){ return '<a class="row" style="text-decoration:none;color:inherit" href="'+g.link+'"><span class="u" style="font-weight:500;font-size:13px">'+t(g.bn,g.en)+'</span><span class="sub">'+ago(g.t).split(',')[0]+'</span></a>'; }).join('')+'</div>';
-  // account + logout
-  h+='<div class="qa2" style="padding-bottom:2px"><a href="projects.page.html">🗂 '+t('সেলস ক্যাটালগ','Sales catalogue')+'</a><a href="tasks.page.html">🗓 '+t('কাজ','Tasks')+'</a><a href="targets.page.html">🎯 '+t('লক্ষ্য','Targets')+'</a><a href="training-library.page.html">📚 '+t('প্রশিক্ষণ','Training')+'</a><a href="calendar.page.html">📅 '+t('ক্যালেন্ডার','Calendar')+'</a><a href="booking-record.page.html">🧾 '+t('সেল রেকর্ড','Record a sale')+'</a><a href="notice-board.page.html">📢 '+t('নোটিশ','Notices')+'</a><a href="enrolment.page.html">📋 '+t('প্রোগ্রাম','Programs')+'</a><a href="quick-actions.page.html">⚡ '+t('দ্রুত কাজ','Quick actions')+'</a></div>'+
-    '<a class="btn ghost block" href="partner-identity.page.html" style="margin:10px 16px 8px;border-radius:10px">'+t('আমার পরিচয় ও বিজনেস কার্ড','My identity & business card')+'</a>'+
-    '<a class="btn ghost block" href="../shared/g02-welcome.page.html" style="margin:0 16px 16px;border-radius:10px">'+t('লগ আউট','Log out')+'</a>';
-  document.getElementById('screen').innerHTML=h;
+    '<div class="meta"><span class="rankchip">◆ '+t(P.RANKS[I.rank].bn,P.RANKS[I.rank].en)+'</span><span>· '+t(a.districtBn+' › '+a.upazilaBn,a.districtEn+' › '+a.upazilaEn)+'</span><span>· '+progs+'</span></div></div>';
 }
+
+function skel(){
+  return '<div class="card"><div class="sk" style="height:12px;width:55%"></div><div class="sk" style="height:34px;width:60%;margin:10px 0 6px"></div><div class="sk" style="height:12px;width:40%"></div><div class="sk" style="height:46px;margin-top:14px"></div></div>'+
+    '<div class="card"><div class="sk" style="height:16px;width:70%"></div></div>'+
+    '<div class="band"><div class="sk" style="height:14px;width:80%"></div><div class="sk" style="height:8px;margin-top:12px"></div></div>'+
+    '<div class="qgrid">'+Array(4).fill('<div class="card"><div class="sk" style="height:18px"></div></div>').join('')+'</div>';
+}
+
+function devbar(){
+  var opts=[['loading','Loading'],['data','Data'],['empty','Empty'],['error','Error'],['offline','Offline']];
+  return '<div class="devbar2"><span class="lbl">'+s('devState')+'</span>'+opts.map(function(o){ return '<button class="'+(state===o[0]?'on':'')+'" onclick="setState(\''+o[0]+'\')">'+o[1]+'</button>'; }).join('')+'</div>';
+}
+
+function render(){
+  header();
+  var offline = state==='offline' || (NS && NS.isOffline && NS.isOffline() && state==='data');
+  var d = state==='empty' ? S.emptyDashboard : S.dashboard;
+  var w=document.getElementById('wrap'); w.innerHTML='';
+  var h=devbar();
+
+  if(state==='loading'){ w.innerHTML=h+skel(); return; }
+  if(state==='error'){
+    w.innerHTML=h+'<div class="card" style="text-align:center;padding:30px 18px"><div style="font-size:30px">⚠</div>'+
+      '<div style="font-family:var(--serif);font-size:18px;margin:8px 0 4px">'+s('errTitle')+'</div>'+
+      '<div style="color:var(--ink-subtle);font-size:13px">'+s('errSub')+'</div>'+
+      '<a class="btn block" href="#" onclick="setState(\'data\');return false" style="max-width:180px;margin:16px auto 0;border-radius:10px">'+s('retry')+'</a></div>';
+    return;
+  }
+
+  var empty = state==='empty';
+  var pct = Math.round(d.achievedBdt/d.targetBdt*100);
+
+  // offline stale banner
+  if(offline) h+='<div class="stale">⏳ <span>'+s('staleUpdated')+' '+when(d.lastSyncUtc)+' '+t('(ঢাকা)','(Dhaka)')+'</span></div>';
+
+  // TIER 1 — hero
+  if(empty){
+    h+='<div class="card hero emptyh"><div class="lbl">'+s('approvedCommission')+'</div>'+
+      '<div class="num">'+s('emptyHero')+'</div><div class="subm">'+s('emptyHeroSub')+'</div></div>';
+  } else {
+    var ctaCls = offline ? 'cta off' : 'cta';
+    h+='<div class="card hero"><div class="lbl">'+s('approvedReady')+'</div>'+
+      '<div class="num">'+bdt(d.approvedCommissionBdt)+'</div>'+
+      '<div class="pend">'+bdt(d.pendingSettlementBdt)+' '+s('pendingSuffix')+'</div>'+
+      '<a class="'+ctaCls+'" '+(offline?'':'href="request-settlement.page.html"')+'>'+s('requestSettlement')+'</a>'+
+      (offline?'<div class="offreason">'+s('offlineSettle')+'</div>':'')+'</div>';
+  }
+
+  // TIER 2 — pipeline (one row)
+  var pipeSub = empty ? s('emptyLeads')
+    : (d.activeLeads+' '+s('active')+' · '+(d.movedToday>0 ? (d.movedToday+' '+s('moved')) : s('nothingMoved')));
+  h+='<a class="card pipe" href="leads.page.html"><div><div class="t">'+s('leads')+'</div><div class="s">'+pipeSub+'</div></div><span class="chev">›</span></a>';
+
+  // TIER 3 — recessed Today+Target band
+  h+='<div class="band"><div class="row">'+
+      '<div><div class="k">'+s('todayWord')+'</div><div class="v">'+d.meetingsToday+' '+s('meetingsShort')+' · '+d.openTasks+' '+s('tasksShort')+'</div></div>'+
+      '<div class="tgt"><div class="k">'+s('targetWord')+' · '+t(d.periodBn,d.periodEn)+'</div><div class="v">'+pct+'%</div></div></div>'+
+      '<div class="bar"><i style="width:'+pct+'%"></i></div>'+
+      '<div class="fig">'+bdt(d.achievedBdt)+' / '+bdt(d.targetBdt)+'</div>'+
+      '<div class="note">'+s('displayNote')+'</div></div>';
+
+  // Quick actions — fixed 2×2, no h-scroll
+  var qa=[['submit-lead.page.html','👤',s('qaSubmit')],['request-meeting.page.html','📅',s('qaMeeting')],['sales-kit.page.html','🧰',s('qaKit')],['raise-ticket.page.html','🎫',s('qaSupport')]];
+  h+='<div class="qgrid">'+qa.map(function(q){ return '<a href="'+q[0]+'"><span class="qi">'+q[1]+'</span>'+q[2]+'</a>'; }).join('')+'</div>';
+
+  // quiet footer
+  if(!empty && d.noticesCount>0){
+    var fx=d.noticesCount+' '+s('notices')+(d.newUnits?' · '+s('newUnitsWord'):'');
+    h+='<a class="foot" href="notice-board.page.html">🔔 '+fx+'<span class="chev">›</span></a>';
+  } else {
+    h+='<a class="foot" href="notice-board.page.html">🔔 '+s('noSignals')+'<span class="chev">›</span></a>';
+  }
+
+  w.innerHTML=h;
+}
+function setState(st){ state=st; render(); }
 function setLang(l){ lang=l; document.documentElement.lang=l; render(); }
+document.addEventListener('netchange', function(){ if(state==='data') render(); });
 render();
 </script>
 </body></html>

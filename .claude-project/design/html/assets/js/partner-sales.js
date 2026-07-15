@@ -37,13 +37,28 @@
   function counts() { var c = {}; STATUS_ORDER.forEach(function (s) { c[s] = 0; }); leads.forEach(function (l) { c[l.status]++; }); return c; }
 
   // Dashboard — ALL backend-supplied display values. No client computation.
+  // A FULL-PIPELINE partner (Shahin): money waiting, leads active, target underway.
   var dashboard = {
-    approvedCommissionBdt: 184000,   // display value
-    pendingSettlementBdt: 42000,     // display value
+    approvedCommissionBdt: 184000,   // display value — the ONE hero number
+    pendingSettlementBdt: 42000,     // display value — supporting text only
     targetBdt: 1000000,              // period target (rule undefined)
     achievedBdt: 620000,             // display value (NOT computed here)
     periodEn: 'Q3 2026', periodBn: 'তৃতীয় প্রান্তিক ২০২৬',
     meetingsToday: 2, openTasks: 5,
+    activeLeads: 4, movedToday: 1,   // display values (per-status detail on Leads screen)
+    noticesCount: 2, newUnits: true, // quiet footer signals
+    lastSyncUtc: '2026-07-14T11:40:00Z', // for the offline "stale" timestamp
+    __PLACEHOLDER: true
+  };
+
+  // An EMPTY new partner: approved yet, no leads — the hero becomes encouraging.
+  var emptyDashboard = {
+    approvedCommissionBdt: 0, pendingSettlementBdt: 0,
+    targetBdt: 1000000, achievedBdt: 0,
+    periodEn: 'Q3 2026', periodBn: 'তৃতীয় প্রান্তিক ২০২৬',
+    meetingsToday: 0, openTasks: 0,
+    activeLeads: 0, movedToday: 0, noticesCount: 0, newUnits: false,
+    lastSyncUtc: '2026-07-14T11:40:00Z',
     __PLACEHOLDER: true
   };
 
@@ -64,7 +79,7 @@
 
   root.PartnerSales = {
     STATUS_ORDER: STATUS_ORDER, STATUS: STATUS, leads: leads, counts: counts,
-    dashboard: dashboard, signals: signals, quickActions: quickActions,
+    dashboard: dashboard, emptyDashboard: emptyDashboard, signals: signals, quickActions: quickActions,
     find: function (id) { return leads.filter(function (l) { return l.id === id; })[0] || null; },
     strings: {
       en: { dashboard:'Dashboard', leads:'Leads', pipeline:'My pipeline', submitLead:'Submit a lead', quickActions:'Quick actions',
@@ -73,14 +88,34 @@
         displayNote:'Figures are supplied by Salmon — shown here, not calculated in the app.',
         emptyTitle:'No leads yet', emptySub:'Submit your first lead — then track it here as Salmon’s team moves it forward.',
         submitFirst:'Submit your first lead', getKit:'Get sales material first',
-        whatNext:'What happens next', consentTitle:'Confirm consent to share', reference:'Reference' },
+        whatNext:'What happens next', consentTitle:'Confirm consent to share', reference:'Reference',
+        // --- redesigned dashboard (three-tier) ---
+        approvedReady:'Approved · ready to request', pendingSuffix:'pending settlement',
+        requestSettlement:'Request settlement', active:'active', moved:'moved today', nothingMoved:'no moves today',
+        todayWord:'Today', targetWord:'Target', meetingsShort:'meetings', tasksShort:'tasks',
+        qaSubmit:'Submit a lead', qaMeeting:'Request a meeting', qaKit:'Sales kit', qaSupport:'Support',
+        notices:'notices', newUnitsWord:'new units', noSignals:'No new updates',
+        staleUpdated:'Cached · updated', offlineSettle:'You need a connection to request settlement.',
+        emptyHero:'Your approved earnings will appear here', emptyHeroSub:'A verified conversion becomes commission you can request.',
+        emptyLeads:'No leads yet — submit your first', errTitle:'Couldn’t load', errSub:'Check your connection and try again.', retry:'Retry',
+        devState:'DEV state' },
       bn: { dashboard:'ড্যাশবোর্ড', leads:'লিড', pipeline:'আমার পাইপলাইন', submitLead:'লিড জমা দিন', quickActions:'দ্রুত কাজ',
         approvedCommission:'অনুমোদিত কমিশন', pendingSettlement:'বকেয়া সেটেলমেন্ট', target:'লক্ষ্য বনাম অর্জন',
         today:'আজ', meetings:'মিটিং', tasks:'খোলা কাজ', signals:'সাম্প্রতিক কার্যকলাপ', programs:'প্রোগ্রাম',
         displayNote:'সংখ্যাগুলো স্যামন সরবরাহ করে — এখানে শুধু দেখানো হয়, অ্যাপে হিসাব করা হয় না।',
         emptyTitle:'এখনো কোনো লিড নেই', emptySub:'আপনার প্রথম লিড জমা দিন — এরপর স্যামনের টিম এগিয়ে নিলে এখানে ট্র্যাক করুন।',
         submitFirst:'প্রথম লিড জমা দিন', getKit:'আগে সেলস উপকরণ নিন',
-        whatNext:'এরপর কী হবে', consentTitle:'শেয়ারের সম্মতি নিশ্চিত করুন', reference:'রেফারেন্স' }
+        whatNext:'এরপর কী হবে', consentTitle:'শেয়ারের সম্মতি নিশ্চিত করুন', reference:'রেফারেন্স',
+        // --- redesigned dashboard (three-tier) ---
+        approvedReady:'অনুমোদিত · উত্তোলনের জন্য প্রস্তুত', pendingSuffix:'বকেয়া সেটেলমেন্ট',
+        requestSettlement:'সেটেলমেন্ট অনুরোধ', active:'সক্রিয়', moved:'আজ এগিয়েছে', nothingMoved:'আজ কিছু এগোয়নি',
+        todayWord:'আজ', targetWord:'লক্ষ্য', meetingsShort:'মিটিং', tasksShort:'কাজ',
+        qaSubmit:'লিড জমা দিন', qaMeeting:'মিটিং অনুরোধ', qaKit:'সেলস কিট', qaSupport:'সহায়তা',
+        notices:'নোটিশ', newUnitsWord:'নতুন ইউনিট', noSignals:'নতুন কোনো আপডেট নেই',
+        staleUpdated:'ক্যাশড · সর্বশেষ', offlineSettle:'সেটেলমেন্ট অনুরোধ করতে সংযোগ দরকার।',
+        emptyHero:'আপনার অনুমোদিত আয় এখানে দেখা যাবে', emptyHeroSub:'একটি যাচাইকৃত রূপান্তর কমিশনে পরিণত হয়, যা আপনি উত্তোলনের অনুরোধ করতে পারেন।',
+        emptyLeads:'এখনো কোনো লিড নেই — প্রথমটি জমা দিন', errTitle:'লোড হয়নি', errSub:'সংযোগ দেখে আবার চেষ্টা করুন।', retry:'আবার চেষ্টা',
+        devState:'ডেভ স্টেট' }
     }
   };
 })(window);
