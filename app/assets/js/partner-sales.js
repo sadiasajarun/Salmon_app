@@ -65,8 +65,7 @@
   var signals = [
     { en: 'Lead “Rahim Uddin” was contacted', bn: 'লিড “রহিম উদ্দিন”-এর সাথে যোগাযোগ হয়েছে', t: '2026-07-13T09:00:00Z', link: 'lead-detail.page.html?id=LD-3038' },
     { en: 'Commission approved · Bellissimo', bn: 'কমিশন অনুমোদিত · বেলিসিমো', t: '2026-07-08T10:00:00Z', link: 'commission.page.html' },
-    { en: 'New units released · The ROSSA', bn: 'নতুন ইউনিট এসেছে · দ্য রোসা', t: '2026-07-12T06:00:00Z', link: 'inventory.page.html?slug=the-rossa' },
-    { en: 'Notice: Eid office hours', bn: 'নোটিশ: ঈদের অফিস সময়', t: '2026-07-01T06:00:00Z', link: 'notice-board.page.html' }
+    { en: 'New units released · The ROSSA', bn: 'নতুন ইউনিট এসেছে · দ্য রোসা', t: '2026-07-12T06:00:00Z', link: 'inventory.page.html?slug=the-rossa' }
   ];
 
   var quickActions = [

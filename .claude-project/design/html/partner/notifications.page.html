@@ -22,7 +22,7 @@
 </div>
 <script>
 var Y=window.PartnerSystem, lang='en';
-var ICON={approval:'✓',lead:'👤',task:'✅',commission:'▤',settlement:'⇄',meeting:'📅',notice:'📢'};
+var ICON={approval:'✓',lead:'👤',task:'✅',commission:'▤',settlement:'⇄',meeting:'📅'};
 function t(bn,en){ return lang==='bn'?bn:en; }
 function s(k){ return Y.strings[lang][k]||k; }
 function when(iso){ try{ return new Intl.DateTimeFormat(lang==='bn'?'bn-BD':'en-GB',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit',hour12:true,timeZone:'Asia/Dhaka'}).format(new Date(iso))+' '+t('(ঢাকা)','(Dhaka)'); }catch(e){ return iso.slice(0,10); } }

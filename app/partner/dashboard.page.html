@@ -13,7 +13,7 @@
    *  Tier 1 hero (approved commission) = the only big number + the only body maroon.
    *  Tier 2 pipeline = one full-width row (no per-status cards, no h-scroll).
    *  Tier 3 = Today+Target merged on a recessed lighter surface.
-   *  Actions = fixed 2×2 grid (no h-scroll). Footer = quiet notices row.
+   *  Actions = fixed 2×2 grid (no h-scroll).
    *  One card style (.5px border, 12px radius), one spacing scale (8/12/16).
    * ==========================================================================*/
   :root{ --gap:12px; --recess:#efe9e2; --recess-line:#e4dcd2; }
@@ -43,6 +43,7 @@
   .hero .cta{ display:block; width:auto; text-align:center; margin:14px 0 0; padding:14px; border-radius:10px; background:var(--primary); color:#fff; font-weight:700; font-size:15px; text-decoration:none; border:none; }
   .hero .cta.off{ background:#d9cfd2; color:#8a7a80; pointer-events:none; }
   .hero .offreason{ font-size:11.5px; color:#a13636; margin:8px 0 0; }
+  .hero .histlink{ display:block; text-align:center; margin:12px 0 0; font-size:13px; font-weight:600; color:var(--primary); text-decoration:none; }
   .hero.emptyh .num{ font-size:19px; color:var(--ink); font-family:var(--serif); font-weight:600; }
   .hero.emptyh .subm{ font-size:12.5px; color:var(--ink-subtle); margin-top:6px; line-height:1.5; }
 
@@ -70,10 +71,6 @@
   .qgrid{ display:grid; grid-template-columns:1fr 1fr; gap:var(--gap); }
   .qgrid a{ background:#fff; border:.5px solid var(--line); border-radius:12px; padding:14px 12px; text-decoration:none; color:var(--ink); display:flex; align-items:center; gap:10px; font-size:13.5px; font-weight:600; }
   .qgrid a .qi{ width:30px; height:30px; border-radius:8px; background:#f4eef0; color:var(--primary); display:grid; place-items:center; font-size:15px; flex:0 0 auto; }
-
-  /* quiet footer */
-  .foot{ display:flex; align-items:center; justify-content:space-between; gap:8px; background:#fff; border:.5px solid var(--line); border-radius:12px; padding:12px 14px; text-decoration:none; color:var(--ink-subtle); font-size:13px; }
-  .foot .chev{ font-size:20px; line-height:1; }
 
   /* dev state switcher (clearly marked) */
   .devbar2{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; background:#efeae4; border:.5px dashed #cfc6ba; border-radius:10px; padding:7px 10px; }
@@ -160,6 +157,7 @@ function render(){
       '<div class="num">'+bdt(d.approvedCommissionBdt)+'</div>'+
       '<div class="pend">'+bdt(d.pendingSettlementBdt)+' '+s('pendingSuffix')+'</div>'+
       '<a class="'+ctaCls+'" '+(offline?'':'href="request-settlement.page.html"')+'>'+s('requestSettlement')+'</a>'+
+      '<a class="histlink" href="settlement-history.page.html">'+t('সেটেলমেন্ট ইতিহাস','Settlement history')+' ›</a>'+
       (offline?'<div class="offreason">'+s('offlineSettle')+'</div>':'')+'</div>';
   }
 
@@ -179,14 +177,6 @@ function render(){
   // Quick actions — fixed 2×2, no h-scroll
   var qa=[['submit-lead.page.html','👤',s('qaSubmit')],['request-meeting.page.html','📅',s('qaMeeting')],['sales-kit.page.html','🧰',s('qaKit')],['raise-ticket.page.html','🎫',s('qaSupport')]];
   h+='<div class="qgrid">'+qa.map(function(q){ return '<a href="'+q[0]+'"><span class="qi">'+q[1]+'</span>'+q[2]+'</a>'; }).join('')+'</div>';
-
-  // quiet footer
-  if(!empty && d.noticesCount>0){
-    var fx=d.noticesCount+' '+s('notices')+(d.newUnits?' · '+s('newUnitsWord'):'');
-    h+='<a class="foot" href="notice-board.page.html">🔔 '+fx+'<span class="chev">›</span></a>';
-  } else {
-    h+='<a class="foot" href="notice-board.page.html">🔔 '+s('noSignals')+'<span class="chev">›</span></a>';
-  }
 
   w.innerHTML=h;
 }
